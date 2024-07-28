@@ -1,0 +1,15 @@
+{
+  "name": "@dvg/ncs",
+  "version": "0.0.0",
+  "description": "",
+  "type": "module",
+  "main": "./index.js",
+  "types": "./index.d.ts",
+  "scripts": {
+    "build": "rm -rf dist/* && cp package.json dist/package.json && cd ./src && npx tsc && npm run cp-css ",
+    "compile": "npm run cp-css && cd ./src && npx tsc --watch",
+    "cp-css": "cd src && for file in $(find ./ -name '*.css')  \n do \n cp ${file} ../dist/${file} \n done"
+ 
+  },
+  "author": "Divine Star Software"
+}

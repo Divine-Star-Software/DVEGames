@@ -1,0 +1,28 @@
+{
+  "name": "divinevoxelgames",
+  "version": "0.0.0",
+  "main": "index.js",
+  "scripts": {
+    "init:dvg:core": "cd ./packages/core ; npm run build ; cd ../../ ; npm init -y --scope @dvg -w ./packages/core/dist",
+    "init:dvg:ncs": "cd ./packages/ncs ; npm run build ; cd ../../ ; npm init -y --scope @dvg -w ./packages/ncs/dist",
+    "init:dvg:dimensions": "cd ./packages/dimensions ; npm run build ; cd ../../ ; npm init -y --scope @dvg -w ./packages/dimensions/dist",
+    "init:dvg:gl": "cd ./packages/gl ; npm run build ; cd ../../ ; npm init -y --scope @dvg -w ./packages/gl/dist",
+    "init:dvg:starcom": "cd ./packages/starcom ; npm run build ; cd ../../ ; npm init -y --scope @dvg -w ./packages/starcom/dist",
+    "init:dvg:loader": "cd ./packages/loader ; npm run build ; cd ../../ ; npm init -y --scope @dvg -w ./packages/loader/dist"
+  },
+  "author": "Divine Star Software",
+  "license": "Copyright",
+  "workspaces": [
+    "packages\\core\\dist",
+    "packages\\loader\\dist",
+    "packages\\dimensions\\dist",
+    "packages\\ncs\\dist"
+  ],
+  "dependencies": {
+    "@types/node": "^20.11.28",
+    "steamworks.js": "^0.3.1",
+    "ws": "^8.14.2",
+    "jimp": "^0.22.8"
+  },
+  "devDependencies": {}
+}
