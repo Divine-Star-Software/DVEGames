@@ -4,6 +4,6 @@ declare module "@amodx/ncs/" {
   interface GraphDependencies {
     scene: Scene;
     engine: Engine;
-    utilLayer:UtilityLayerRenderer
+    utilLayer: UtilityLayerRenderer;
   }
 }

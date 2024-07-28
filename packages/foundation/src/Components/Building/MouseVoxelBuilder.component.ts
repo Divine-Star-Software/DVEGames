@@ -1,7 +1,7 @@
 import { NCS, NodeInstance } from "@amodx/ncs";
-import { VoxelMousePickComponent } from "../Interaction/VoxelMousePick.component";
-import { VoxelRemoverComponent } from "../Interaction/VoxelRemover.component";
-import { VoxelPlacerComponent } from "../Interaction/VoxelPlacer.component";
+import { VoxelMousePickComponent } from "../Voxels/Interaction/VoxelMousePick.component";
+import { VoxelRemoverComponent } from "../Voxels/Interaction/VoxelRemover.component";
+import { VoxelPlacerComponent } from "../Voxels/Interaction/VoxelPlacer.component";
 import { Vector3Like } from "@amodx/math";
 interface Schema {
 }

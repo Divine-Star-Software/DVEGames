@@ -1,5 +1,5 @@
 {
-  "name": "@dvg/ncs",
+  "name": "@dvegames/foundation",
   "version": "0.0.0",
   "description": "",
   "type": "module",
@@ -11,5 +11,8 @@
     "cp-css": "cd src && for file in $(find ./ -name '*.css')  \n do \n cp ${file} ../dist/${file} \n done"
  
   },
-  "author": "Divine Star Software"
+  "author": "Divine Star Software",
+  "publishConfig": {
+    "access": "public"
+   }
 }

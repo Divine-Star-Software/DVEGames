@@ -20,7 +20,6 @@ class Logic {
     const { position, scale } = TransformComponent.get(
       this.component.node
     )!.schema;
-    console.log("STORE THE TEMPLATE");
     const { dimension } = this.component.schema;
     this.component.data.template = VoxelTemplator.createTemplate(
       dimension,
@@ -35,17 +34,11 @@ class Logic {
         position.z + scale.z / 2,
       ]
     );
-    console.log(this.component.data.template);
   }
   async build(template: VoxelTemplate) {
     const { position, scale } = TransformComponent.get(
       this.component.node
     )!.schema;
-    console.log("BUILD THE TMEPLATE", template, [
-      position.x - scale.x / 2,
-      position.y - scale.y / 2,
-      position.z - scale.z / 2,
-    ]);
     await Tasks.buildTemplate(
       this.component.schema.dimension,
       [
