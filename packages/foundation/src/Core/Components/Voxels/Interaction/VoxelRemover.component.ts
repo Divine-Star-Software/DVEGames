@@ -10,12 +10,12 @@ class Data {}
 class Logic {
   constructor(public component: (typeof VoxelRemoverComponent)["default"]) {}
 
-  async run(pickedPosition: Vec3Array) {
+  async run(start: Vec3Array, end?: Vec3Array) {
     await Tasks.removeVoxel(
       DimensionProviderComponent.get(this.component.node)?.schema.dimension ||
         "main",
-      [pickedPosition[0], pickedPosition[1], pickedPosition[2]],
-      [pickedPosition[0] + 1, pickedPosition[1] + 1, pickedPosition[2] + 1]
+      start,
+      end || [start[0] + 1, start[1] + 1, start[2] + 1]
     );
   }
 }

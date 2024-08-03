@@ -1,15 +1,17 @@
 import { NCS, NodeInstance } from "@amodx/ncs";
-import { VoxelMousePickComponent } from "../Voxels/Interaction/VoxelMousePick.component";
-import { VoxelRemoverComponent } from "../Voxels/Interaction/VoxelRemover.component";
-import { VoxelPlacerComponent } from "../Voxels/Interaction/VoxelPlacer.component";
+import { VoxelMousePickComponent } from "../../../Core/Components/Voxels/Interaction/VoxelMousePick.component";
+import { VoxelRemoverComponent } from "../../../Core/Components/Voxels/Interaction/VoxelRemover.component";
+import { VoxelPlacerComponent } from "../../../Core/Components/Voxels/Interaction/VoxelPlacer.component";
 import { Vector3Like } from "@amodx/math";
-interface Schema {
-}
+interface Schema {}
 interface Data {
   readonly node: NodeInstance | null;
 }
-export const MouseVoxelBuilderComponent = NCS.registerComponent<Schema, Data>({
-  type: "mouse-voxel-builder",
+export const MouseVoxelBuilderSingleToolComponent = NCS.registerComponent<
+  Schema,
+  Data
+>({
+  type: "mouse-voxel-builder-signle-tool",
   schema: [],
 
   init(component) {
@@ -36,7 +38,9 @@ export const MouseVoxelBuilderComponent = NCS.registerComponent<Schema, Data>({
     window.addEventListener("keyup", keyup);
 
     VoxelMousePickComponent.get(component.node)!.data.voxelPicked.subscribe(
+      component,
       ({ button, data: { pickedPosition, pickedNormal } }) => {
+        console.log("single picked");
         if (!enabled) return;
         if (button == 0) {
           remover.logic.run(pickedPosition);
@@ -48,7 +52,10 @@ export const MouseVoxelBuilderComponent = NCS.registerComponent<Schema, Data>({
     );
 
     component.observers.disposed.subscribeOnce(() => {
-
+      console.log("DISPOSE SIGNLE COMPONENTN");
+      VoxelMousePickComponent.get(component.node)!.data.voxelPicked.unsubscribe(
+        component
+      );
       window.removeEventListener("keydown", keydown);
       window.removeEventListener("keyup", keyup);
     });

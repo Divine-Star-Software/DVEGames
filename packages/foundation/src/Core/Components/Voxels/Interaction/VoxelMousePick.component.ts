@@ -3,6 +3,7 @@ import { VoxelInersectionComponent } from "./VoxelIntersection.component";
 import { Observable } from "@amodx/core/Observers";
 import { Matrix } from "@babylonjs/core/Maths/math.vector";
 import { Vector3Like } from "@amodx/math";
+import { RendererContext } from "../.././../Contexts/Renderer.context";
 
 class Data {
   dimension: string;
@@ -18,7 +19,7 @@ export const VoxelMousePickComponent = NCS.registerComponent<{}, Data>({
   init(component) {
     const intersection = VoxelInersectionComponent.get(component.node)!;
 
-    const { scene, engine } = component.getDependencies();
+    const { scene, engine } = RendererContext.getRequired(component.node).data
 
     const canvas = engine.getRenderingCanvas()!;
 

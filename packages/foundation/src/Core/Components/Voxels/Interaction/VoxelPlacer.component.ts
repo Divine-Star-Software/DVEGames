@@ -10,16 +10,12 @@ interface Schema {}
 class Logic {
   constructor(public component: (typeof VoxelPlacerComponent)["default"]) {}
 
-  async run(position: Vec3Array) {
-    console.log(
-      VoxelPaintDataComponent.get(this.component.node)!.schema,
-      VoxelPaintDataComponent.get(this.component.node)!.schema.toJSON()
-    );
+  async run(start: Vec3Array, end?: Vec3Array) {
     await Tasks.placeVoxel(
       DimensionProviderComponent.get(this.component.node)?.schema.dimension ||
         "main",
-      position,
-      [position[0] + 1, position[1] + 1, position[2] + 1],
+      start,
+      end || [start[0] + 1, start[1] + 1, start[2] + 1],
       VoxelPaintDataComponent.get(this.component.node)!.schema.toJSON()
     );
   }
