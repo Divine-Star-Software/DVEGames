@@ -5,5 +5,5 @@ interface Schema {
 }
 export const DimensionProviderComponent = NCS.registerComponent<Schema, {}>({
   type: "dimension-provider",
-  schema: [StringProp("dimension")],
+  schema: [StringProp("dimension", { value: "main" })],
 });

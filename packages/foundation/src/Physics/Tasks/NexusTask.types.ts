@@ -7,8 +7,9 @@ export enum NexusTasksIds {
 
 export type RegisterColliderTasks = [
   data: NodeData,
-  sharedTransform: SharedArrayBuffer,
-  sharedPhysicsBody: SharedArrayBuffer
+  sharedTransform: ArrayBufferLike,
+  sharedPhysicsBody: ArrayBufferLike,
+  sharedColliderState: ArrayBufferLike
 ];
 
 export type RemoveColliderTasks = [id: string];

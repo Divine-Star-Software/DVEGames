@@ -7,8 +7,6 @@ type BoxPhysicsBodyDataSchema = {
   size: Vector3Like;
 };
 
-type BoxPhysicsBodyData = {};
-
 export const BoxColliderComponent =
   NCS.registerComponent<BoxPhysicsBodyDataSchema>({
     type: "box-collider",
@@ -16,5 +14,4 @@ export const BoxColliderComponent =
       Vec3Prop("offset"),
       Vec3Prop("size", { value: Vector3Like.Create(1, 1, 1) }),
     ],
-    init(component) {},
   });

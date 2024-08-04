@@ -2,7 +2,10 @@ import { Graph, NCS } from "@amodx/ncs/";
 import { DivineVoxelEngineNexus } from "@divinevoxel/foundation/Contexts/Nexus/DivineVoxelEngineNexus";
 import { NexusContext } from "../../Core/Contexts/Nexus.context";
 import { PhysicsSystems } from "./Systems/PhysicsSystem";
+import { PhysicsDataTool } from "./Classes/PhysicsDataTool";
 
+import "./Colliders/DefaultCollider";
+import "../../Core/Components/Providers/DimensionProvider.component";
 let loopHandle: any;
 let isRunning = false;
 const updateLoop = () => {
@@ -27,10 +30,12 @@ export class DVEPhysics {
   }
 
   static start() {
-    console.log("START PHYSICS SYSTEM");
     PhysicsSystems.set(this.graph);
     isRunning = true;
     updateLoop();
+
+    const dt = new PhysicsDataTool();
+    dt.setDimension("grass-field");
   }
 
   static stop() {

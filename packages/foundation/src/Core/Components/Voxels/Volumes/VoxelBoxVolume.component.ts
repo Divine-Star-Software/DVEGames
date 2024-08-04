@@ -3,7 +3,7 @@ import { NCS } from "@amodx/ncs/";
 import { TransformComponent } from "../../Base/Transform.component";
 type Schema = {};
 class Logic {
-  constructor(public component: (typeof VoxelCubeVolumeComponent)["default"]) {}
+  constructor(public component: (typeof VoxelBoxVolumeComponent)["default"]) {}
   getPoints(): [Vec3Array, Vec3Array] {
     const { position, scale } = TransformComponent.get(
       this.component.node
@@ -26,12 +26,12 @@ class Logic {
   }
 }
 
-export const VoxelCubeVolumeComponent = NCS.registerComponent<
+export const VoxelBoxVolumeComponent = NCS.registerComponent<
   Schema,
   {},
   Logic
 >({
-  type: "voxel-cube-volume",
+  type: "voxel-box-volume",
   schema: [],
   logic: (component): Logic => new Logic(component),
 });

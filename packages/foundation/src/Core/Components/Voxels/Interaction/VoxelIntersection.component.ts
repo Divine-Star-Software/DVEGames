@@ -1,7 +1,7 @@
 import { Vec3Array } from "@amodx/math";
 import { DataTool } from "@divinevoxel/foundation/Default/Tools/Data/DataTool";
 import { ComponentData, NCS } from "@amodx/ncs/";
-import { DimensionProviderComponent } from "../../Base/DimensionProvider.component";
+import { DimensionProviderComponent } from "../../Providers/DimensionProvider.component";
 
 class Data {
   pickedPosition: Vec3Array;

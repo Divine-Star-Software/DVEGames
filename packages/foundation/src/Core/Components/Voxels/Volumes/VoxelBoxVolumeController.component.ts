@@ -10,8 +10,9 @@ import {
 
 import { TransformComponent } from "../../Base/Transform.component";
 import { SelectProp } from "@amodx/schemas";
-import { VoxelCubeVolumeMeshComponent } from "./VoxelCubeVolumeMesh.component";
+import { VoxelBoxVolumeMeshComponent } from "./VoxelBoxVolumeMesh.component";
 import { RendererContext } from "../../../Contexts/Renderer.context";
+import { BabylonContext } from "../../../../Babylon/Contexts/Babylon.context";
 
 interface Schema {
   mode: "position" | "scale";
@@ -22,11 +23,11 @@ class Data {
   scaleGizmo: ScaleGizmo | null;
 }
 
-export const VoxelCubeVolumeControllerComponent = NCS.registerComponent<
+export const VoxelBoxVolumeControllerComponent = NCS.registerComponent<
   Schema,
   Data
 >({
-  type: "voxel-cube-volume-controller",
+  type: "voxel-box-volume-controller",
   schema: [
     SelectProp("mode", {
       value: "position",
@@ -35,13 +36,13 @@ export const VoxelCubeVolumeControllerComponent = NCS.registerComponent<
   ],
   data: () => new Data(),
   init(component) {
-    const context = RendererContext.getRequired(component.node).data;
+    const context = BabylonContext.getRequired(component.node).data;
 
     const { scene } = context;
     if (!context.utilLayer) {
       context.utilLayer = new UtilityLayerRenderer(scene);
     }
-    const volumeMesh = VoxelCubeVolumeMeshComponent.get(component.node)!;
+    const volumeMesh = VoxelBoxVolumeMeshComponent.get(component.node)!;
     const transformComponent = TransformComponent.get(component.node)!;
 
     const box = volumeMesh.data.box;

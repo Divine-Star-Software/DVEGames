@@ -1,9 +1,9 @@
-import { ComponentData, NCS } from "@amodx/ncs/";
+import { NCS } from "@amodx/ncs/";
 import { VoxelInersectionComponent } from "./VoxelIntersection.component";
 import { Observable } from "@amodx/core/Observers";
 import { Matrix } from "@babylonjs/core/Maths/math.vector";
 import { Vector3Like } from "@amodx/math";
-import { RendererContext } from "../.././../Contexts/Renderer.context";
+import { BabylonContext } from "../../../../Babylon/Contexts/Babylon.context";
 
 class Data {
   dimension: string;
@@ -19,7 +19,7 @@ export const VoxelMousePickComponent = NCS.registerComponent<{}, Data>({
   init(component) {
     const intersection = VoxelInersectionComponent.get(component.node)!;
 
-    const { scene, engine } = RendererContext.getRequired(component.node).data
+    const { scene, engine } = BabylonContext.getRequired(component.node).data;
 
     const canvas = engine.getRenderingCanvas()!;
 

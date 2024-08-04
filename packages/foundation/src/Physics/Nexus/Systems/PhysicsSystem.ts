@@ -1,21 +1,23 @@
 import { Vector3Like } from "@amodx/math";
 import { NCS } from "@amodx/ncs/";
 import { TransformComponent } from "../../../Core/Components/Base/Transform.component";
-import { BoxColliderComponent } from "../../Main/Components/BoxCollider.component";
-import { PhysicsBodyComponent } from "../../Main/Components/PhysicsBody.component";
+import { BoxColliderComponent } from "../../Components/BoxCollider.component";
+import { PhysicsBodyComponent } from "../../Components/PhysicsBody.component";
 import { CollisionResult } from "../Classes/CollisionResult";
 import { Line } from "../Classes/Line";
 import { Plane } from "../Classes/Plane";
 import { BoundingBox } from "../Classes/BoundingBox";
 import { CollisionNode } from "../Classes/CollisionNode";
 import { PhysicsDataTool } from "../Classes/PhysicsDataTool";
-
+import { DimensionProviderComponent } from "../../../Core/Components/Providers/DimensionProvider.component";
+import { PhysicsColliderStateComponent } from "../../../Physics/Components/PhysicsColliderState.component";
+const position = Vector3Like.Create();
+const delta = Vector3Like.Create();
+const start = Vector3Like.Create();
 const previousPosiiton = Vector3Like.Create();
 
 const COLLISION_CHECK_POSITION_OFFSET = 0.001;
 const aabb = {
-  start: Vector3Like.Create(),
-  delta: Vector3Like.Create(),
   results: new CollisionResult(),
   line: new Line(),
   plane: new Plane(),
@@ -172,6 +174,79 @@ const sweepAABBN = (
 
 let dataTool: PhysicsDataTool;
 
+const acceleration = Vector3Like.Create();
+const frictionForce = Vector3Like.Create();
+const GRAVITY = -9.81;
+const TERMINAL_VELOCITY = -50; // Cap falling speed
+
+function applyForces(
+  position: Vector3Like,
+  body: (typeof PhysicsBodyComponent)["default"]["schema"],
+  deltaTime: number
+): void {
+  if (body.isKinematic) return;
+
+  // Apply gravity force
+  body.force.y += body.mass * GRAVITY * body.gravityScale;
+
+  // Calculate acceleration (F = ma, so a = F/m)
+  const acceleration = {
+    x: body.force.x / body.mass,
+    y: body.force.y / body.mass,
+    z: body.force.z / body.mass,
+  };
+
+  // Update velocity (v = u + at)
+  body.velocity.x += acceleration.x * deltaTime;
+  body.velocity.y += acceleration.y * deltaTime;
+  body.velocity.z += acceleration.z * deltaTime;
+
+  // Apply terminal velocity
+  if (body.velocity.y < TERMINAL_VELOCITY) {
+    body.velocity.y = TERMINAL_VELOCITY;
+  }
+
+  // Apply damping
+  body.velocity.x *= 1 - body.damping.x * deltaTime;
+  body.velocity.y *= 1 - body.damping.y * deltaTime;
+  body.velocity.z *= 1 - body.damping.z * deltaTime;
+
+  // Apply friction (friction is usually proportional to the normal force)
+  // Assuming friction is a coefficient that directly reduces velocity
+  frictionForce.x = -body.friction * body.velocity.x;
+  frictionForce.y = -body.friction * body.velocity.y;
+  frictionForce.z = -body.friction * body.velocity.z;
+
+  body.velocity.x += frictionForce.x * deltaTime;
+  body.velocity.y += frictionForce.y * deltaTime;
+  body.velocity.z += frictionForce.z * deltaTime;
+
+  // Reset forces for the next frame
+  body.force.x = 0;
+  body.force.y = 0;
+  body.force.z = 0;
+
+  // Update position based on velocity
+  position.x += body.velocity.x * deltaTime;
+  position.y += body.velocity.y * deltaTime;
+  position.z += body.velocity.z * deltaTime;
+}
+
+function applyTransform(
+  position: Vector3Like,
+  body: (typeof PhysicsBodyComponent)["default"]["schema"],
+  deltaTime: number
+): void {
+  if (!body.isKinematic) return;
+
+  // Update position (s = ut + 0.5at^2)
+  position.x += body.velocity.x * deltaTime;
+  position.y += (body.velocity.y + GRAVITY * deltaTime) * deltaTime;
+  position.z += body.velocity.z * deltaTime;
+}
+
+const deltaTime = 0.016;
+
 export const PhysicsSystems = NCS.registerSystem({
   type: "physics",
   queries: [
@@ -181,101 +256,88 @@ export const PhysicsSystems = NCS.registerSystem({
   ],
 
   update(system) {
-    console.log("update physics system", system.queries[0].nodes.size);
     if (!dataTool) dataTool = new PhysicsDataTool();
     for (const node of system.queries[0].nodes) {
+      const dimension = DimensionProviderComponent.get(node)!.schema.dimension;
+      dataTool.setDimension(dimension);
+
       const transform = TransformComponent.get(node)!.schema;
+      // Store original position
+      Vector3Like.Copy(position, transform.position);
+      Vector3Like.Copy(previousPosiiton, transform.position);
+
       const body = PhysicsBodyComponent.get(node)!.schema;
+
       const collider = BoxColliderComponent.get(node)!;
+      const colliderState = PhysicsColliderStateComponent.get(node)!.schema;
+
       boundingBox.update(
         collider.schema.size.x,
         collider.schema.size.y,
         collider.schema.size.z
       );
-      console.log(transform.position.x,transform.position.y,transform.position.z)
+
       const bboxHalfWidth = boundingBox.halfWidth;
       const bboxHalfDepth = boundingBox.halfDepth;
       const bboxHalfHeight = boundingBox.halfHeight;
 
-      //store previous position
+      applyForces(position, body, deltaTime);
+      applyTransform(position, body, deltaTime);
 
-      Vector3Like.Copy(previousPosiiton, transform.position);
-      //apply foroces
+      let isGrounded = false;
 
-      transform.position.x =
-        transform.position.x + body.acceleration.x * body.velocity.x;
-      transform.position.y =
-        transform.position.y + body.acceleration.y * body.velocity.y;
-      transform.position.z =
-        transform.position.z + body.acceleration.z * body.velocity.z;
-
-      //do swept
-
-      //Notice there is a cycle. We may have to run the algorithm several times until the collision is resolved
+      // Collision detection and resolution loop
       while (true) {
-        // First we calculate the movement vector for this frame
-        // This is the entity's current position minus its last position.
-        // The last position is set at the beggining of each frame.
+        delta.x = position.x - previousPosiiton.x;
+        delta.y = position.y - previousPosiiton.y;
+        delta.z = position.z - previousPosiiton.z;
 
-        aabb.delta.x = transform.position.x - previousPosiiton.x;
-        aabb.delta.y = transform.position.y - previousPosiiton.y;
-        aabb.delta.z = transform.position.z - previousPosiiton.z;
-
-        // These are the bounds of the AABB that may collide with the entity.
         const minX = Math.floor(
-          Math.min(transform.position.x, previousPosiiton.x) - bboxHalfWidth
+          Math.min(position.x, previousPosiiton.x) - bboxHalfWidth
         );
         const maxX = Math.floor(
-          Math.max(transform.position.x, previousPosiiton.x) + bboxHalfWidth
+          Math.max(position.x, previousPosiiton.x) + bboxHalfWidth
         );
         const minY = Math.floor(
-          Math.min(transform.position.y, previousPosiiton.y) - bboxHalfHeight
+          Math.min(position.y, previousPosiiton.y) - bboxHalfHeight
         );
         const maxY = Math.floor(
-          Math.max(transform.position.y, previousPosiiton.y) + bboxHalfHeight
+          Math.max(position.y, previousPosiiton.y) + bboxHalfHeight
         );
         const minZ = Math.floor(
-          Math.min(transform.position.z, previousPosiiton.z) - bboxHalfDepth
+          Math.min(position.z, previousPosiiton.z) - bboxHalfDepth
         );
         const maxZ = Math.floor(
-          Math.max(transform.position.z, previousPosiiton.z) + bboxHalfDepth
+          Math.max(position.z, previousPosiiton.z) + bboxHalfDepth
         );
 
         aabb.results.reset();
         let collisionResults = aabb.results.raw;
 
-        // For each voxel that may collide with the entity, find the first that colides with it
         for (let y = minY; y <= maxY; y++) {
           for (let z = minZ; z <= maxZ; z++) {
             for (let x = minX; x <= maxX; x++) {
               if (!dataTool.loadInAt(x, y, z)) continue;
               const collider = dataTool.getColliderObj();
-
               if (!collider) continue;
 
               const nodes = collider.getNodes(dataTool);
-              const collidersLength = nodes.length;
-              for (let i = 0; i < collidersLength; i++) {
-                const colliderNode = nodes[i];
-                // Check swept collision
-
-                aabb.start.x = previousPosiiton.x - bboxHalfWidth;
-                aabb.start.y = previousPosiiton.y - bboxHalfHeight;
-                aabb.start.z = previousPosiiton.z - bboxHalfDepth;
+              for (const colliderNode of nodes) {
+                start.x = previousPosiiton.x - bboxHalfWidth;
+                start.y = previousPosiiton.y - bboxHalfHeight;
+                start.z = previousPosiiton.z - bboxHalfDepth;
 
                 const collisionCheck = sweepAABBN(
-                  aabb.start,
+                  start,
                   boundingBox,
                   colliderNode,
-                  aabb.delta
+                  delta
                 );
 
                 if (collisionCheck.hitDepth < 1) {
-                  //  node.doCollision(collider, colliderNode, node.dataTool);
+                  if (collisionCheck.ny == 1) isGrounded = true;
                 }
-                //If the voxel will not stop the entity continue
                 if (!dataTool.isSolid() || !collider.isSolid) continue;
-                //Check if this collision is closer than the closest so far.
                 if (collisionCheck.hitDepth < collisionResults.hitDepth) {
                   aabb.results.loadIn(colliderNode.results);
                 }
@@ -284,55 +346,46 @@ export const PhysicsSystems = NCS.registerSystem({
           }
         }
 
-        // Update the entity's position
-        // We move the entity slightly away from the block in order to miss seams.
-
-        transform.position.x =
+        position.x =
           previousPosiiton.x +
-          collisionResults.hitDepth * aabb.delta.x +
+          collisionResults.hitDepth * delta.x +
           COLLISION_CHECK_POSITION_OFFSET * collisionResults.nx;
-        transform.position.y =
+        position.y =
           previousPosiiton.y +
-          collisionResults.hitDepth * aabb.delta.y +
+          collisionResults.hitDepth * delta.y +
           COLLISION_CHECK_POSITION_OFFSET * collisionResults.ny;
-        transform.position.z =
+        position.z =
           previousPosiiton.z +
-          collisionResults.hitDepth * aabb.delta.z +
+          collisionResults.hitDepth * delta.z +
           COLLISION_CHECK_POSITION_OFFSET * collisionResults.nz;
 
-        // If there was no collision, end the algorithm.
         if (collisionResults.hitDepth == 1) break;
 
-        // Wall Sliding
-        // c = a - (a.b)/(b.b) b
-        // c - slide vector (rejection of a over b)
-        // b - normal to the block
-        // a - remaining speed (= (1-h)*speed)
         const BdotB =
           collisionResults.nx * collisionResults.nx +
           collisionResults.ny * collisionResults.ny +
           collisionResults.nz * collisionResults.nz;
         if (BdotB != 0) {
-          // Store the current position for the next iteration
-
-          Vector3Like.Copy(previousPosiiton, transform.position);
-          // Apply Slide
+          Vector3Like.Copy(previousPosiiton, position);
           const AdotB =
             (1 - collisionResults.hitDepth) *
-            (aabb.delta.x * collisionResults.nx +
-              aabb.delta.y * collisionResults.ny +
-              aabb.delta.z * collisionResults.nz);
-          transform.position.x +=
-            (1 - collisionResults.hitDepth) * aabb.delta.x -
+            (delta.x * collisionResults.nx +
+              delta.y * collisionResults.ny +
+              delta.z * collisionResults.nz);
+          position.x +=
+            (1 - collisionResults.hitDepth) * delta.x -
             (AdotB / BdotB) * collisionResults.nx;
-          transform.position.y +=
-            (1 - collisionResults.hitDepth) * aabb.delta.y -
+          position.y +=
+            (1 - collisionResults.hitDepth) * delta.y -
             (AdotB / BdotB) * collisionResults.ny;
-          transform.position.z +=
-            (1 - collisionResults.hitDepth) * aabb.delta.z -
+          position.z +=
+            (1 - collisionResults.hitDepth) * delta.z -
             (AdotB / BdotB) * collisionResults.nz;
         }
       }
+
+      Vector3Like.Copy(transform.position, position);
+      colliderState.isGrounded = isGrounded;
     }
   },
 });

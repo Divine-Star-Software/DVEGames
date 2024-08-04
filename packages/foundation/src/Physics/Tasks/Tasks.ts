@@ -10,12 +10,13 @@ import { DVEFBRCore } from "@divinevoxel/babylon-renderer/Defaults/Foundation/DV
 export class NexusTasks {
   static async registerBody(
     node: NodeData,
-    sharedTransformBuffer: SharedArrayBuffer,
-    sharedPhysicsBody: SharedArrayBuffer
+    sharedTransformBuffer: ArrayBufferLike,
+    sharedPhysicsBody: ArrayBufferLike,
+    sharedColliderState: ArrayBufferLike
   ) {
     await DVEFBRCore.instance.threads.nexus.runTasks<RegisterColliderTasks>(
       NexusTasksIds.RegisterCollider,
-      [node, sharedTransformBuffer, sharedPhysicsBody]
+      [node, sharedTransformBuffer, sharedPhysicsBody, sharedColliderState]
     );
   }
   static async removeBody(id: string) {

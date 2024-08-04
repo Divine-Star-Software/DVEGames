@@ -13,8 +13,8 @@ import {
 } from "@babylonjs/core";
 import { GenMap } from "./GenMap/GenMap";
 import { SafeInterval } from "@amodx/core/Intervals/SafeInterval";
-import { DimensionProviderComponent } from "../../Core/Components/Base/DimensionProvider.component";
-import { RendererContext } from "../../Core/Contexts/Renderer.context";
+import { DimensionProviderComponent } from "../../Core/Components/Providers/DimensionProvider.component";
+import { BabylonContext } from "../../Babylon/Contexts/Babylon.context";
 interface Schema {}
 interface Data {}
 export const GenWorldMapComponent = NCS.registerComponent<Schema, Data>({
@@ -71,7 +71,7 @@ export const GenWorldMapComponent = NCS.registerComponent<Schema, Data>({
     let isBig = true;
     let renderState = { isBig: true };
 
-    const context = RendererContext.getRequired(component.node);
+    const context = BabylonContext.getRequired(component.node);
     console.log("GEN WORLD MAP", context);
 
     const followCamera = context.data.scene.activeCamera!;

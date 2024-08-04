@@ -1,10 +1,14 @@
 import { NCS } from "@amodx/ncs/";
 import { TransformNode, Node as BabylonNode } from "@babylonjs/core";
 import { Vector3Like } from "@amodx/math";
-import {
-  createTransformProxy,
-  TransformComponent,
-} from "./Transform.component";
+import { StringProp } from "@amodx/schemas";
+import { ProxyTransformTrait } from "../../../Core/Traits/Base/ProxyTransform.trait";
+import { SyncTransformTrait } from "../../../Core/Traits/Base/SyncTransform.trait";
+
+type Schema = {
+  mode: "proxy" | "sync";
+};
+
 interface Data {
   transformNode: TransformNode;
 }
@@ -13,34 +17,37 @@ interface Logic {
   getWorldPosition(): Vector3Like;
 }
 
-export const TransformNodeComponent = NCS.registerComponent<{}, Data, Logic>({
+export const TransformNodeComponent = NCS.registerComponent<
+  Schema,
+  Data,
+  Logic
+>({
   type: "transform-node",
-  schema: [],
+  schema: [StringProp("mode", { value: "proxy" })],
   init(component) {
     const transformNode = new TransformNode(
       `transform-component-${component.node.id.idString}`,
       component.node.graph.dependencies.scene
     );
 
-    const transformComponent = TransformComponent.get(component.node)!;
-    Vector3Like.Copy(
-      transformNode.position,
-      transformComponent.schema.position
-    );
-    Vector3Like.Copy(
-      transformNode.rotation,
-      transformComponent.schema.rotation
-    );
-    Vector3Like.Copy(transformNode.scaling, transformComponent.schema.scale);
-    createTransformProxy(
-      transformComponent,
-      transformNode.position,
-      transformNode.rotation,
-      transformNode.scaling
-    );
+    if (component.schema.mode == "proxy") {
+      const trait = ProxyTransformTrait.set(component);
+      trait.data.position = transformNode.position;
+      trait.data.rotation = transformNode.rotation;
+      trait.data.scale = transformNode.scaling;
+    }
+    if (component.schema.mode == "sync") {
+      const trait = SyncTransformTrait.set(component);
+      trait.data.position = transformNode.position;
+      trait.data.rotation = transformNode.rotation;
+      trait.data.scale = transformNode.scaling;
+    }
+    console.log(component, component.data);
 
     transformNode.computeWorldMatrix();
-    component.data.transformNode = transformNode;
+    component.data = {
+      transformNode,
+    };
     const parent = TransformNodeComponent.get(component.node.parent);
     if (parent) {
       component.data.transformNode.parent = parent.data.transformNode;

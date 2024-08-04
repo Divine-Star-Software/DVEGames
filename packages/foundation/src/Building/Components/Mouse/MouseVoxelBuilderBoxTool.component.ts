@@ -3,8 +3,8 @@ import { VoxelMousePickComponent } from "../../../Core/Components/Voxels/Interac
 import { VoxelRemoverComponent } from "../../../Core/Components/Voxels/Interaction/VoxelRemover.component";
 import { VoxelPlacerComponent } from "../../../Core/Components/Voxels/Interaction/VoxelPlacer.component";
 import { Vec3Array, Vector3Like } from "@amodx/math";
-import { VoxelCubeVolumeComponent } from "../../../Core/Components/Voxels/Volumes/VoxelCubeVolume.component";
-import { VoxelCubeVolumeMeshComponent } from "../../../Core/Components/Voxels/Volumes/VoxelCubeVolumeMesh.component";
+import { VoxelBoxVolumeComponent } from "../../../Core/Components/Voxels/Volumes/VoxelBoxVolume.component";
+import { VoxelBoxVolumeMeshComponent } from "../../../Core/Components/Voxels/Volumes/VoxelBoxVolumeMesh.component";
 import { TransformComponent } from "../../../Core/Components/Base/Transform.component";
 import {
   Camera,
@@ -14,7 +14,7 @@ import {
   Vector3,
 } from "@babylonjs/core";
 import { Observable } from "@amodx/core/Observers";
-import { RendererContext } from "../../../Core/Contexts/Renderer.context";
+import { BabylonContext } from "../../../Babylon/Contexts/Babylon.context";
 
 interface Schema {}
 interface Data {
@@ -32,12 +32,12 @@ class BuilderBox {
     this.node = await this.component.node.graph.addNode(
       Node({}, [
         TransformComponent({}),
-        VoxelCubeVolumeComponent(),
-        VoxelCubeVolumeMeshComponent(),
+        VoxelBoxVolumeComponent(),
+        VoxelBoxVolumeMeshComponent(),
       ]),
       this.component.node
     );
-    VoxelCubeVolumeMeshComponent.get(this.node)!.data.box.renderingGroupId = 3;
+    VoxelBoxVolumeMeshComponent.get(this.node)!.data.box.renderingGroupId = 3;
   }
 
   async dispose() {
@@ -87,7 +87,7 @@ export const MouseVoxelBuilderBoxToolComponent = NCS.registerComponent<
   init(component) {
     const remover = VoxelRemoverComponent.get(component.node)!;
     const placer = VoxelPlacerComponent.get(component.node)!;
-    const { scene } = RendererContext.getRequired(component.node).data;
+    const { scene } = BabylonContext.getRequired(component.node).data;
 
     let enabled = false;
 
@@ -129,7 +129,7 @@ export const MouseVoxelBuilderBoxToolComponent = NCS.registerComponent<
         volumeTransform.schema.position,
         Vector3Like.AddArray(pickedPosition, pickedNormal)
       );
-      const volume = VoxelCubeVolumeComponent.get(newbox.node)!;
+      const volume = VoxelBoxVolumeComponent.get(newbox.node)!;
 
       const planeOrigin = new Vector3(
         ...Vector3Like.AddArray(pickedPosition, pickedNormal)
@@ -223,7 +223,7 @@ export const MouseVoxelBuilderBoxToolComponent = NCS.registerComponent<
     ) => {
       startBox(pickedPosition, pickedNormal, async (newbox) => {
         placer.logic.run(
-          ...VoxelCubeVolumeComponent.get(newbox.node)!.logic.getPoints()
+          ...VoxelBoxVolumeComponent.get(newbox.node)!.logic.getPoints()
         );
       });
     };
@@ -236,7 +236,7 @@ export const MouseVoxelBuilderBoxToolComponent = NCS.registerComponent<
         pickedNormal,
         async (newbox) => {
           remover.logic.run(
-            ...VoxelCubeVolumeComponent.get(newbox.node)!.logic.getPoints()
+            ...VoxelBoxVolumeComponent.get(newbox.node)!.logic.getPoints()
           );
         }
       );

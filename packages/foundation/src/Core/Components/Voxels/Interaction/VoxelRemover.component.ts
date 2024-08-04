@@ -2,7 +2,7 @@ import { NCS } from "@amodx/ncs/";
 
 import { Tasks } from "../../../Tasks/Tasks";
 import { Vec3Array } from "@amodx/math";
-import { DimensionProviderComponent } from "../../Base/DimensionProvider.component";
+import { DimensionProviderComponent } from "../../Providers/DimensionProvider.component";
 
 interface Schema {}
 class Data {}

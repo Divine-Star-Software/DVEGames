@@ -3,7 +3,7 @@ import { Tasks } from "../../../Tasks/Tasks";
 import { Vec3Array } from "@amodx/math";
 import { StringProp } from "@amodx/schemas";
 import { VoxelPaintDataComponent } from "../VoxelPaintData.component";
-import { DimensionProviderComponent } from "../../Base/DimensionProvider.component";
+import { DimensionProviderComponent } from "../../Providers/DimensionProvider.component";
 
 interface Schema {}
 

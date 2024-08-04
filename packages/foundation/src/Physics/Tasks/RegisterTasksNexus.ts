@@ -4,22 +4,36 @@ import {
   RemoveColliderTasks,
 } from "./NexusTask.types";
 import { DVEPhysics } from "../Nexus/DVEPhysics";
-import { NodeId } from "@amodx/ncs/Nodes/NodeId";
-import { SharedTransformComponent } from "../../Core/Components/Base/SharedTransform.component";
-import { PhysicsBodyComponent } from "../Main/Components/PhysicsBody.component";
-import { DivineVoxelEngineNexus } from "@divinevoxel/foundation/Contexts/Nexus/DivineVoxelEngineNexus";
 
-export default function (nexus:DivineVoxelEngineNexus) {
+import { PhysicsBodyComponent } from "../Components/PhysicsBody.component";
+import { DivineVoxelEngineNexus } from "@divinevoxel/foundation/Contexts/Nexus/DivineVoxelEngineNexus";
+import { BufferSchemaTrait } from "../../Core/Traits/Base/BufferSchema.trait";
+import { TransformComponent } from "../../Core/Components/Base/Transform.component";
+import { NodeId } from "@amodx/ncs/Nodes/NodeId";
+import { PhysicsColliderStateComponent } from "../Components/PhysicsColliderState.component";
+
+export default function (nexus: DivineVoxelEngineNexus) {
   nexus.TC.registerTasks<RegisterColliderTasks>(
     NexusTasksIds.RegisterCollider,
-    async ([node, sharedTransformBuffer, sharedBodyBuffer]) => {
+    async ([
+      node,
+      sharedTransformBuffer,
+      sharedBodyBuffer,
+      sharedColliderState,
+    ]) => {
       const newNode = await DVEPhysics.graph.addNode(node);
-      const sharedTransform = SharedTransformComponent.get(newNode)!;
-      sharedTransform.data.buffer = sharedTransformBuffer;
-      const physicsBodyComponent = PhysicsBodyComponent.get(newNode)!;
-      physicsBodyComponent.data.buffer = sharedBodyBuffer;
-      console.log("GOT DATA DATA",node,)
-      console.log(DVEPhysics.graph)
+      console.log(node);
+      console.log("TRANSFOORM", TransformComponent.get(newNode));
+      BufferSchemaTrait.get(TransformComponent.get(newNode)!)!.data.buffer =
+        sharedTransformBuffer;
+      BufferSchemaTrait.get(PhysicsBodyComponent.get(newNode)!)!.data.buffer =
+        sharedBodyBuffer;
+      BufferSchemaTrait.get(
+        PhysicsColliderStateComponent.get(newNode)!
+      )!.data.buffer = sharedColliderState;
+
+      console.log("GOT DATA DATA", node);
+      console.log(DVEPhysics.graph);
     }
   );
   nexus.TC.registerTasks<RemoveColliderTasks>(

@@ -3,7 +3,7 @@ import { CreateBox } from "@babylonjs/core/Meshes/Builders/boxBuilder";
 import { StandardMaterial, VertexBuffer, type Mesh } from "@babylonjs/core";
 import { TransformComponent } from "../../Base/Transform.component";
 import { Vector3Like } from "@amodx/math";
-import { RendererContext } from "../../../Contexts/Renderer.context";
+import { BabylonContext } from "../../../../Babylon/Contexts/Babylon.context";
 
 interface Schema {}
 class Data {
@@ -15,13 +15,13 @@ type Shared = {
   box: Mesh | null;
 };
 
-export const VoxelCubeVolumeMeshComponent = NCS.registerComponent<
+export const VoxelBoxVolumeMeshComponent = NCS.registerComponent<
   Schema,
   Data,
   {},
   Shared
 >({
-  type: "voxel-cube-volume-mesh",
+  type: "voxel-box-volume-mesh",
   schema: [],
   data: () => new Data(),
   shared: {
@@ -29,7 +29,7 @@ export const VoxelCubeVolumeMeshComponent = NCS.registerComponent<
     box: null,
   },
   init(component) {
-    const { scene } = RendererContext.getRequired(component.node).data;
+    const { scene } = BabylonContext.getRequired(component.node).data;
 
     if (!component.shared.material) {
       component.shared.material = new StandardMaterial("", scene);
