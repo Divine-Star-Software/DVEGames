@@ -52,15 +52,12 @@ export default function () {
   );
   Threads.registerTasks<ImportColumnTasks>(
     ArchiverTasksIds.ImportColumn,
-    async (archived, onDone) => {
-
+    async (archived) => {
       const importedColumn = ImportColumn(archived, {});
-
       await DivineVoxelEngineConstructor.instance.core.threads.world.runAsyncTasks(
         "load-column",
         [archived.location, importedColumn]
       );
-    },
-    "deferred"
+    }
   );
 }

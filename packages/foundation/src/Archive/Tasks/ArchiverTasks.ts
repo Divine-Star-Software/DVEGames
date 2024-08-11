@@ -6,7 +6,6 @@ import {
 } from "./Types/WorldTask.types";
 import { ArchivedColumnData } from "@divinevoxel/foundation/Default/Archive";
 import { Vec3Array } from "@amodx/math";
-import { ColumnData } from "@divinevoxel/foundation/Data/World/Classes";
 
 export class ArchiverTasks {
   static async archiveColumn(

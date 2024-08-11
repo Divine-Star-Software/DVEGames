@@ -1,7 +1,7 @@
-import { ComponentData, NCS } from "@amodx/ncs/";
+import { NCS } from "@amodx/ncs/";
 import { VoxelTemplator } from "@divinevoxel/foundation/Default/Templates/VoxelTemplator";
 import { VoxelTemplate } from "@divinevoxel/foundation/Default/Templates/VoxelTemplate";
-import { Tasks } from "../../../Tasks/Tasks";
+import { CoreTasks } from "../../../Tasks/CoreTasks";
 import { VoxelBoxVolumeComponent } from "../Volumes/VoxelBoxVolume.component";
 import { DimensionProviderComponent } from "../../Providers/DimensionProvider.component";
 
@@ -23,7 +23,7 @@ class Logic {
   }
   async build(template: VoxelTemplate) {
     const volume = VoxelBoxVolumeComponent.get(this.component.node)!;
-    await Tasks.buildTemplate(
+    await CoreTasks.buildTemplate(
       DimensionProviderComponent.get(this.component.node)?.schema.dimension ||
         "main",
       volume.logic.getPoints()[0],

@@ -222,7 +222,7 @@ export const MouseVoxelBuilderBoxToolComponent = NCS.registerComponent<
       pickedNormal: Vec3Array
     ) => {
       startBox(pickedPosition, pickedNormal, async (newbox) => {
-        placer.logic.run(
+        placer.logic.placeArea(
           ...VoxelBoxVolumeComponent.get(newbox.node)!.logic.getPoints()
         );
       });
@@ -235,7 +235,7 @@ export const MouseVoxelBuilderBoxToolComponent = NCS.registerComponent<
         Vector3Like.SubtractArray(pickedPosition, pickedNormal),
         pickedNormal,
         async (newbox) => {
-          remover.logic.run(
+          remover.logic.removeArea(
             ...VoxelBoxVolumeComponent.get(newbox.node)!.logic.getPoints()
           );
         }

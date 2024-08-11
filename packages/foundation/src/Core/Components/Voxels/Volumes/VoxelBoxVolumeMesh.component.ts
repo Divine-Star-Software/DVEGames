@@ -1,6 +1,11 @@
 import { ComponentData, NCS } from "@amodx/ncs/";
 import { CreateBox } from "@babylonjs/core/Meshes/Builders/boxBuilder";
-import { StandardMaterial, VertexBuffer, type Mesh } from "@babylonjs/core";
+import {
+  Scene,
+  StandardMaterial,
+  VertexBuffer,
+  type Mesh,
+} from "@babylonjs/core";
 import { TransformComponent } from "../../Base/Transform.component";
 import { Vector3Like } from "@amodx/math";
 import { BabylonContext } from "../../../../Babylon/Contexts/Babylon.context";
@@ -37,21 +42,7 @@ export const VoxelBoxVolumeMeshComponent = NCS.registerComponent<
       component.shared.material.diffuseColor.set(0, 1, 0);
     }
     if (!component.shared.box) {
-      const box = CreateBox("", {}, scene);
-      const positions = box.getPositionData()!;
-
-      const newPostions = new Float32Array(positions.length);
-
-      for (let i = 0; i < positions.length; i++) {
-        newPostions[i] = positions[i] + 0.5;
-      }
-      const buffer = new VertexBuffer(
-        scene.getEngine(),
-        newPostions,
-        VertexBuffer.PositionKind
-      );
-      box.setVerticesBuffer(buffer);
-
+      const box = createVoxelBoxVolumneMesh(scene);
       box.enableEdgesRendering();
       box.material = component.shared.material;
       component.shared.box = box;
@@ -85,3 +76,21 @@ export const VoxelBoxVolumeMeshComponent = NCS.registerComponent<
     component.data.box.dispose();
   },
 });
+
+export function createVoxelBoxVolumneMesh(scene: Scene) {
+  const box = CreateBox("", {}, scene);
+  const positions = box.getPositionData()!;
+
+  const newPostions = new Float32Array(positions.length);
+
+  for (let i = 0; i < positions.length; i++) {
+    newPostions[i] = positions[i] + 0.5;
+  }
+  const buffer = new VertexBuffer(
+    scene.getEngine(),
+    newPostions,
+    VertexBuffer.PositionKind
+  );
+  box.setVerticesBuffer(buffer);
+  return box;
+}

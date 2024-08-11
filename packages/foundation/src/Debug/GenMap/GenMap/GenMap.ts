@@ -17,7 +17,7 @@ import { WorldRegister } from "@divinevoxel/foundation/Data/World/WorldRegister"
 import { Quad } from "./Quad";
 export class GenMap {
   static Constants = {
-    MAX_TILES: 2_000,
+    MAX_TILES: 4_000,
   };
 
   tilesRegister = new GenMapTilesRegister(this);
@@ -33,7 +33,7 @@ export class GenMap {
   constructor() {}
 
   init(scene: Scene) {
-    const quadData = Quad.GetQuad();
+    const quadData = Quad.GetQuad(); 
     this._instanceMesh = new Mesh("world-map-tile-base", scene);
     this._instanceMesh.setVerticesData(
       VertexBuffer.PositionKind,

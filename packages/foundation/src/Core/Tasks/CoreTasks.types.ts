@@ -2,25 +2,35 @@ import { Vec3Array } from "@amodx/math";
 import { AddVoxelData } from "@divinevoxel/foundation/Data/Types/WorldData.types";
 import { VoxelTemplateData } from "@divinevoxel/foundation/Default/Templates/VoxelTemplates.types";
 
-export enum WorldTasks {
+export enum CoreTasksIds {
+  RunBuildQueue = "run-build-queue-for-tasks",
   PlaceVoxel = "place-voxel",
   RemoveVoxel = "remove-voxel",
+  PlaceVoxelArea = "place-voxel-area",
+  RemoveVoxelArea = "remove-voxel-area",
   BuildTemplate = "build-template",
 }
 
-export type PlaceVoxelWorldTasks = [
+export type PlaceVoxelAreaTasks = [
   dimension: string,
   start: Vec3Array,
   end: Vec3Array,
   voxelData: Partial<AddVoxelData>
 ];
 
-export type RemoveVoxelWorldTasks = [
+export type RemoveVoxelAreaTasks = [
   dimension: string,
   start: Vec3Array,
   end: Vec3Array
 ];
+export type RunBuildQueue = [dimension: string, chunks: Vec3Array[]];
+export type PlaceVoxelTasks = [
+  dimension: string,
+  position: Vec3Array,
+  voxelData: Partial<AddVoxelData>
+];
 
+export type RemoveVoxelTasks = [dimension: string, start: Vec3Array];
 export type BuildVoxelTemplateTasks = [
   dimension: string,
   start: Vec3Array,

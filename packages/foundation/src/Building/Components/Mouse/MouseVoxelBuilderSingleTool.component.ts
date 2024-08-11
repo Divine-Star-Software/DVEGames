@@ -43,10 +43,12 @@ export const MouseVoxelBuilderSingleToolComponent = NCS.registerComponent<
         console.log("single picked");
         if (!enabled) return;
         if (button == 0) {
-          remover.logic.run(pickedPosition);
+          remover.logic.removeSingle(pickedPosition);
         }
         if (button == 2) {
-          placer.logic.run(Vector3Like.AddArray(pickedPosition, pickedNormal));
+          placer.logic.placeSingle(
+            Vector3Like.AddArray(pickedPosition, pickedNormal)
+          );
         }
       }
     );

@@ -42,9 +42,7 @@ export const createTransformProxy = (
     if (node.property.id == "position" && position) {
       node.enableProxy(
         () => position,
-        (vec) => {
-          Vector3Like.Copy(position, vec);
-        }
+        (vec) => Vector3Like.Copy(position, vec)
       );
     }
     if (node.property.id == "rotation" && rotation) {
