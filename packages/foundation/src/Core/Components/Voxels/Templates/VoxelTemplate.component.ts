@@ -1,9 +1,18 @@
 import { NCS } from "@amodx/ncs/";
-import { VoxelTemplator } from "@divinevoxel/foundation/Default/Templates/VoxelTemplator";
+import CreateTemplate from "@divinevoxel/foundation/Default/Templates/Functions/CreateTemplate";
+import RotateTemplate, {
+  TemplateRotationAngles,
+  TemplateRotationAxes,
+} from "@divinevoxel/foundation/Default/Templates/Functions/RotateTemplate";
+import FlipTemplate, {
+  TemplateFlipDirections,
+} from "@divinevoxel/foundation/Default/Templates/Functions/FlipTemplate";
 import { VoxelTemplate } from "@divinevoxel/foundation/Default/Templates/VoxelTemplate";
+
 import { CoreTasks } from "../../../Tasks/CoreTasks";
 import { VoxelBoxVolumeComponent } from "../Volumes/VoxelBoxVolume.component";
 import { DimensionProviderComponent } from "../../Providers/DimensionProvider.component";
+import { TransformComponent } from "../../../../Core/Components/Base/Transform.component";
 
 type Schema = {};
 class Data {
@@ -12,22 +21,40 @@ class Data {
 
 class Logic {
   constructor(public component: (typeof VoxelTemplateComponent)["default"]) {}
-
   store() {
-    const volume = VoxelBoxVolumeComponent.get(this.component.node)!;
-    this.component.data.template = VoxelTemplator.createTemplate(
+    this.component.data.template = CreateTemplate(
       DimensionProviderComponent.get(this.component.node)?.schema.dimension ||
         "main",
-      ...volume.logic.getPoints()
+      ...VoxelBoxVolumeComponent.get(this.component.node)!.logic.getPoints()
     );
   }
-  async build(template: VoxelTemplate) {
+  async build() {
     const volume = VoxelBoxVolumeComponent.get(this.component.node)!;
     await CoreTasks.buildTemplate(
       DimensionProviderComponent.get(this.component.node)?.schema.dimension ||
         "main",
       volume.logic.getPoints()[0],
-      template.toJSON()
+      this.component.data.template.toJSON()
+    );
+  }
+  rotate(
+    angles: TemplateRotationAngles = 90,
+    axes: TemplateRotationAxes = "y"
+  ) {
+    const transform = TransformComponent.get(this.component.node)!;
+    RotateTemplate(this.component.data.template, angles, axes);
+    transform.schema.scale.x = this.component.data.template.size[0];
+    transform.schema.scale.y = this.component.data.template.size[1];
+    transform.schema.scale.z = this.component.data.template.size[2];
+  }
+  flip(direction: TemplateFlipDirections) {
+    FlipTemplate(this.component.data.template, direction);
+  }
+  async clear() {
+    await CoreTasks.removeVoxelArea(
+      DimensionProviderComponent.get(this.component.node)?.schema.dimension ||
+        "main",
+      ...VoxelBoxVolumeComponent.get(this.component.node)!.logic.getPoints()
     );
   }
 }

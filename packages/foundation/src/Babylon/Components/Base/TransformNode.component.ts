@@ -42,7 +42,6 @@ export const TransformNodeComponent = NCS.registerComponent<
       trait.data.rotation = transformNode.rotation;
       trait.data.scale = transformNode.scaling;
     }
-    console.log(component, component.data);
 
     transformNode.computeWorldMatrix();
     component.data = {

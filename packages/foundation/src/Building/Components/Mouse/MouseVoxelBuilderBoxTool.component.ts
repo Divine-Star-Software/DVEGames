@@ -15,8 +15,11 @@ import {
 } from "@babylonjs/core";
 import { Observable } from "@amodx/core/Observers";
 import { BabylonContext } from "../../../Babylon/Contexts/Babylon.context";
+import { IntProp, StringProp } from "@amodx/schemas";
 
-interface Schema {}
+interface Schema {
+  defaultExtrusion: number;
+}
 interface Data {
   readonly node: NodeInstance | null;
 }
@@ -82,7 +85,7 @@ export const MouseVoxelBuilderBoxToolComponent = NCS.registerComponent<
   Data
 >({
   type: "mouse-voxel-builder-box-tool",
-  schema: [],
+  schema: [IntProp("defaultExtrusion")],
 
   init(component) {
     const remover = VoxelRemoverComponent.get(component.node)!;
@@ -148,7 +151,35 @@ export const MouseVoxelBuilderBoxToolComponent = NCS.registerComponent<
         scene.onPointerObservable.remove(pointerMove);
       });
 
-      let offset = 0;
+      let offset = component.schema.defaultExtrusion;
+
+      if (pickedNormal[0] > 0 || pickedNormal[1] > 0 || pickedNormal[2] > 0) {
+        offset++;
+      }
+
+      const getMinMax = (...points: Vec3Array[]): [Vec3Array, Vec3Array] => {
+        if (points.length === 0) {
+          throw new Error(
+            "At least one point is required to calculate min/max."
+          );
+        }
+
+        let min: Vec3Array = [...points[0]];
+        let max: Vec3Array = [...points[0]];
+
+        for (const point of points) {
+          for (let i = 0; i < 3; i++) {
+            if (point[i] < min[i]) {
+              min[i] = point[i];
+            }
+            if (point[i] > max[i]) {
+              max[i] = point[i];
+            }
+          }
+        }
+
+        return [min, max];
+      };
 
       const update = () => {
         const size = getSize(
@@ -156,20 +187,13 @@ export const MouseVoxelBuilderBoxToolComponent = NCS.registerComponent<
           getIntersection(scene, camera, planeOrigin, planeNormal).floor()
         );
 
-        const normalOffset = Vector3Like.MultiplyScalarArray(
-          pickedNormal,
-          offset
-        );
-
         const point1 = Vector3Like.AddArray(pickedPosition, pickedNormal);
 
-        const point2 = Vector3Like.AddArray(
-          point1,
-          Vector3Like.AddArray(
-            [size.x || 1, size.y || 1, size.z || 1],
-            normalOffset
-          )
-        );
+        const point2 = Vector3Like.AddArray(point1, [
+          size.x || 1,
+          size.y || 1,
+          size.z || 1,
+        ]);
         const minPoint: Vec3Array = [
           Math.min(point1[0], point2[0]),
           Math.min(point1[1], point2[1]),
@@ -180,14 +204,26 @@ export const MouseVoxelBuilderBoxToolComponent = NCS.registerComponent<
           Math.max(point1[1], point2[1]),
           Math.max(point1[2], point2[2]),
         ];
+
         if (size.x < 0) maxPoint[0] += 1;
         if (size.y < 0) maxPoint[1] += 1;
         if (size.z < 0) maxPoint[2] += 1;
 
+        const normalOffset = Vector3Like.AddArray(
+          pickedPosition,
+          Vector3Like.MultiplyScalarArray(pickedNormal, offset)
+        );
+
+        const [finalMin, finalMax] = getMinMax(
+          minPoint,
+          maxPoint,
+          normalOffset
+        );
+
         const finalSize: Vec3Array = [
-          Math.abs(maxPoint[0] - minPoint[0]),
-          Math.abs(maxPoint[1] - minPoint[1]),
-          Math.abs(maxPoint[2] - minPoint[2]),
+          Math.abs(finalMax[0] - finalMin[0]),
+          Math.abs(finalMax[1] - finalMin[1]),
+          Math.abs(finalMax[2] - finalMin[2]),
         ];
         if (finalSize[0] == 0 && finalSize[1] == 0 && finalSize[2] == 0) {
           volume.logic.setPoints([
@@ -195,10 +231,11 @@ export const MouseVoxelBuilderBoxToolComponent = NCS.registerComponent<
             Vector3Like.AddArray(pickedPosition, pickedNormal),
           ]);
         } else {
-          volume.logic.setPoints([minPoint, maxPoint]);
+          volume.logic.setPoints([finalMin, finalMax]);
         }
       };
 
+      update();
       const pointerMove = scene.onPointerObservable.add((event) => {
         if (cacneled) return;
         if (event.type == PointerEventTypes.POINTERUP) {

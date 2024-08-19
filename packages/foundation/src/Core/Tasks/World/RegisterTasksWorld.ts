@@ -13,7 +13,6 @@ export default function (core: DVEFWorldCore) {
   core.TC.registerTasks<RunBuildQueue>(
     CoreTasksIds.RunBuildQueue,
     async ([dim, chunks]) => {
-      console.log("BUILD THE CHUNKS", dim, chunks);
       for (const position of chunks) {
         mesher.setLocation([dim, ...position]).buildChunk();
       }
@@ -24,7 +23,6 @@ export default function (core: DVEFWorldCore) {
     async ([dim, [x, y, z], data]) => {
       brush.setDimension(dim);
       brush.setData(data);
-      console.warn("PAINT WORLD", x, y, z, dim);
       await brush.setXYZ(x, y, z).paintAndAwaitUpdate();
     }
   );

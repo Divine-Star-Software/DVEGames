@@ -9,13 +9,14 @@ import {
 } from "@babylonjs/core";
 
 import { TransformComponent } from "../../Base/Transform.component";
-import { SelectProp } from "@amodx/schemas";
+import { CheckboxProp, SelectProp } from "@amodx/schemas";
 import { VoxelBoxVolumeMeshComponent } from "./VoxelBoxVolumeMesh.component";
 import { RendererContext } from "../../../Contexts/Renderer.context";
 import { BabylonContext } from "../../../../Babylon/Contexts/Babylon.context";
 
 interface Schema {
   mode: "position" | "scale";
+  visible: boolean;
 }
 class Data {
   node: TransformNode;
@@ -33,6 +34,7 @@ export const VoxelBoxVolumeControllerComponent = NCS.registerComponent<
       value: "position",
       options: ["position", "scale"],
     }),
+    CheckboxProp("visible", { value: true }),
   ],
   data: () => new Data(),
   init(component) {
@@ -47,24 +49,28 @@ export const VoxelBoxVolumeControllerComponent = NCS.registerComponent<
 
     const box = volumeMesh.data.box;
 
-    const node = new TransformNode("", scene);
+    const transformNode = new TransformNode("", scene);
+    component.data.node = transformNode;
+    component.addOnSchemaUpdate(["visible"], (node) =>
+      transformNode.setEnabled(Boolean(node.get()))
+    );
 
-    node.position.x = box.position.x + box.scaling.x / 2;
-    node.position.y = box.position.y + box.scaling.y / 2;
-    node.position.z = box.position.z + box.scaling.z / 2;
+    transformNode.position.x = box.position.x + box.scaling.x / 2;
+    transformNode.position.y = box.position.y + box.scaling.y / 2;
+    transformNode.position.z = box.position.z + box.scaling.z / 2;
 
-    const oldPosition = node.position.clone();
-    const nodeStartPosition = node.position.clone();
+    const oldPosition = transformNode.position.clone();
+    const nodeStartPosition = transformNode.position.clone();
     const oldScale = box.scaling.clone();
     const nodeStartScale = box.scaling.clone();
 
     const position = () => {
       const positionGizmo = new PositionGizmo(context.utilLayer);
       positionGizmo.snapDistance = 1;
-      positionGizmo.attachedNode = node;
+      positionGizmo.attachedNode = transformNode;
       positionGizmo.updateGizmoRotationToMatchAttachedMesh = false;
       positionGizmo.onDragStartObservable.add(() => {
-        nodeStartPosition.copyFrom(node.position);
+        nodeStartPosition.copyFrom(transformNode.position);
         oldPosition.set(
           transformComponent.schema.position.x,
           transformComponent.schema.position.y,
@@ -72,10 +78,12 @@ export const VoxelBoxVolumeControllerComponent = NCS.registerComponent<
         );
       });
       positionGizmo.onDragEndObservable.add(() => {
-        nodeStartPosition.copyFrom(node.position);
+        nodeStartPosition.copyFrom(transformNode.position);
       });
       positionGizmo.onDragObservable.add(() => {
-        const transform = nodeStartPosition.subtract(node.position).floor();
+        const transform = nodeStartPosition
+          .subtract(transformNode.position)
+          .floor();
         transformComponent.schema.position = {
           x: oldPosition.x - transform.x,
           y: oldPosition.y - transform.y,
@@ -88,9 +96,9 @@ export const VoxelBoxVolumeControllerComponent = NCS.registerComponent<
     const scale = () => {
       const scaleGizmo = new ScaleGizmo(context.utilLayer);
       scaleGizmo.sensitivity = 2;
-      scaleGizmo.attachedNode = node;
+      scaleGizmo.attachedNode = transformNode;
       scaleGizmo.onDragStartObservable.add(() => {
-        nodeStartScale.copyFrom(node.scaling);
+        nodeStartScale.copyFrom(transformNode.scaling);
         oldScale.set(
           transformComponent.schema.scale.x,
           transformComponent.schema.scale.y,
@@ -98,13 +106,15 @@ export const VoxelBoxVolumeControllerComponent = NCS.registerComponent<
         );
       });
       scaleGizmo.onDragEndObservable.add(() => {
-        nodeStartScale.copyFrom(node.scaling);
+        nodeStartScale.copyFrom(transformNode.scaling);
       });
       scaleGizmo.onDragObservable.add(() => {
-        if (node.scaling.x <= 0) node.scaling.x = 1;
-        if (node.scaling.y <= 0) node.scaling.y = 1;
-        if (node.scaling.z <= 0) node.scaling.z = 1;
-        const transform = nodeStartScale.subtract(node.scaling).floor();
+        if (transformNode.scaling.x <= 0) transformNode.scaling.x = 1;
+        if (transformNode.scaling.y <= 0) transformNode.scaling.y = 1;
+        if (transformNode.scaling.z <= 0) transformNode.scaling.z = 1;
+        const transform = nodeStartScale
+          .subtract(transformNode.scaling)
+          .floor();
 
         const x = oldScale.x - transform.x;
         const y = oldScale.y - transform.y;

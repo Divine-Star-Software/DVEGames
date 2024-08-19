@@ -25,32 +25,28 @@ export const MouseVoxelBuilderComponent = NCS.registerComponent<Schema, Data>({
     }),
   ],
 
-  async init(component) {
-    const update = async () => {
+  init(component) {
+    const update = () => {
       if (component.schema.tool == Tools.Single) {
         if (MouseVoxelBuilderBoxToolComponent.get(component.node)) {
-          const removed = await MouseVoxelBuilderBoxToolComponent.remove(
-            component.node
-          );
+          MouseVoxelBuilderBoxToolComponent.remove(component.node);
         }
-        await MouseVoxelBuilderSingleToolComponent.set(component.node);
+        MouseVoxelBuilderSingleToolComponent.set(component.node);
       }
       if (component.schema.tool == Tools.Box) {
         if (MouseVoxelBuilderSingleToolComponent.get(component.node)) {
-          const removed = await MouseVoxelBuilderSingleToolComponent.remove(
-            component.node
-          );
+          MouseVoxelBuilderSingleToolComponent.remove(component.node);
         }
-        await MouseVoxelBuilderBoxToolComponent.set(component.node);
+        MouseVoxelBuilderBoxToolComponent.set(component.node);
       }
     };
 
-    await update();
+    update();
 
     component.addOnSchemaUpdate(["tool"], () => {
       update();
     });
-    
+
     const paintData = VoxelPaintDataComponent.get(component.node)!;
 
     VoxelMousePickComponent.get(component.node)!.data.voxelPicked.subscribe(

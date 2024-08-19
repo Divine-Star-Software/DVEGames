@@ -40,7 +40,6 @@ export const MouseVoxelBuilderSingleToolComponent = NCS.registerComponent<
     VoxelMousePickComponent.get(component.node)!.data.voxelPicked.subscribe(
       component,
       ({ button, data: { pickedPosition, pickedNormal } }) => {
-        console.log("single picked");
         if (!enabled) return;
         if (button == 0) {
           remover.logic.removeSingle(pickedPosition);
@@ -54,7 +53,6 @@ export const MouseVoxelBuilderSingleToolComponent = NCS.registerComponent<
     );
 
     component.observers.disposed.subscribeOnce(() => {
-      console.log("DISPOSE SIGNLE COMPONENTN");
       VoxelMousePickComponent.get(component.node)!.data.voxelPicked.unsubscribe(
         component
       );
