@@ -3,7 +3,7 @@ import { Compressor } from "@amodx/core/Compression";
 import { elm, frag } from "@amodx/elm";
 import { NodeInstance } from "@amodx/ncs/";
 import { TransformComponent } from "@dvegames/foundation/Core/Components/Base/Transform.component";
-import { ToolPanelViews } from "../../DebugPanelViews"
+import { ToolPanelViews } from "../../DebugPanelViews";
 import { VoxelTemplateComponent } from "@dvegames/foundation/Core/Components/Voxels/Templates/VoxelTemplate.component";
 import { Templates } from "../Managers/Templates";
 import { SchemaEditor } from "../../UI/Schemas/SchemaEditor";
@@ -160,12 +160,12 @@ ToolPanelViews.registerView("VoxelTemplates", (component) => {
           display: "flex",
           flexDirection: "row",
         },
-      },
+      }, 
       elm(
         "button",
         {
           onclick() {
-            Templates.addTemplate("mels-realm", [0, 5, 0], [18, 26, 18]);
+            Templates.addTemplate([0, 5, 0], [18, 26, 18]);
           },
         },
         "Add New Template"
@@ -182,7 +182,7 @@ ToolPanelViews.registerView("VoxelTemplates", (component) => {
             ) as any;
             BinaryObject.setUseSharedMemory(false);
 
-            await Templates.loadTemplate("mels-realm", template);
+            await Templates.loadTemplate(template);
           },
         },
         "Load Template"

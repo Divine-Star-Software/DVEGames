@@ -12,6 +12,8 @@ import { ConstructorTextureData } from "@divinevoxel/foundation/Textures/Constru
 import { MouseVoxelBuilderComponent } from "@dvegames/foundation/Building/Components/MouseVoxelBuilder.component";
 import { MouseVoxelBuilderBoxToolComponent } from "@dvegames/foundation/Building/Components/Mouse/MouseVoxelBuilderBoxTool.component";
 import { MouseVoxelBuilderSingleToolComponent } from "@dvegames/foundation/Building/Components/Mouse/MouseVoxelBuilderSingleTool.component";
+import { VoxelItemData } from "Default/VoxelItemData";
+import { AddVoxelData } from "@divinevoxel/foundation/Data/Types/WorldData.types";
 
 elm.css(/* css */ `
 
@@ -36,25 +38,27 @@ elm.css(/* css */ `
 }
   `);
 
-function SelectVoxel(data: Signal<VoxelData>) {
+const getImage = (display: ConstructorTextureData) => {
+  const path = TextureManager.getTexturePath(
+    display[0],
+    display[1],
+    display[2] || "default"
+  );
+  return path;
+};
+
+function SelectVoxel(signal: Signal<VoxelItemData>) {
   return elm(
     "div",
     "voxel-image",
     elm("p", {
-      signal: data((elm) => (elm.innerText = data.value.name || data.value.id)),
+      signal: signal(
+        (elm) => (elm.innerText = signal.value.name || signal.value.name)
+      ),
     }),
     elm("img", {
-      signal: data((img) => {
-        const tags = new Map(data.value.tags);
-        const display = tags.get(
-          "#ecd_voxel_display_texture"
-        ) as ConstructorTextureData;
-        if (!display) return null;
-
-        const base64 = TextureManager.getTextureData([display[0], display[1]])
-          ?.base64!;
-        if (!base64) return null;
-        img.src = Array.isArray(base64) ? base64[0] : base64;
+      signal: signal((img) => {
+        img.src = getImage(signal.value.texture);
       }),
       style: {
         width: "64px",
@@ -65,22 +69,12 @@ function SelectVoxel(data: Signal<VoxelData>) {
   );
 }
 
-function VoxelImage(data: VoxelData) {
-  const tags = new Map(data.tags);
-  const display = tags.get(
-    "#ecd_voxel_display_texture"
-  ) as ConstructorTextureData;
-  if (!display) return null;
-  const base64 = TextureManager.getTextureData([display[0], display[1]])
-    ?.base64!;
-  if (!base64) return null;
-  const image = Array.isArray(base64) ? base64[0] : base64;
-
+function VoxelImage(data: ConstructorTextureData) {
   return elm(
     "div",
     "voxel-image",
     elm("img", {
-      src: image,
+      src: getImage(data),
       style: {
         width: "64px",
         height: "64px",
@@ -90,8 +84,14 @@ function VoxelImage(data: VoxelData) {
   );
 }
 
+const VoxelDisplay = (
+  name: string,
+  data: VoxelData,
+  image: ConstructorTextureData
+) => frag(elm("p", {}, name), VoxelImage(image));
+
 function VoxelSelect() {
-  const selectedVoxel = useSignal<VoxelData>();
+  const selectedVoxel = useSignal<VoxelItemData>();
   const voxelsParent = elm("div", "voxels");
   const update = useSignal();
   const searchSchema = Schema.CreateInstance<{ search: string }>(
@@ -101,52 +101,100 @@ function VoxelSelect() {
     })
   );
 
-  VoxelPaintDataComponent.get(Builder.node)!.addOnSchemaUpdate(
-    ["id"],
-    (node) => {
-      const id = node.get()!;
-      const data = Builder.voxelData.find((_) => _.id == id);
-      if (!data) return;
-      selectedVoxel.value = data;
-      selectedVoxel.broadcast();
-    }
-  );
+  const voxelSelect = (
+    data: VoxelData,
+    name: string,
+    texture: ConstructorTextureData,
+    placeData: Partial<AddVoxelData>
+  ) =>
+    elm(
+      "div",
+      {
+        className: "voxel-node",
+        signal: update((elm) => {
+          if (!searchSchema.search) return (elm.style.display = "block");
+          if (!data.name) return (elm.style.display = "none");
+          if (
+            FuzzySearch.fuzzyCloseMatch(
+              data.name.split("_"),
+              searchSchema.search.split(" "),
+              0.2
+            )
+          )
+            return (elm.style.display = "block");
+
+          elm.style.display = "none";
+        }),
+      },
+      VoxelDisplay(name, data, texture),
+
+      elm(
+        "button",
+        {
+          onclick() {
+            Builder.setData(placeData);
+            selectedVoxel.value = {
+              data: placeData as any,
+              name,
+              texture,
+            };
+            selectedVoxel.broadcast();
+          },
+        },
+        "Select"
+      )
+    );
 
   elm.appendChildern(
     voxelsParent,
-    Builder.voxelData.map((data) =>
-      elm(
-        "div",
-        {
-          className: "voxel-node",
-          signal: update((elm) => {
-            if (!searchSchema.search) return (elm.style.display = "block");
-            if (!data.name) return (elm.style.display = "none");
-            if (
-              FuzzySearch.fuzzyCloseMatch(
-                data.name.split("_"),
-                searchSchema.search.split(" "),
-                0.2
-              )
-            )
-              return (elm.style.display = "block");
+    Builder.voxelData.map((data) => {
+      const tags = new Map(data.tags);
+      const placeData = tags.get("#dve_place_data") as
+        | VoxelItemData[]
+        | undefined;
 
-            elm.style.display = "none";
-          }),
-        },
-        elm("p", {}, data.name || data.id),
-        VoxelImage(data),
+      const display = tags.get(
+        "#dve_voxel_display_texture"
+      ) as ConstructorTextureData;
+
+      if (!placeData) {
+        return frag(
+          voxelSelect(data, data.name || data.id, display, { id: data.id })
+        );
+      }
+
+      const signal = useSignal();
+
+      let open = false;
+      return frag(
+        VoxelDisplay(data.name || data.id, data, display),
         elm(
           "button",
           {
             onclick() {
-              Builder.setId(data.id);
+              open = !open;
+              signal.broadcast();
             },
           },
-          "Select"
+          "Show Varations"
+        ),
+        elm(
+          "div",
+          {
+            signal: signal((elm) =>
+              open
+                ? (elm.style.display = "block")
+                : (elm.style.display = "none")
+            ),
+            style: {
+              display:"none",
+              backgroundColor: "#1a1a1a",
+            },
+          },
+          placeData.map((_) => voxelSelect(data, _.name, _.texture, _.data))
         )
-      )
-    )
+      );
+    })
   );
 
   return elm(
