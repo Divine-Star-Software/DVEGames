@@ -3,12 +3,14 @@
   "version": "0.0.0",
   "main": "index.js",
   "scripts": {
-    "init:dvg:foundation": "cd ./packages/foundation ; npm run build ; cd ../../ ; npm init -y --scope @dvegames -w ./packages/foundation/dist"
+    "init:dvg:foundation": "cd ./packages/foundation ; npm run build ; cd ../../ ; npm init -y --scope @dvegames -w ./packages/foundation/dist",
+    "init:dvg:foundation-tools": "cd ./packages/foundation-tools ; npm run build ; cd ../../ ; npm init -y --scope @dvegames -w ./packages/foundation-tools/dist"
   },
   "author": "Divine Star Software",
   "license": "",
   "workspaces": [
-    "packages\\foundation\\dist"
+    "packages\\foundation\\dist",
+    "packages/foundation-tools/dist"
   ],
   "dependencies": {
     "@types/node": "^20.11.28",

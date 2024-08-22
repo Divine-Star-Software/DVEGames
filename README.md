@@ -16,3 +16,5 @@ A collection of useful libraries for building games with the Divine Voxel Engine
 ## Packages
 **@dvegames/foundation**
  - A library of components for building games with BabylonJS and @divinevoxel/foundation.
+ **@dvegames/foundation-tools**
+ - A library for creating a tool panel for any DVE foundation project. 
