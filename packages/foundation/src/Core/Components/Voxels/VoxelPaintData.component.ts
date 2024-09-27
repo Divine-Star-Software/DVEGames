@@ -12,5 +12,6 @@ export const VoxelPaintDataComponent = NCS.registerComponent<Schema, Data>({
     IntProp("level"),
     IntProp("levelState"),
     IntProp("shapeState"),
+    IntProp("mod"),
   ],
 });

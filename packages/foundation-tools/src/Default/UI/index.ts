@@ -1,6 +1,7 @@
-import "./VoxelTemplate.debug.view";
-import "./Buuild.debug.view";
-import "./Player.debug.view";
-import "./Archiver.debug.view";
-import "./WorldGen.debug.view";
-import "./Guides.debug.view";
+import "./VoxelTemplate.view";
+import "./Buuild.view";
+import "./Player.view";
+import "./Archiver.view";
+import "./WorldGen.view";
+import "./Guides.view";
+import "./Controls.view"

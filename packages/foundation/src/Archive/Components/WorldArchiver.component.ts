@@ -9,8 +9,6 @@ import ArchiveArea, {
 } from "@divinevoxel/foundation/Default/Archive/Functions/ArchiveArea";
 import { ArchiverTasks } from "../Tasks/ArchiverTasks";
 import { DimensionProviderComponent } from "../../Core/Components/Providers/DimensionProvider.component";
-import { WorldSpaces } from "@divinevoxel/core/Data/World/WorldSpaces";
-import { Vector3Like } from "@amodx/math";
 
 class Logic {
   constructor(public component: (typeof WorldArchiverComponent)["default"]) {}

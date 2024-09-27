@@ -56,6 +56,7 @@ export const MouseVoxelBuilderComponent = NCS.registerComponent<Schema, Data>({
           if (!dataTool.isRenderable()) return;
           paintData.schema.id = dataTool.getStringId();
           paintData.schema.shapeState = dataTool.getShapeState();
+          paintData.schema.mod = dataTool.getMod();
         }
       }
     );

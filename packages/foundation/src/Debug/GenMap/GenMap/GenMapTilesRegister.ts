@@ -1,4 +1,4 @@
-import { Vector3Like, } from "@amodx/math";
+import { Vector3Like } from "@amodx/math";
 import type { Mesh } from "@babylonjs/core";
 import { LocationData } from "@divinevoxel/core/Math";
 import { WorldSpaces } from "@divinevoxel/core/Data/World/WorldSpaces";
@@ -62,7 +62,10 @@ export class GenMapTilesRegister {
         dimension = this.dimensions.add(location[0]);
       }
       const region = this.region._getRegionData();
-      dimension.set(WorldSpaces.region.getKeyLocation(location), region);
+      dimension.set(
+        WorldSpaces.region.getKeyXYZ(location[1], location[2], location[3]),
+        region
+      );
       return region;
     },
     remove: (location: LocationData) => {
@@ -70,7 +73,9 @@ export class GenMapTilesRegister {
       if (!region) return false;
       const dimension = this.dimensions.get(location[0]);
       if (!dimension) return false;
-      dimension.delete(WorldSpaces.region.getKeyLocation(location));
+      dimension.delete(
+        WorldSpaces.region.getKeyXYZ(location[1], location[2], location[3])
+      );
       region.columns.forEach((column) => {});
       return true;
     },
@@ -82,7 +87,9 @@ export class GenMapTilesRegister {
     get: (location: LocationData) => {
       const dimension = this.dimensions.get(location[0]);
       if (!dimension) return false;
-      const region = dimension.get(WorldSpaces.region.getKeyLocation(location));
+      const region = dimension.get(
+        WorldSpaces.region.getKeyXYZ(location[1], location[2], location[3])
+      );
       if (!region) return false;
       return region;
     },
@@ -96,17 +103,28 @@ export class GenMapTilesRegister {
       const columnLocation: LocationData = [
         location[0],
         ...Vector3Like.ToArray(
-          WorldSpaces.column.getPositionLocation(location)
+          WorldSpaces.column.getPositionXYZ(
+            location[1],
+            location[2],
+            location[3]
+          )
         ),
       ] as LocationData;
       const column = new GenMapTile(this.worldMap, columnLocation);
-      region.columns.set(WorldSpaces.column.getIndexLocation(location), column);
+      region.columns.set(
+        WorldSpaces.column.getIndexXYZ(location[1], location[2], location[3]),
+        column
+      );
       return column;
     },
     remove: (location: LocationData) => {
       let region = this.region.get(location);
       if (!region) return false;
-      const index = WorldSpaces.column.getIndexLocation(location);
+      const index = WorldSpaces.column.getIndexXYZ(
+        location[1],
+        location[2],
+        location[3]
+      );
       const column = region.columns.get(index);
       if (!column) return false;
       column.dispose();
@@ -119,7 +137,9 @@ export class GenMapTilesRegister {
     get: (location: LocationData) => {
       const region = this.region.get(location);
       if (!region) return false;
-      return region.columns.get(WorldSpaces.column.getIndexLocation(location));
+      return region.columns.get(
+        WorldSpaces.column.getIndexXYZ(location[1], location[2], location[3])
+      );
     },
   };
 }

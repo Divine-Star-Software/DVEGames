@@ -33,7 +33,7 @@ export class GenMap {
   constructor() {}
 
   init(scene: Scene) {
-    const quadData = Quad.GetQuad(); 
+    const quadData = Quad.GetQuad();
     this._instanceMesh = new Mesh("world-map-tile-base", scene);
     this._instanceMesh.setVerticesData(
       VertexBuffer.PositionKind,
@@ -108,8 +108,12 @@ export class GenMap {
       }
 
       const columnLocation: LocationData = [location[0], cx, 0, cz];
-
-      const column = WorldRegister.instance.column.get(columnLocation);
+      WorldRegister.instance.setDimension(columnLocation[0]);
+      const column = WorldRegister.instance.column.get(
+        columnLocation[1],
+        columnLocation[2],
+        columnLocation[3]
+      );
       if (!column) {
         this.tilesRegister.column.remove(columnLocation);
       } else {

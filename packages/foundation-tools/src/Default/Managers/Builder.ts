@@ -8,12 +8,14 @@ import { VoxelPaintDataComponent } from "@dvegames/foundation/Core/Components/Vo
 import { DimensionProviderComponent } from "@dvegames/foundation/Core/Components/Providers/DimensionProvider.component";
 import { AddVoxelData } from "@divinevoxel/foundation/Data/Types/WorldData.types";
 import { VoxelData } from "@divinevoxel/core";
+import { VoxelSearchIndex } from "../../Default/Indexing/VoxelSearchIndex";
 
 export class Builder {
   static voxelData: VoxelData[] = [];
 
   static setVoxelDatA(data: VoxelData[]) {
     this.voxelData = data;
+    VoxelSearchIndex.setData(data);
   }
   static node: NodeInstance;
 
@@ -48,5 +50,6 @@ export class Builder {
     if (data?.level !== undefined) schema.level = data.level;
     if (data?.levelState !== undefined) schema.levelState = data.levelState;
     if (data?.shapeState !== undefined) schema.shapeState = data.shapeState;
+    if (data?.mod !== undefined) schema.mod = data.mod;
   }
 }

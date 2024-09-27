@@ -16,6 +16,7 @@ export default function () {
   Threads.registerTasks<PlaceVoxelAreaTasks>(
     CoreTasksIds.PlaceVoxelArea,
     async ([dim, [sx, sy, sz], [ex, ey, ez], data], onDone) => {
+      console.warn("PLACE VOXEL", structuredClone(data));
       brush.start();
       brush.setDimension(dim);
       brush.setData(data);
@@ -36,7 +37,9 @@ export default function () {
         }
       }
       const buildeQueue = brush.getUpdatedChunks();
+
       console.log("all done return qeuue", buildeQueue);
+
       brush.stop();
       if (onDone) onDone(buildeQueue);
     },

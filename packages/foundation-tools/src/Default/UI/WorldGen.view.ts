@@ -18,7 +18,7 @@ ToolPanelViews.registerView("World Gen", (component) => {
           async onclick() {
             DivineVoxelEngineRender.instance.core.threads.world.runTasks(
               "start-world",
-              []
+              ["main", 0, 0, 0]
             );
           },
         },
@@ -39,7 +39,7 @@ ToolPanelViews.registerView("World Gen", (component) => {
           async onclick() {
             DivineVoxelEngineRender.instance.core.threads.world.runTasks(
               "start-world-gen",
-              ["mels-realm", 0, 0, 0]
+              ["main", 0, 0, 0]
             );
           },
         },

@@ -12,7 +12,13 @@ export default function () {
   Threads.registerTasks<ArchiveColumnTasks>(
     ArchiverTasksIds.ArchiveColumn,
     async ([location], onDone) => {
-      const column = WorldRegister.instance.column.get(location);
+      WorldRegister.instance.setDimension(location[0]);
+
+      const column = WorldRegister.instance.column.get(
+        location[1],
+        location[2],
+        location[3]
+      );
       if (!column)
         throw new Error(
           `Column at location ${location.toString()} does not exist`
@@ -37,9 +43,12 @@ export default function () {
           transfers.push(chunk.buffers.state.buffer);
         if (typeof chunk.buffers.secondary != "number")
           transfers.push(chunk.buffers.secondary.buffer);
+        if (typeof chunk.buffers.mod != "number")
+          transfers.push(chunk.buffers.mod.buffer);
         if (chunk.palettes.id) transfers.push(chunk.palettes.id.buffer);
         if (chunk.palettes.light) transfers.push(chunk.palettes.light.buffer);
         if (chunk.palettes.state) transfers.push(chunk.palettes.state.buffer);
+        if (chunk.palettes.mod) transfers.push(chunk.palettes.mod.buffer);
         if (chunk.palettes.secondaryState)
           transfers.push(chunk.palettes.secondaryState.buffer);
         if (chunk.palettes.secondaryId)

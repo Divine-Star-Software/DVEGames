@@ -8,7 +8,7 @@ debugRoot.style.display = "none";
 document.body.append(debugRoot);
 
 const turnOnListener = ({ key }: KeyboardEvent) => {
-  if (key.toLowerCase() == "b") {
+  if (key == "F2") {
     debugRoot.style.display =
       debugRoot.style.display == "block" ? "none" : "block";
   }
@@ -18,7 +18,6 @@ export const ToolPanelComponent = NCS.registerComponent({
   type: "tool-panel",
   init(component) {
     raw(debugRoot, {}, ToolPanel(component));
-
     window.addEventListener("keydown", turnOnListener);
   },
   dispose() {

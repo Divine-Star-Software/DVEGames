@@ -27,6 +27,18 @@ class Logic {
         "main",
       ...VoxelBoxVolumeComponent.get(this.component.node)!.logic.getPoints()
     );
+    console.warn("created template");
+    console.log(this.component.data.template);
+
+    if (typeof this.component.data.template.mod !== "number") {
+      for (let i = 0; i < this.component.data.template.mod.length; i++) {
+        console.log(this.component.data.template.mod[i]);
+      }
+    }
+
+    for (const value of this.component.data.template.traverse()) {
+      console.log(value.raw.toString());
+    }
   }
   async build() {
     const volume = VoxelBoxVolumeComponent.get(this.component.node)!;
