@@ -14,7 +14,7 @@ Either fork or use at your own risks.
 A collection of useful libraries for building games with the Divine Voxel Engine. All libraries are based around the @amodx/ncs ECS library.
 
 ## Packages
-**@dvegames/foundation**
- - A library of components for building games with BabylonJS and @divinevoxel/foundation.
- **@dvegames/foundation-tools**
- - A library for creating a tool panel for any DVE foundation project. 
+**@dvegames/vlox**
+ - A library of components for building games with BabylonJS and @divinevoxel/vlox.
+ **@dvegames/vlox-tools**
+ - A library for creating a tool panel for any @divinevoxel/vlox. project. 
