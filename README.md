@@ -16,5 +16,6 @@ A collection of useful libraries for building games with the Divine Voxel Engine
 ## Packages
 **@dvegames/vlox**
  - A library of components for building games with BabylonJS and @divinevoxel/vlox.
+ 
  **@dvegames/vlox-tools**
  - A library for creating a tool panel for any @divinevoxel/vlox. project. 
