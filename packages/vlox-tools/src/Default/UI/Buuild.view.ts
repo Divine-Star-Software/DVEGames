@@ -18,7 +18,7 @@ import {
   VoxelSearchIndex,
 } from "../Indexing/VoxelSearchIndex";
 
-import { SchemaRegister } from "@divinevoxel/vlox/VoxelModels/State/SchemaRegister";
+import { SchemaRegister } from "@divinevoxel/vlox/VoxelState/SchemaRegister";
 
 elm.css(/* css */ `
 .builder {
