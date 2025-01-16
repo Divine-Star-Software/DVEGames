@@ -1,16 +1,14 @@
 import { Vector3 } from "@babylonjs/core";
 import { NCS } from "@amodx/ncs/";
-import { CameraProviderComponent } from "../../Babylon/Components/Providers/CameraProvider.component";
-import { BabylonContext } from "../../Babylon/Contexts/Babylon.context";
+import { CameraProviderComponent } from "../Providers/CameraProvider.component";
+import { BabylonContext } from "../../Contexts/Babylon.context";
 import { Directions } from "@amodx/math/Directions";
 import { Vector2Like } from "@amodx/math";
 class Data {
+  _cleanUp: () => void;
   forwardDirection = new Vector3();
   sideDirection = new Vector3();
   forwardXZDirection = new Vector3();
-}
-interface CameraDirectionTraitSchema {
-  meshId?: string;
 }
 
 class Logic {
@@ -27,9 +25,7 @@ class Logic {
   }
 
   getForwardDirectionName() {
-    const cameraComponent = CameraProviderComponent.get(
-      this.component.getNode()
-    )!;
+    const cameraComponent = CameraProviderComponent.get(this.component.node)!;
 
     cameraComponent.data.camera.getDirectionToRef(
       Vector3.Forward(),
@@ -38,9 +34,7 @@ class Logic {
     return this.get2dDirection(this._direction);
   }
   getBackwardDirectionName() {
-    const cameraComponent = CameraProviderComponent.get(
-      this.component.getNode()
-    )!;
+    const cameraComponent = CameraProviderComponent.get(this.component.node)!;
 
     cameraComponent.data.camera.getDirectionToRef(
       Vector3.Backward(),
@@ -49,9 +43,7 @@ class Logic {
     return this.get2dDirection(this._direction);
   }
   getRightDirectionName() {
-    const cameraComponent = CameraProviderComponent.get(
-      this.component.getNode()
-    )!;
+    const cameraComponent = CameraProviderComponent.get(this.component.node)!;
 
     cameraComponent.data.camera.getDirectionToRef(
       Vector3.Right(),
@@ -60,9 +52,7 @@ class Logic {
     return this.get2dDirection(this._direction);
   }
   getLeftDirectionName() {
-    const cameraComponent = CameraProviderComponent.get(
-      this.component.getNode()
-    )!;
+    const cameraComponent = CameraProviderComponent.get(this.component.node)!;
 
     cameraComponent.data.camera.getDirectionToRef(
       Vector3.Left(),
@@ -72,23 +62,24 @@ class Logic {
   }
 }
 
-export const CameraDirectionTrait = NCS.registerTrait<
-  CameraDirectionTraitSchema,
+export const CameraDirectionTrait = NCS.registerComponent<
+  {},
   Data,
   Logic
 >({
   type: "camera-direction",
-  data: () => new Data(),
-  logic: (component): Logic => new Logic(component),
-  init(trait) {
-    const node = trait.getNode();
-    const { scene } = BabylonContext.getRequired(node)!.data;
 
-    const cameraComponent = CameraProviderComponent.get(node)!;
+  init(component) {
+    component.data = new Data();
+    component.logic =  new Logic(component.cloneCursor());
 
-    const forwardDirection = trait.data.forwardDirection;
-    const sideDirection = trait.data.sideDirection;
-    const forwardXZDirection = trait.data.forwardXZDirection;
+    const { scene } = BabylonContext.getRequired(component.node)!.data;
+
+    const cameraComponent = CameraProviderComponent.get(component.node)!;
+
+    const forwardDirection = component.data.forwardDirection;
+    const sideDirection = component.data.sideDirection;
+    const forwardXZDirection = component.data.forwardXZDirection;
 
     const forward = Vector3.Forward();
     const right = Vector3.Right();
@@ -104,9 +95,12 @@ export const CameraDirectionTrait = NCS.registerTrait<
     };
 
     scene.registerBeforeRender(directionUpdate);
-
-    trait.observers.disposed.subscribe(trait, () => {
+    component.data._cleanUp = () => {
       scene.unregisterBeforeRender(directionUpdate);
-    });
+    };
+  },
+  dispose(component) {
+    component.data._cleanUp();
+    component.logic.component.returnCursor();
   },
 });

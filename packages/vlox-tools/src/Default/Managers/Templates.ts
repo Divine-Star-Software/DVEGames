@@ -1,5 +1,5 @@
 import { Vec3Array, Vector3Like } from "@amodx/math";
-import { Graph, Node, NodeInstance } from "@amodx/ncs/";
+import { Graph, Node, NodeCursor } from "@amodx/ncs/";
 import { VoxelTemplateComponent } from "@dvegames/vlox/Core/Components/Voxels/Templates/VoxelTemplate.component";
 import { VoxelBoxVolumeComponent } from "@dvegames/vlox/Core/Components/Voxels/Volumes/VoxelBoxVolume.component";
 import { VoxelBoxVolumeMeshComponent } from "@dvegames/vlox/Core/Components/Voxels/Volumes/VoxelBoxVolumeMesh.component";
@@ -10,7 +10,7 @@ import { VoxelTemplateData } from "@divinevoxel/vlox/Templates/VoxelTemplates.ty
 import { VoxelTemplate } from "@divinevoxel/vlox/Templates/VoxelTemplate";
 import { DimensionProviderComponent } from "@dvegames/vlox/Core/Components/Providers/DimensionProvider.component";
 export class Templates {
-  static node: NodeInstance;
+  static node: NodeCursor;
 
   static init(graph: Graph) {
     this.node = graph.addNode(Node({}, []));
@@ -29,7 +29,7 @@ export class Templates {
         VoxelBoxVolumeMeshComponent(),
         VoxelBoxVolumeControllerComponent(),
       ]),
-      this.node
+      this.node.index
     );
   }
 
@@ -45,7 +45,7 @@ export class Templates {
         VoxelBoxVolumeMeshComponent(),
         VoxelBoxVolumeControllerComponent(),
       ]),
-      this.node
+      this.node.index
     );
     const template = VoxelTemplateComponent.get(templateNode)!;
     template.data.template = new VoxelTemplate(data);

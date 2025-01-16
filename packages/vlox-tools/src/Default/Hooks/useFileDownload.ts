@@ -2,10 +2,10 @@ export function useFileDownload() {
   return {
     downloadFile: (
       name: string,
-      data: ArrayBuffer | string,
+      data: ArrayBufferLike | string,
       mmyType: string = "application/octet-stream"
     ) => {
-      const blob = new Blob([data], {
+      const blob = new Blob([data as any], {
         type: mmyType,
       });
       const url = URL.createObjectURL(blob);

@@ -2,9 +2,9 @@ import { FloatPropertyInput } from "@amodx/schemas";
 import { SchemaEditorInputRegister } from "../../SchemaEditorInputRegister";
 import { SEInputBase } from "../../SEInputBase";
 import { elm, useSignal } from "@amodx/elm";
-SchemaEditorInputRegister.register<number, FloatPropertyInput>(
+SchemaEditorInputRegister.register(
   FloatPropertyInput,
-  (props) => {
+  FloatPropertyInput.createPropertyRenderFC((props) => {
     const { node } = props;
     const updateInput = useSignal();
     node.observers.updatedOrLoadedIn.subscribe(() => updateInput.broadcast());
@@ -23,5 +23,5 @@ SchemaEditorInputRegister.register<number, FloatPropertyInput>(
         }),
       })
     );
-  }
+  })
 );

@@ -1,12 +1,10 @@
 import { NCS } from "@amodx/ncs/";
 import { CreateBox } from "@babylonjs/core/Meshes/Builders/boxBuilder";
 import { StandardMaterial, type Mesh } from "@babylonjs/core";
-import { RendererContext } from "../../Core/Contexts/Renderer.context";
-import { SyncTransformTrait } from "../../Core/Traits/Base/SyncTransform.trait";
+
 import { BoxColliderComponent } from "./BoxCollider.component";
 import { BabylonContext } from "../../Babylon/Contexts/Babylon.context";
 
-interface Schema {}
 class Data {
   box: Mesh;
 }
@@ -17,14 +15,13 @@ type Shared = {
 };
 
 export const BoxColliderMeshComponent = NCS.registerComponent<
-  Schema,
+  {},
   Data,
   {},
   Shared
 >({
   type: "box-collider-mesh",
-  schema: [],
-  data: () => new Data(),
+
   shared: {
     material: null,
     box: null,
@@ -50,8 +47,8 @@ export const BoxColliderMeshComponent = NCS.registerComponent<
       collider.schema.size.y,
       collider.schema.size.z
     );
-    const trait = SyncTransformTrait.set(component);
-    trait.data.position = box.position;
+  //  const trait = SyncTransformTrait.set(component);
+  //  trait.data.position = box.position;
 
     box.material = component.shared.material;
 

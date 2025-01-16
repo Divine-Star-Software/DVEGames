@@ -2,9 +2,9 @@ import { Vec2PropertyInput } from "@amodx/schemas";
 import { SchemaEditorInputRegister } from "../../SchemaEditorInputRegister";
 import { elm } from "@amodx/elm";
 import { VectorInputBase } from "./VectorInputBase";
-SchemaEditorInputRegister.register<number, Vec2PropertyInput>(
+SchemaEditorInputRegister.register(
   Vec2PropertyInput,
-  (props) => {
+  Vec2PropertyInput.createPropertyRenderFC((props) => {
     const { node } = props;
     return elm(
       "div",
@@ -27,5 +27,5 @@ SchemaEditorInputRegister.register<number, Vec2PropertyInput>(
         })
       )
     );
-  }
+  })
 );

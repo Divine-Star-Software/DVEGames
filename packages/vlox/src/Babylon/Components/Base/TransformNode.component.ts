@@ -1,13 +1,13 @@
 import { NCS } from "@amodx/ncs/";
 import { TransformNode, Node as BabylonNode } from "@babylonjs/core";
 import { Vector3Like } from "@amodx/math";
-import { StringProp } from "@amodx/schemas";
-import { ProxyTransformTrait } from "../../../Core/Traits/Base/ProxyTransform.trait";
-import { SyncTransformTrait } from "../../../Core/Traits/Base/SyncTransform.trait";
 
-type Schema = {
-  mode: "proxy" | "sync";
-};
+import { TransformComponent } from "../../../Core/Components/Base/Transform.component";
+import { BabylonContext } from "Babylon/Contexts/Babylon.context";
+
+class ComponentSchema {
+  mode: "proxy" | "sync" | "none" = "none";
+}
 
 interface Data {
   transformNode: TransformNode;
@@ -17,37 +17,53 @@ interface Logic {
   getWorldPosition(): Vector3Like;
 }
 
+class Logic {
+  constructor(public component: (typeof TransformNodeComponent)["default"]) {}
+  getWorldPosition() {
+    return this.component.data.transformNode.getAbsolutePosition();
+  }
+  parent(node: BabylonNode) {
+    if (!node) return;
+    node.parent = this.component.data.transformNode;
+    const traverse = (node: BabylonNode) => {
+      node.computeWorldMatrix();
+      for (const child of node.getChildren()) {
+        traverse(child);
+      }
+    };
+    traverse(node);
+  }
+}
+
 export const TransformNodeComponent = NCS.registerComponent<
-  Schema,
+  ComponentSchema,
   Data,
   Logic
 >({
   type: "transform-node",
-  schema: [StringProp("mode", { value: "proxy" })],
+  schema: NCS.schemaFromObject(new ComponentSchema()),
   init(component) {
+    component.logic = new Logic(component.cloneCursor());
+    const context = BabylonContext.getRequired(component.node).data;
     const transformNode = new TransformNode(
-      `transform-component-${component.node.id.idString}`,
-      component.node.graph.dependencies.scene
+      `transform-component-${component.node.index}`,
+      context.scene
     );
+    const tranform = TransformComponent.getRequired(component.node);
+    Vector3Like.Copy(transformNode.position, tranform.schema.position);
+    Vector3Like.Copy(transformNode.rotation, tranform.schema.rotation);
+    Vector3Like.Copy(transformNode.scaling, tranform.schema.scale);
 
     if (component.schema.mode == "proxy") {
-      const trait = ProxyTransformTrait.set(component);
-      trait.data.position = transformNode.position;
-      trait.data.rotation = transformNode.rotation;
-      trait.data.scale = transformNode.scaling;
     }
     if (component.schema.mode == "sync") {
-      const trait = SyncTransformTrait.set(component);
-      trait.data.position = transformNode.position;
-      trait.data.rotation = transformNode.rotation;
-      trait.data.scale = transformNode.scaling;
     }
 
     transformNode.computeWorldMatrix();
     component.data = {
       transformNode,
     };
-    const parent = TransformNodeComponent.get(component.node.parent);
+    const parent = TransformNodeComponent.getParent(component.node);
     if (parent) {
       component.data.transformNode.parent = parent.data.transformNode;
       component.data.transformNode.computeWorldMatrix();
@@ -58,23 +74,6 @@ export const TransformNodeComponent = NCS.registerComponent<
       .getChildren()
       .forEach((_) => (_.parent = null));
     component.data.transformNode.dispose();
-  },
-  logic: (component) => {
-    return {
-      getWorldPosition() {
-        return component.data.transformNode.getAbsolutePosition();
-      },
-      parent(node: BabylonNode) {
-        if (!node) return;
-        node.parent = component.data.transformNode;
-        const traverse = (node: BabylonNode) => {
-          node.computeWorldMatrix();
-          for (const child of node.getChildren()) {
-            traverse(child);
-          }
-        };
-        traverse(node);
-      },
-    };
+    component.logic.component.returnCursor();
   },
 });

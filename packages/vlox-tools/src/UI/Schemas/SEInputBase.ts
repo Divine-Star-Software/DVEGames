@@ -1,7 +1,7 @@
 import { animate, wrap } from "@amodx/elm";
-import { SEInputBaseProps } from "./SEInputElement";
+import { SEInputBaseProps, SEProps } from "./SEInputElement";
 import { useSignal, elm } from "@amodx/elm";
-export const SEInputBase = wrap<SEInputBaseProps, "div">(
+export const SEInputBase = wrap<SEProps, "div">(
   "div",
   true,
   (props, children) => {

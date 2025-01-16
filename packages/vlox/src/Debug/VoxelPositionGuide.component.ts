@@ -1,6 +1,4 @@
-import { NCS, NodeInstance } from "@amodx/ncs";
-import { Mesh } from "@babylonjs/core/Meshes/mesh";
-import { CheckboxProp } from "@amodx/schemas";
+import { NCS } from "@amodx/ncs";
 import {
   PositionGizmo,
   TransformNode,
@@ -12,16 +10,16 @@ import {
   TransformComponent,
 } from "../Core/Components/Base/Transform.component";
 import { createVoxelBoxVolumneMesh } from "../Core/Components/Voxels/Volumes/VoxelBoxVolumeMesh.component";
-type Schema = {
-  visible: boolean;
-};
+class Schema {
+  visible = true;
+}
 interface Data {
   parent: TransformNode;
   positionGizmo: PositionGizmo;
 }
 export const VoxelPositionGuideComponent = NCS.registerComponent<Schema, Data>({
   type: "voxel-position-guide",
-  schema: [CheckboxProp("visible", { value: true })],
+  schema: NCS.schemaFromObject(new Schema()),
   init(component) {
     const context = BabylonContext.getRequired(component.node).data;
 
@@ -68,9 +66,9 @@ export const VoxelPositionGuideComponent = NCS.registerComponent<Schema, Data>({
     });
     component.data.positionGizmo = positionGizmo;
     component.data.parent = node;
-
-    component.addOnSchemaUpdate(["visible"], (node) => {
-      const isVisible = Boolean(node.get());
+    const cursor = component.schema.getCursor();
+    const index = component.schema.getSchemaIndex();
+    cursor.getOrCreateObserver(index.visible).subscribe((isVisible) => {
       component.data.positionGizmo.xGizmo.isEnabled = isVisible;
       component.data.positionGizmo.yGizmo.isEnabled = isVisible;
       component.data.positionGizmo.zGizmo.isEnabled = isVisible;

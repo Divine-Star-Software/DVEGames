@@ -1,17 +1,13 @@
 import { NCS } from "@amodx/ncs/";
 import { Vector3Like } from "@amodx/math";
-import { Vec3Prop } from "@amodx/schemas";
 
-type BoxPhysicsBodyDataSchema = {
-  offset: Vector3Like;
-  size: Vector3Like;
-};
+class BoxPhysicsBodyDataSchema {
+  offset = Vector3Like.Create();
+  size = Vector3Like.Create();
+}
 
 export const BoxColliderComponent =
   NCS.registerComponent<BoxPhysicsBodyDataSchema>({
     type: "box-collider",
-    schema: [
-      Vec3Prop("offset"),
-      Vec3Prop("size", { value: Vector3Like.Create(1, 1, 1) }),
-    ],
+    schema: NCS.schemaFromObject(new BoxPhysicsBodyDataSchema()),
   });

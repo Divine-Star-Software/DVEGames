@@ -1,6 +1,6 @@
 import { Vec3Array } from "@amodx/math";
 import { DataTool } from "@divinevoxel/vlox/Tools/Data/DataTool";
-import { ComponentData, NCS } from "@amodx/ncs/";
+import { NCS } from "@amodx/ncs/";
 import { DimensionProviderComponent } from "../../Providers/DimensionProvider.component";
 
 class Data {
@@ -103,13 +103,19 @@ export const VoxelInersectionComponent = NCS.registerComponent<
   Logic
 >({
   type: "voxel-intersection",
-  data: () => new Data(),
-  logic: (component): Logic => new Logic(component),
   init(component) {
+    component.data = new Data();
+    component.logic = new Logic(component.cloneCursor());
     const dimension = DimensionProviderComponent.get(component.node)!;
     component.data.dataTool.setDimension(dimension.schema.dimension);
-    dimension.addOnSchemaUpdate(["dimension"], () =>
-      component.data.dataTool.setDimension(dimension.schema.dimension)
-    );
+    dimension.schema
+      .getCursor()
+      .getOrCreateObserver(dimension.schema.getSchemaIndex().dimension)
+      .subscribe(() => {
+        component.data.dataTool.setDimension(dimension.schema.dimension);
+      });
+  },
+  dispose(component) {
+    component.logic.component.returnCursor();
   },
 });

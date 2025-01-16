@@ -2,14 +2,12 @@ import { IntPropertyInput } from "@amodx/schemas";
 import { SchemaEditorInputRegister } from "../../SchemaEditorInputRegister";
 import { SEInputBase } from "../../SEInputBase";
 import { elm, useSignal } from "@amodx/elm";
-SchemaEditorInputRegister.register<number, IntPropertyInput>(
+SchemaEditorInputRegister.register(
   IntPropertyInput,
-  (props) => {
+  IntPropertyInput.createPropertyRenderFC((props) => {
     const { node } = props;
     const updateInput = useSignal();
-    node.observers.updatedOrLoadedIn.subscribe(() =>
-      updateInput.broadcast()
-    );
+    node.observers.updatedOrLoadedIn.subscribe(() => updateInput.broadcast());
     return SEInputBase(
       props,
       elm("input", {
@@ -25,5 +23,5 @@ SchemaEditorInputRegister.register<number, IntPropertyInput>(
         }),
       })
     );
-  }
+  })
 );

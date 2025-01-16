@@ -1,10 +1,10 @@
-import { Graph, Node, NodeInstance } from "@amodx/ncs/";
+import { Graph, Node, NodeCursor } from "@amodx/ncs/";
 import { BabylonContext } from "@dvegames/vlox/Babylon/Contexts/Babylon.context";
 import { CrossHairsComponent } from "@dvegames/vlox/Babylon/Components/Interaction/CrossHairs.component";
 export class Controls {
   static context: (typeof BabylonContext)["default"];
   static canvas: HTMLCanvasElement;
-  static node: NodeInstance;
+  static node: NodeCursor;
   private static listener: () => void;
 
   static init(graph: Graph) {

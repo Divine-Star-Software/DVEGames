@@ -4,11 +4,10 @@ import {
   NexusTasksIds,
   RemoveColliderTasks,
 } from "./NexusTask.types";
-import { NodeData } from "@amodx/ncs/";
 
 export class NexusTasks {
   static async registerBody(
-    node: NodeData,
+    node: any,
     sharedTransformBuffer: ArrayBufferLike,
     sharedPhysicsBody: ArrayBufferLike,
     sharedColliderState: ArrayBufferLike
@@ -18,7 +17,7 @@ export class NexusTasks {
       [node, sharedTransformBuffer, sharedPhysicsBody, sharedColliderState]
     );
   }
-  static async removeBody(id: string) {
+  static async removeBody(id: number) {
     await DivineVoxelEngineRender.instance.threads.nexus.runTasks<RemoveColliderTasks>(
       NexusTasksIds.RemoveCollider,
       [id]

@@ -1,18 +1,17 @@
-import { NCS, NodeInstance } from "@amodx/ncs";
+import { NCS, } from "@amodx/ncs";
 import { Mesh } from "@babylonjs/core/Meshes/mesh";
 import { AxesViewer } from "@babylonjs/core/Debug/axesViewer";
 import { BabylonContext } from "../Babylon/Contexts/Babylon.context";
-import { CheckboxProp } from "@amodx/schemas";
-type Schema = {
-  visible: boolean;
-};
+class Schema {
+  visible = true;
+}
 interface Data {
   parent: Mesh;
   viwer: AxesViewer;
 }
 export const AxesViewerComponent = NCS.registerComponent<Schema, Data>({
   type: "axes-viewer",
-  schema: [CheckboxProp("visible", { value: true })],
+  schema: NCS.schemaFromObject(new Schema()),
   init(component) {
     const { scene } = BabylonContext.getRequired(component.node)!.data;
     const axes = new AxesViewer(scene);
@@ -24,8 +23,11 @@ export const AxesViewerComponent = NCS.registerComponent<Schema, Data>({
     parent.renderingGroupId = -1;
     component.data.viwer = axes;
     component.data.parent = parent;
-    component.addOnSchemaUpdate(["visible"], (node) => {
-      parent.setEnabled(Boolean(node.get()));
+
+    const cursor = component.schema.getCursor();
+    const index = component.schema.getSchemaIndex();
+    cursor.getOrCreateObserver(index.visible).subscribe((value) => {
+      parent.setEnabled(Boolean(value));
     });
   },
   dispose(component) {

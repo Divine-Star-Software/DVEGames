@@ -21,16 +21,18 @@ export default function (core: DivineVoxelEngineWorld) {
   core.TC.registerTasks<PlaceVoxelTasks>(
     CoreTasksIds.PlaceVoxel,
     async ([dim, [x, y, z], data]) => {
-      brush.setDimension(dim);
+      brush.start(dim, x, y, z);
       brush.setData(data);
       await brush.setXYZ(x, y, z).paintAndAwaitUpdate();
+      brush.stop();
     }
   );
   core.TC.registerTasks<RemoveVoxelTasks>(
     CoreTasksIds.RemoveVoxel,
     async ([dim, [x, y, z]]) => {
-      brush.setDimension(dim);
+      brush.start(dim, x, y, z);
       await brush.setXYZ(x, y, z).eraseAndAwaitUpdate();
+      brush.stop();
     }
   );
 }

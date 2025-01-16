@@ -45,5 +45,10 @@ class Logic {
 
 export const WorldArchiverComponent = NCS.registerComponent<{}, {}, Logic>({
   type: "world-archiver-component",
-  logic: (component): Logic => new Logic(component),
+  init(component) {
+    component.logic = new Logic(component.cloneCursor());
+  },
+  dispose(component) {
+    component.logic.component.returnCursor();
+  },
 });

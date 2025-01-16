@@ -1,22 +1,18 @@
-import { ComponentData, NCS } from "@amodx/ncs/";
+import { NCS } from "@amodx/ncs/";
 import {
   PositionGizmo,
   ScaleGizmo,
-  StandardMaterial,
   TransformNode,
   UtilityLayerRenderer,
-  type Mesh,
 } from "@babylonjs/core";
 
 import { TransformComponent } from "../../Base/Transform.component";
-import { CheckboxProp, SelectProp } from "@amodx/schemas";
 import { VoxelBoxVolumeMeshComponent } from "./VoxelBoxVolumeMesh.component";
-import { RendererContext } from "../../../Contexts/Renderer.context";
 import { BabylonContext } from "../../../../Babylon/Contexts/Babylon.context";
 
-interface Schema {
-  mode: "position" | "scale";
-  visible: boolean;
+class Schema {
+  mode: "position" | "scale" = "position";
+  visible = true;
 }
 class Data {
   node: TransformNode;
@@ -29,17 +25,13 @@ export const VoxelBoxVolumeControllerComponent = NCS.registerComponent<
   Data
 >({
   type: "voxel-box-volume-controller",
-  schema: [
-    SelectProp("mode", {
-      value: "position",
-      options: ["position", "scale"],
-    }),
-    CheckboxProp("visible", { value: true }),
-  ],
-  data: () => new Data(),
+  schema: NCS.schemaFromObject(new Schema()),
+
   init(component) {
     const context = BabylonContext.getRequired(component.node).data;
 
+    const schemaCursor = component.schema.getCursor();
+    const schemaIndex = component.schema.getSchemaIndex();
     const { scene } = context;
     if (!context.utilLayer) {
       context.utilLayer = new UtilityLayerRenderer(scene);
@@ -51,10 +43,12 @@ export const VoxelBoxVolumeControllerComponent = NCS.registerComponent<
 
     const transformNode = new TransformNode("", scene);
     component.data.node = transformNode;
-    component.addOnSchemaUpdate(["visible"], (node) =>
-      transformNode.setEnabled(Boolean(node.get()))
-    );
 
+    schemaCursor
+      .getOrCreateObserver(schemaIndex.visible)
+      .subscribe((newValue) => {
+        transformNode.setEnabled(newValue);
+      });
     transformNode.position.x = box.position.x + box.scaling.x / 2;
     transformNode.position.y = box.position.y + box.scaling.y / 2;
     transformNode.position.z = box.position.z + box.scaling.z / 2;
@@ -130,8 +124,7 @@ export const VoxelBoxVolumeControllerComponent = NCS.registerComponent<
 
     position();
 
-    component.addOnSchemaUpdate(["mode"], (node) => {
-      const mode = node.get();
+    schemaCursor.getOrCreateObserver(schemaIndex.mode).subscribe((mode) => {
       if (mode == "position") {
         component.data.scaleGizmo?.dispose();
         position();
@@ -143,7 +136,7 @@ export const VoxelBoxVolumeControllerComponent = NCS.registerComponent<
     });
   },
   dispose(component) {
-    component.data.node.dispose();
+    component.data.node?.dispose();
     component.data.positionGizmo?.dispose();
     component.data.scaleGizmo?.dispose();
   },

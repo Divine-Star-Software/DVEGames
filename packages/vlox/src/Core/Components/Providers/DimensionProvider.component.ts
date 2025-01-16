@@ -1,21 +1,21 @@
-import { ComponentData, NCS } from "@amodx/ncs/";
-import { StringProp } from "@amodx/schemas";
+import { NCS } from "@amodx/ncs/";
 import { DimensionContext } from "../../../Core/Contexts/Dimension.context";
-interface Schema {
+class Schema {
   dimension: string;
 }
 export const DimensionProviderComponent = NCS.registerComponent<Schema, {}>({
   type: "dimension-provider",
-  schema: [StringProp("dimension", { value: "main" })],
+  schema: NCS.schemaFromObject(new Schema()),
   init(comp) {
     const context = DimensionContext.get(comp.node);
     if (context) {
-      comp.schema.getSchema().traverse((node) => {
-        node.enableProxy(
-          () => context.schema.dimension,
-          (value) => (context.schema.dimension = value)
+      comp.schema
+        .getCursor()
+        .setProxy(
+          comp.schema.getSchemaIndex().dimension,
+          context.schema,
+          "dimension"
         );
-      });
     }
   },
 });

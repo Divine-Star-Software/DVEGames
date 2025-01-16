@@ -257,135 +257,142 @@ export const PhysicsSystems = NCS.registerSystem({
 
   update(system) {
     if (!dataTool) dataTool = new PhysicsDataTool();
-    for (const node of system.queries[0].nodes) {
-      const dimension = DimensionProviderComponent.get(node)!.schema.dimension;
-      dataTool.setDimension(dimension);
+    const node = system.node;
 
-      const transform = TransformComponent.get(node)!.schema;
-      // Store original position
-      Vector3Like.Copy(position, transform.position);
-      Vector3Like.Copy(previousPosiiton, transform.position);
+    for (let q = 0; q < system.queries.length; q++) {
+      const query = system.queries[q];
+      for (let i = 0; i < query.nodes.length; i++) {
+        node.setNode(system.graph, query.nodes[i]);
+        const dimension =
+          DimensionProviderComponent.get(node)!.schema.dimension;
+        dataTool.setDimension(dimension);
 
-      const body = PhysicsBodyComponent.get(node)!.schema;
+        const transform = TransformComponent.get(node)!.schema;
+        // Store original position
+        Vector3Like.Copy(position, transform.position);
+        Vector3Like.Copy(previousPosiiton, transform.position);
 
-      const collider = BoxColliderComponent.get(node)!;
-      const colliderState = PhysicsColliderStateComponent.get(node)!.schema;
+        const body = PhysicsBodyComponent.get(node)!.schema;
 
-      boundingBox.update(
-        collider.schema.size.x,
-        collider.schema.size.y,
-        collider.schema.size.z
-      );
+        const collider = BoxColliderComponent.get(node)!;
+        const colliderState = PhysicsColliderStateComponent.get(node)!.schema;
 
-      const bboxHalfWidth = boundingBox.halfWidth;
-      const bboxHalfDepth = boundingBox.halfDepth;
-      const bboxHalfHeight = boundingBox.halfHeight;
-
-      applyForces(position, body, deltaTime);
-      applyTransform(position, body, deltaTime);
-
-      let isGrounded = false;
-
-      // Collision detection and resolution loop
-      while (true) {
-        delta.x = position.x - previousPosiiton.x;
-        delta.y = position.y - previousPosiiton.y;
-        delta.z = position.z - previousPosiiton.z;
-
-        const minX = Math.floor(
-          Math.min(position.x, previousPosiiton.x) - bboxHalfWidth
-        );
-        const maxX = Math.floor(
-          Math.max(position.x, previousPosiiton.x) + bboxHalfWidth
-        );
-        const minY = Math.floor(
-          Math.min(position.y, previousPosiiton.y) - bboxHalfHeight
-        );
-        const maxY = Math.floor(
-          Math.max(position.y, previousPosiiton.y) + bboxHalfHeight
-        );
-        const minZ = Math.floor(
-          Math.min(position.z, previousPosiiton.z) - bboxHalfDepth
-        );
-        const maxZ = Math.floor(
-          Math.max(position.z, previousPosiiton.z) + bboxHalfDepth
+        boundingBox.update(
+          collider.schema.size.x,
+          collider.schema.size.y,
+          collider.schema.size.z
         );
 
-        aabb.results.reset();
-        let collisionResults = aabb.results.raw;
+        const bboxHalfWidth = boundingBox.halfWidth;
+        const bboxHalfDepth = boundingBox.halfDepth;
+        const bboxHalfHeight = boundingBox.halfHeight;
 
-        for (let y = minY; y <= maxY; y++) {
-          for (let z = minZ; z <= maxZ; z++) {
-            for (let x = minX; x <= maxX; x++) {
-              if (!dataTool.loadInAt(x, y, z)) continue;
-              const collider = dataTool.getColliderObj();
-              if (!collider) continue;
+        applyForces(position, body, deltaTime);
+        applyTransform(position, body, deltaTime);
 
-              const nodes = collider.getNodes(dataTool);
-              for (const colliderNode of nodes) {
-                start.x = previousPosiiton.x - bboxHalfWidth;
-                start.y = previousPosiiton.y - bboxHalfHeight;
-                start.z = previousPosiiton.z - bboxHalfDepth;
+        let isGrounded = false;
 
-                const collisionCheck = sweepAABBN(
-                  start,
-                  boundingBox,
-                  colliderNode,
-                  delta
-                );
+        // Collision detection and resolution loop
+        while (true) {
+          delta.x = position.x - previousPosiiton.x;
+          delta.y = position.y - previousPosiiton.y;
+          delta.z = position.z - previousPosiiton.z;
 
-                if (collisionCheck.hitDepth < 1) {
-                  if (collisionCheck.ny == 1) isGrounded = true;
-                }
-                if (!dataTool.isSolid() || !collider.isSolid) continue;
-                if (collisionCheck.hitDepth < collisionResults.hitDepth) {
-                  aabb.results.loadIn(colliderNode.results);
+          const minX = Math.floor(
+            Math.min(position.x, previousPosiiton.x) - bboxHalfWidth
+          );
+          const maxX = Math.floor(
+            Math.max(position.x, previousPosiiton.x) + bboxHalfWidth
+          );
+          const minY = Math.floor(
+            Math.min(position.y, previousPosiiton.y) - bboxHalfHeight
+          );
+          const maxY = Math.floor(
+            Math.max(position.y, previousPosiiton.y) + bboxHalfHeight
+          );
+          const minZ = Math.floor(
+            Math.min(position.z, previousPosiiton.z) - bboxHalfDepth
+          );
+          const maxZ = Math.floor(
+            Math.max(position.z, previousPosiiton.z) + bboxHalfDepth
+          );
+
+          aabb.results.reset();
+          let collisionResults = aabb.results.raw;
+
+          for (let y = minY; y <= maxY; y++) {
+            for (let z = minZ; z <= maxZ; z++) {
+              for (let x = minX; x <= maxX; x++) {
+                if (!dataTool.loadInAt(x, y, z)) continue;
+                const collider = dataTool.getColliderObj();
+                if (!collider) continue;
+
+                const nodes = collider.getNodes(dataTool);
+                for (const colliderNode of nodes) {
+                  start.x = previousPosiiton.x - bboxHalfWidth;
+                  start.y = previousPosiiton.y - bboxHalfHeight;
+                  start.z = previousPosiiton.z - bboxHalfDepth;
+
+                  const collisionCheck = sweepAABBN(
+                    start,
+                    boundingBox,
+                    colliderNode,
+                    delta
+                  );
+
+                  if (collisionCheck.hitDepth < 1) {
+                    if (collisionCheck.ny == 1) isGrounded = true;
+                  }
+                  if (!dataTool.isSolid() || !collider.isSolid) continue;
+                  if (collisionCheck.hitDepth < collisionResults.hitDepth) {
+                    aabb.results.loadIn(colliderNode.results);
+                  }
                 }
               }
             }
           }
+
+          position.x =
+            previousPosiiton.x +
+            collisionResults.hitDepth * delta.x +
+            COLLISION_CHECK_POSITION_OFFSET * collisionResults.nx;
+          position.y =
+            previousPosiiton.y +
+            collisionResults.hitDepth * delta.y +
+            COLLISION_CHECK_POSITION_OFFSET * collisionResults.ny;
+          position.z =
+            previousPosiiton.z +
+            collisionResults.hitDepth * delta.z +
+            COLLISION_CHECK_POSITION_OFFSET * collisionResults.nz;
+
+          if (collisionResults.hitDepth == 1) break;
+
+          const BdotB =
+            collisionResults.nx * collisionResults.nx +
+            collisionResults.ny * collisionResults.ny +
+            collisionResults.nz * collisionResults.nz;
+          if (BdotB != 0) {
+            Vector3Like.Copy(previousPosiiton, position);
+            const AdotB =
+              (1 - collisionResults.hitDepth) *
+              (delta.x * collisionResults.nx +
+                delta.y * collisionResults.ny +
+                delta.z * collisionResults.nz);
+            position.x +=
+              (1 - collisionResults.hitDepth) * delta.x -
+              (AdotB / BdotB) * collisionResults.nx;
+            position.y +=
+              (1 - collisionResults.hitDepth) * delta.y -
+              (AdotB / BdotB) * collisionResults.ny;
+            position.z +=
+              (1 - collisionResults.hitDepth) * delta.z -
+              (AdotB / BdotB) * collisionResults.nz;
+          }
         }
 
-        position.x =
-          previousPosiiton.x +
-          collisionResults.hitDepth * delta.x +
-          COLLISION_CHECK_POSITION_OFFSET * collisionResults.nx;
-        position.y =
-          previousPosiiton.y +
-          collisionResults.hitDepth * delta.y +
-          COLLISION_CHECK_POSITION_OFFSET * collisionResults.ny;
-        position.z =
-          previousPosiiton.z +
-          collisionResults.hitDepth * delta.z +
-          COLLISION_CHECK_POSITION_OFFSET * collisionResults.nz;
-
-        if (collisionResults.hitDepth == 1) break;
-
-        const BdotB =
-          collisionResults.nx * collisionResults.nx +
-          collisionResults.ny * collisionResults.ny +
-          collisionResults.nz * collisionResults.nz;
-        if (BdotB != 0) {
-          Vector3Like.Copy(previousPosiiton, position);
-          const AdotB =
-            (1 - collisionResults.hitDepth) *
-            (delta.x * collisionResults.nx +
-              delta.y * collisionResults.ny +
-              delta.z * collisionResults.nz);
-          position.x +=
-            (1 - collisionResults.hitDepth) * delta.x -
-            (AdotB / BdotB) * collisionResults.nx;
-          position.y +=
-            (1 - collisionResults.hitDepth) * delta.y -
-            (AdotB / BdotB) * collisionResults.ny;
-          position.z +=
-            (1 - collisionResults.hitDepth) * delta.z -
-            (AdotB / BdotB) * collisionResults.nz;
-        }
+        Vector3Like.Copy(transform.position, position);
+        colliderState.isGrounded = isGrounded;
       }
-
-      Vector3Like.Copy(transform.position, position);
-      colliderState.isGrounded = isGrounded;
     }
   },
 });

@@ -1,12 +1,11 @@
 import { Observable } from "@amodx/core/Observers";
-import { IPhysicsCollisionEvent, Vector3 } from "@babylonjs/core";
-import { NCS } from "@amodx/ncs/";
+import { Vector3 } from "@babylonjs/core";
+import { NCS, Schema } from "@amodx/ncs/";
 import { TransformComponent } from "../../Core/Components/Base/Transform.component";
 import { PhysicsBodyComponent } from "../../Physics/Components/PhysicsBody.component";
 import { CameraProviderComponent } from "../../Babylon/Components/Providers/CameraProvider.component";
-import { CameraDirectionTrait } from "../../Babylon/Traits/CameraDirection.trait";
+import { CameraDirectionTrait } from "../../Babylon/Components/Cameras/CameraDirection.component";
 import { BabylonContext } from "../../Babylon/Contexts/Babylon.context";
-import { FloatProp } from "@amodx/schemas";
 import { PhysicsColliderStateComponent } from "../../Physics/Components/PhysicsColliderState.component";
 
 class PlayerControllerComponentObservers {
@@ -24,27 +23,25 @@ class PlayerControllerComponentObservers {
 }
 
 class Data {
+  cleanUp: () => void;
   controlObservers = new PlayerControllerComponentObservers();
 }
 
-type Schema = {
-  jumpTime: number;
-  jumpForce: number;
-  speed: number;
-};
+class ComponentSchema {
+  jumpTime = 20;
+  jumpForce = 7;
+  speed = 200;
+}
 
-export const PlayerControllerComponent = NCS.registerComponent<Schema, Data>({
+export const PlayerControllerComponent = NCS.registerComponent<
+  ComponentSchema,
+  Data
+>({
   type: "person-controler-component",
-  schema: [
-    FloatProp("jumpTime", { value: 20 }),
-    FloatProp("jumpForce", { value: 7 }),
-    FloatProp("speed", { value: 200 }),
-  ],
-  data: () => new Data(),
-
+  schema: NCS.schemaFromObject(new ComponentSchema()),
   init(component) {
     const tranformComponent = TransformComponent.get(component.node);
-
+    component.data = new Data();
     const { scene, engine } = BabylonContext.get(component.node)!.data;
     const body = PhysicsBodyComponent.get(component.node)!.logic;
 
@@ -52,7 +49,7 @@ export const PlayerControllerComponent = NCS.registerComponent<Schema, Data>({
 
     const cameraProvider = CameraProviderComponent.getChild(component.node)!;
 
-    const cameraDirectionTrait = CameraDirectionTrait.set(cameraProvider);
+    const cameraDirectionTrait = CameraDirectionTrait.set(cameraProvider.node);
 
     let moveForward = 0;
     let moveBackward = 0;
@@ -143,8 +140,11 @@ export const PlayerControllerComponent = NCS.registerComponent<Schema, Data>({
       jumpTime = component.schema.jumpTime;
     });
 
-    component.observers.disposed.subscribe(this, () => {
+    component.data.cleanUp = () => {
       scene.unregisterBeforeRender(directionUpdate);
-    });
+    };
+  },
+  dispose(component) {
+    component.data.cleanUp();
   },
 });

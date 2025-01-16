@@ -14,7 +14,7 @@ import { VoxelBoxVolumeComponent } from "../Volumes/VoxelBoxVolume.component";
 import { DimensionProviderComponent } from "../../Providers/DimensionProvider.component";
 import { TransformComponent } from "../../../../Core/Components/Base/Transform.component";
 
-type Schema = {};
+
 class Data {
   template: VoxelTemplate;
 }
@@ -27,18 +27,6 @@ class Logic {
         "main",
       ...VoxelBoxVolumeComponent.get(this.component.node)!.logic.getPoints()
     );
-    console.warn("created template");
-    console.log(this.component.data.template);
-
-    if (typeof this.component.data.template.mod !== "number") {
-      for (let i = 0; i < this.component.data.template.mod.length; i++) {
-        console.log(this.component.data.template.mod[i]);
-      }
-    }
-
-    for (const value of this.component.data.template.traverse()) {
-      console.log(value.raw.toString());
-    }
   }
   async build() {
     const volume = VoxelBoxVolumeComponent.get(this.component.node)!;
@@ -72,11 +60,13 @@ class Logic {
 }
 
 export const VoxelTemplateComponent = NCS.registerComponent<
-  Schema,
+  {},
   Data,
   Logic
 >({
   type: "voxel-template",
-  data: () => new Data(),
-  logic: (component): Logic => new Logic(component),
+  
+  init(component) {
+    component.logic = new Logic(component.cloneCursor());
+  },
 });

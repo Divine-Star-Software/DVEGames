@@ -1,6 +1,6 @@
 import { DivineVoxelEngineRender } from "@divinevoxel/vlox/Contexts/Render/DivineVoxelEngineRender";
 import { Vec3Array } from "@amodx/math";
-import { AddVoxelData } from "@divinevoxel/vlox/Data/Types/WorldData.types";
+import { PaintVoxelData } from "@divinevoxel/vlox/Data/Types/WorldData.types";
 import {
   BuildVoxelTemplateTasks,
   PlaceVoxelAreaTasks,
@@ -17,7 +17,7 @@ export class CoreTasks {
     dimension: string,
     start: Vec3Array,
     end: Vec3Array,
-    data: Partial<AddVoxelData>
+    data: Partial<PaintVoxelData>
   ) {
     console.log("PLACING AREA ",dimension,start,end,data)
     const chunks =
@@ -62,7 +62,7 @@ export class CoreTasks {
   static async placeVoxel(
     dimension: string,
     position: Vec3Array,
-    data: Partial<AddVoxelData>
+    data: Partial<PaintVoxelData>
   ) {
     await DivineVoxelEngineRender.instance.threads.world.runTasks<PlaceVoxelTasks>(
       CoreTasksIds.PlaceVoxel,

@@ -1,4 +1,4 @@
-import { elm, Signal, useSignal, wrap } from "@amodx/elm";
+import { ElementChildren, elm, Signal, useSignal, wrap } from "@amodx/elm";
 
 import {
   SchemaEditorNodeObservers,
@@ -12,12 +12,12 @@ import "./Inputs/index";
 export const SchemaEditor = wrap<
   { schemaInstance: ObjectSchemaInstance },
   "div"
->("div", (props) => {
+>("div", true, (props) => {
   const observers = new SchemaEditorObservers();
 
   let activeProeprtyIndex = 0;
   let maxPropertyIndex = 0;
-  const elements: HTMLElement[] = [];
+  const elements: ElementChildren[] = [];
 
   const nodeObservers = new Map<SchemaNode, SchemaEditorNodeObservers>();
   let nodes: SchemaNode[] = [];

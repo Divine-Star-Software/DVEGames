@@ -1,21 +1,20 @@
-import { NCS, NodeInstance } from "@amodx/ncs";
+import { NCS, NodeCursor } from "@amodx/ncs";
 import { NexusTasks } from "../Tasks/Tasks";
 import { TransformComponent } from "../../Core/Components/Base/Transform.component";
 import { PhysicsBodyComponent } from "./PhysicsBody.component";
 import { BoxColliderComponent } from "./BoxCollider.component";
 import { DimensionProviderComponent } from "../../Core/Components/Providers/DimensionProvider.component";
-import { BufferSchemaTrait } from "../../Core/Traits/Base/BufferSchema.trait";
 import { PhysicsColliderStateComponent } from "./PhysicsColliderState.component";
 interface Schema {
   nodeId: string;
 }
 interface Data {
-  readonly node: NodeInstance | null;
+  readonly node: NodeCursor | null;
 }
 export const NexusPhysicsLinkComponent = NCS.registerComponent<Schema, Data>({
   type: "nexus-physics-link",
-  schema: [],
-  init(component) {
+  
+/*   init(component) {
     console.error("WHAT IS UP");
 
     const sharedTransform = BufferSchemaTrait.set(
@@ -54,5 +53,5 @@ export const NexusPhysicsLinkComponent = NCS.registerComponent<Schema, Data>({
   },
   dispose(component) {
     NexusTasks.removeBody(component.node.id.idString);
-  },
+  }, */
 });

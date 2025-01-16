@@ -4,7 +4,7 @@ import { TransformComponent } from "../../Base/Transform.component";
 type Schema = {};
 class Logic {
   constructor(public component: (typeof VoxelBoxVolumeComponent)["default"]) {}
-  getPoints(): [Vec3Array, Vec3Array] {
+  getPoints(): [start: Vec3Array, end: Vec3Array] {
     const { position, scale } = TransformComponent.get(
       this.component.node
     )!.schema;
@@ -14,7 +14,7 @@ class Logic {
     ];
   }
 
-  setPoints([start, end]: [Vec3Array, Vec3Array]) {
+  setPoints([start, end]: [statrt: Vec3Array, end: Vec3Array]) {
     const transform = TransformComponent.get(this.component.node)!.schema;
     const size: Vec3Array = [
       Math.abs(end[0] - start[0]),
@@ -24,14 +24,28 @@ class Logic {
     transform.position = Vector3Like.FromArray(start);
     transform.scale = Vector3Like.FromArray(size);
   }
+
+  inBounds(x: number, y: number, z: number) {
+    const { position, scale } = TransformComponent.get(
+      this.component.node
+    )!.schema;
+
+    if (x < position.x) return false;
+    if (y < position.y) return false;
+    if (z < position.z) return false;
+    if (x > position.x + scale.x) return false;
+    if (y > position.y + scale.y) return false;
+    if (z > position.z + scale.z) return false;
+    return true;
+  }
 }
 
-export const VoxelBoxVolumeComponent = NCS.registerComponent<
-  Schema,
-  {},
-  Logic
->({
-  type: "voxel-box-volume",
-  schema: [],
-  logic: (component): Logic => new Logic(component),
-});
+export const VoxelBoxVolumeComponent = NCS.registerComponent<Schema, {}, Logic>(
+  {
+    type: "voxel-box-volume",
+    
+    init(component) {
+      component.logic =  new Logic(component.cloneCursor());
+    },
+  }
+);

@@ -1,5 +1,5 @@
 import { Vec3Array } from "@amodx/math";
-import { AddVoxelData } from "@divinevoxel/vlox/Data/Types/WorldData.types";
+import { PaintVoxelData } from "@divinevoxel/vlox/Data/Types/WorldData.types";
 import { VoxelTemplateData } from "@divinevoxel/vlox/Templates/VoxelTemplates.types";
 
 export enum CoreTasksIds {
@@ -15,7 +15,7 @@ export type PlaceVoxelAreaTasks = [
   dimension: string,
   start: Vec3Array,
   end: Vec3Array,
-  voxelData: Partial<AddVoxelData>
+  voxelData: Partial<PaintVoxelData>
 ];
 
 export type RemoveVoxelAreaTasks = [
@@ -27,7 +27,7 @@ export type RunBuildQueue = [dimension: string, chunks: Vec3Array[]];
 export type PlaceVoxelTasks = [
   dimension: string,
   position: Vec3Array,
-  voxelData: Partial<AddVoxelData>
+  voxelData: Partial<PaintVoxelData>
 ];
 
 export type RemoveVoxelTasks = [dimension: string, start: Vec3Array];

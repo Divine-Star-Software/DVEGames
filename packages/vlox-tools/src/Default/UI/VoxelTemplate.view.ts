@@ -1,7 +1,7 @@
 import { BinaryObject } from "@amodx/binary";
 import { Compressor } from "@amodx/core/Compression";
 import { elm, frag } from "@amodx/elm";
-import { NodeInstance } from "@amodx/ncs/";
+import { NodeCursor } from "@amodx/ncs/";
 import { TransformComponent } from "@dvegames/vlox/Core/Components/Base/Transform.component";
 import { ToolPanelViews } from "../../DebugPanelViews";
 import { VoxelTemplateComponent } from "@dvegames/vlox/Core/Components/Voxels/Templates/VoxelTemplate.component";
@@ -12,7 +12,9 @@ import { useFileDownload } from "../Hooks/useFileDownload";
 import { useFileUpload } from "../Hooks/useFileUpload";
 import { Schema, SelectProp } from "@amodx/schemas";
 
-const VoxelTemplate = (node: NodeInstance) => {
+const VoxelTemplate = (nodeIndex: number) => {
+  const node = NodeCursor.Get();
+  node.setNode(Templates.node.graph, nodeIndex);
   const template = VoxelTemplateComponent.get(node)!;
   const transform = TransformComponent.get(node)!;
 
@@ -121,7 +123,7 @@ const VoxelTemplate = (node: NodeInstance) => {
               "template.bin",
               await Compressor.core.compressArrayBuffer(
                 BinaryObject.objectToBuffer(template.data.template.toJSON())
-              )
+              ) as any
             );
           },
         },
@@ -146,7 +148,7 @@ ToolPanelViews.registerView("VoxelTemplates", (component) => {
   const { fileInput, uploadFile } = useFileUpload();
 
   Templates.node.observers.childAdded.subscribe((node) => {
-    elm.appendChildern(voxelsParent, [VoxelTemplate(node)]);
+    elm.appendChildern(voxelsParent, [VoxelTemplate(node.index)]);
   });
   Templates.node.children.forEach((_) =>
     elm.appendChildern(voxelsParent, [VoxelTemplate(_)])
@@ -160,7 +162,7 @@ ToolPanelViews.registerView("VoxelTemplates", (component) => {
           display: "flex",
           flexDirection: "row",
         },
-      }, 
+      },
       elm(
         "button",
         {

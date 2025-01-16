@@ -11,11 +11,12 @@ class Data {
     button: number;
     data: (typeof VoxelInersectionComponent)["default"]["data"];
   }>();
+  constructor(public _cleanUp: () => void) {}
 }
 
 export const VoxelMousePickComponent = NCS.registerComponent<{}, Data>({
   type: "voxel-mouse-pick",
-  data: () => new Data(),
+
   init(component) {
     const intersection = VoxelInersectionComponent.get(component.node)!;
 
@@ -51,8 +52,13 @@ export const VoxelMousePickComponent = NCS.registerComponent<{}, Data>({
 
     canvas.addEventListener("pointerdown", listener);
 
-    component.observers.disposed.subscribeOnce(() => {
+    component.data = new Data(() => {
       canvas.removeEventListener("pointerdown", listener);
     });
   },
+  dispose(component) {
+    component.data._cleanUp();
+
+  },
+
 });

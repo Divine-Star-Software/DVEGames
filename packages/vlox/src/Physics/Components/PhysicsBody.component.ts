@@ -1,22 +1,20 @@
 import { NCS } from "@amodx/ncs/";
 import { Vector3Like } from "@amodx/math";
-import { Vec3Prop, FloatProp, CheckboxProp } from "@amodx/schemas";
-import { InstantiatedStruct } from "@amodx/binary";
 
-type PhysicsBodySchema = {
-  velocity: Vector3Like;
-  mass: number;
-  friction: number;
-  acceleration: Vector3Like;
-  angularVelocity: Vector3Like;
-  angularAcceleration: Vector3Like;
-  force: Vector3Like;
-  torque: Vector3Like;
-  damping: Vector3Like;
-  angularDamping: number;
-  gravityScale: number;
-  isKinematic: boolean;
-};
+class PhysicsBodySchema {
+  velocity = Vector3Like.Create();
+  mass = 1;
+  friction = 0.5;
+  acceleration = Vector3Like.Create();
+  angularVelocity = Vector3Like.Create();
+  angularAcceleration = Vector3Like.Create();
+  force = Vector3Like.Create();
+  torque = Vector3Like.Create();
+  damping = Vector3Like.Create();
+  angularDamping = 0.1;
+  gravityScale = 1;
+  isKinematic = false;
+}
 
 class Logic {
   constructor(public component: (typeof PhysicsBodyComponent)["default"]) {}
@@ -46,19 +44,11 @@ export const PhysicsBodyComponent = NCS.registerComponent<
   Logic
 >({
   type: "physics-body",
-  schema: [
-    Vec3Prop("velocity"),
-    FloatProp("mass", { value: 1 }),
-    FloatProp("friction", { value: 0.5 }),
-    Vec3Prop("acceleration"),
-    Vec3Prop("angularVelocity"),
-    Vec3Prop("angularAcceleration"),
-    Vec3Prop("force"),
-    Vec3Prop("torque"),
-    Vec3Prop("damping", { value: { x: 0, y: 0, z: 0 } }),
-    FloatProp("angularDamping", { value: 0.1 }),
-    FloatProp("gravityScale", { value: 1 }),
-    CheckboxProp("isKinematic", { value: false }),
-  ],
-  logic: (component): Logic => new Logic(component),
+  schema: NCS.schemaFromObject(new PhysicsBodySchema()),
+  init(component) {
+    component.logic = new Logic(component.cloneCursor());
+  },
+  dispose(component) {
+    component.logic.component.returnCursor();
+  },
 });

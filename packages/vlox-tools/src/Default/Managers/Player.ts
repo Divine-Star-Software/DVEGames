@@ -1,4 +1,4 @@
-import { Graph, Node, NodeInstance } from "@amodx/ncs/";
+import { Graph, Node, NodeCursor } from "@amodx/ncs/";
 import { PhysicsBodyComponent } from "@dvegames/vlox/Physics/Components/PhysicsBody.component";
 import { PhysicsColliderStateComponent } from "@dvegames/vlox/Physics/Components/PhysicsColliderState.component";
 import { BoxColliderComponent } from "@dvegames/vlox/Physics/Components/BoxCollider.component";
@@ -14,7 +14,7 @@ import { TransformNodeComponent } from "@dvegames/vlox/Babylon/Components/Base/T
 
 export class Player {
   static graph: Graph;
-  static node: NodeInstance | null;
+  static node: NodeCursor | null;
 
   static init(graph: Graph) {
     this.graph = graph;

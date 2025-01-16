@@ -1,4 +1,4 @@
-import { NCS, NodeInstance } from "@amodx/ncs";
+import { NCS, NodeCursor } from "@amodx/ncs";
 import {
   Engine,
   Scene,
@@ -15,11 +15,13 @@ import { GenMap } from "./GenMap/GenMap";
 import { SafeInterval } from "@amodx/core/Intervals/SafeInterval";
 import { DimensionProviderComponent } from "../../Core/Components/Providers/DimensionProvider.component";
 import { BabylonContext } from "../../Babylon/Contexts/Babylon.context";
-interface Schema {}
-interface Data {}
-export const GenWorldMapComponent = NCS.registerComponent<Schema, Data>({
+
+class Data {
+  constructor(public _cleanUp: () => void) {}
+}
+export const GenWorldMapComponent = NCS.registerComponent<{}, Data>({
   type: "gen-world-map",
-  schema: [],
+
   init(component) {
     const container = document.createElement("div");
     container.style.position = "absolute";
@@ -131,10 +133,13 @@ export const GenWorldMapComponent = NCS.registerComponent<Schema, Data>({
     }, 500);
     interval.start();
 
-    component.observers.disposed.subscribeOnce(() => {
+    component.data = new Data(() => {
       interval.stop();
       engine.dispose();
       container.remove();
     });
+  },
+  dispose(component) {
+    component.data._cleanUp();
   },
 });

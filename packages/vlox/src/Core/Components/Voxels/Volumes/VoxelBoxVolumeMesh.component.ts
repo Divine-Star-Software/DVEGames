@@ -1,4 +1,4 @@
-import { ComponentData, NCS } from "@amodx/ncs/";
+import {  NCS } from "@amodx/ncs/";
 import { CreateBox } from "@babylonjs/core/Meshes/Builders/boxBuilder";
 import {
   Scene,
@@ -6,7 +6,10 @@ import {
   VertexBuffer,
   type Mesh,
 } from "@babylonjs/core";
-import { TransformComponent } from "../../Base/Transform.component";
+import {
+  createTransformProxy,
+  TransformComponent,
+} from "../../Base/Transform.component";
 import { Vector3Like } from "@amodx/math";
 import { BabylonContext } from "../../../../Babylon/Contexts/Babylon.context";
 
@@ -27,8 +30,7 @@ export const VoxelBoxVolumeMeshComponent = NCS.registerComponent<
   Shared
 >({
   type: "voxel-box-volume-mesh",
-  schema: [],
-  data: () => new Data(),
+
   shared: {
     material: null,
     box: null,
@@ -51,22 +53,8 @@ export const VoxelBoxVolumeMeshComponent = NCS.registerComponent<
     const box = component.shared.box.clone();
     Vector3Like.Copy(box.position, transformComponent.schema.position);
     Vector3Like.Copy(box.scaling, transformComponent.schema.scale);
-    transformComponent.schema.getSchema().traverse((node) => {
-      if (node.property.id == "position") {
-        node.enableProxy(
-          () => box.position,
-          (vec) => {
-            Vector3Like.Copy(box.position, Vector3Like.FloorInPlace(vec));
-          }
-        );
-      }
-      if (node.property.id == "scale") {
-        node.enableProxy(
-          () => box.scaling,
-          (vec) => Vector3Like.Copy(box.scaling, Vector3Like.FloorInPlace(vec))
-        );
-      }
-    });
+
+    createTransformProxy(transformComponent, box.position, null, box.scaling);
 
     box.material = component.shared.material;
 

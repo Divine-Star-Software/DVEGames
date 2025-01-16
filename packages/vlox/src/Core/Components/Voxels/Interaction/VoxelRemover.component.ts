@@ -30,8 +30,11 @@ class Logic {
 export const VoxelRemoverComponent = NCS.registerComponent<Schema, Data, Logic>(
   {
     type: "voxel-remover",
-    schema: [],
-    data: () => new Data(),
-    logic: (component): Logic => new Logic(component),
+    init(component) {
+      component.logic = new Logic(component.cloneCursor());
+    },
+    dispose(component) {
+      component.logic.component.returnCursor();
+    },
   }
 );

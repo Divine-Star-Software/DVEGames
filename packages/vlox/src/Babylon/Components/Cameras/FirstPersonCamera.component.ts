@@ -1,8 +1,6 @@
 import { NCS } from "@amodx/ncs/";
 import { UniversalCamera, Vector3 } from "@babylonjs/core";
 import { Vec3Array } from "@amodx/math";
-
-import { Vec3Prop } from "@amodx/schemas";
 import { TransformNodeComponent } from "../Base/TransformNode.component";
 import { CameraProviderComponent } from "../Providers/CameraProvider.component";
 import { BabylonContext } from "../../Contexts/Babylon.context";
@@ -10,7 +8,7 @@ import { TransformComponent } from "../../../Core/Components/Base/Transform.comp
 interface Data {
   camera: UniversalCamera;
 }
-interface FirstPersonCameraData {
+class FirstPersonCameraData {
   position: Vec3Array;
   rotation: Vec3Array;
 }
@@ -19,7 +17,7 @@ export const FirstPersonCameraComponent = NCS.registerComponent<
   Data
 >({
   type: "first-person-camera",
-  schema: [Vec3Prop("position"), Vec3Prop("rotation")],
+  schema: NCS.schemaFromObject(new FirstPersonCameraData()),
   init(component) {
     const position = TransformComponent.get(component.node)!.schema.position;
     const tranformNodeComponent = TransformNodeComponent.get(component.node)!;
@@ -54,5 +52,4 @@ export const FirstPersonCameraComponent = NCS.registerComponent<
   dispose(component) {
     component.data.camera.dispose();
   },
-
 });

@@ -1,7 +1,6 @@
 import { NCS } from "@amodx/ncs/";
 import { Audio } from "@amodx/audio";
 import { TransformComponent } from "./Transform.component";
-import { FloatProp, StringProp } from "@amodx/schemas";
 interface Data {}
 class Logic {
   constructor(public component: (typeof AudioSourceComponent)["default"]) {}
@@ -27,7 +26,7 @@ class Logic {
   }
 }
 
-interface AudioSourceComponentSchema {
+class AudioSourceComponentSchema {
   sfxId: string;
   level: number;
   rolloffFactor: number;
@@ -39,10 +38,8 @@ export const AudioSourceComponent = NCS.registerComponent<
   Logic
 >({
   type: "audio-source",
-  schema: [
-    StringProp("sfxId"),
-    FloatProp("level", { value: 1 }),
-    FloatProp("rolloffFactor", { value: 1 }),
-  ],
-  logic: (component): Logic => new Logic(component),
+  schema: NCS.schemaFromObject(new AudioSourceComponentSchema()),
+  init(component) {
+    component.logic =  new Logic(component.cloneCursor());
+  },
 });

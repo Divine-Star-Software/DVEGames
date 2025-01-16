@@ -1,31 +1,34 @@
-import { NCS, NodeInstance } from "@amodx/ncs";
+import { NCS } from "@amodx/ncs";
 import { VoxelMousePickComponent } from "../../Core/Components/Voxels/Interaction/VoxelMousePick.component";
-import { SelectProp } from "@amodx/schemas";
 import { MouseVoxelBuilderBoxToolComponent } from "./Mouse/MouseVoxelBuilderBoxTool.component";
 import { MouseVoxelBuilderSingleToolComponent } from "./Mouse/MouseVoxelBuilderSingleTool.component";
 import { VoxelPaintDataComponent } from "../../Core/Components/Voxels/VoxelPaintData.component";
+import { Observable } from "@amodx/core/Observers";
 
 enum Tools {
   Single = "signle",
   Box = "box",
 }
 
-interface Schema {
-  tool: Tools;
+class ComponentSchema {
+  tool: Tools = Tools.Single;
 }
-interface Data {
-  readonly node: NodeInstance | null;
+class Data {
+  constructor(public _cleanUp: () => void) {}
 }
-export const MouseVoxelBuilderComponent = NCS.registerComponent<Schema, Data>({
-  type: "mouse-voxel-builder",
-  schema: [
-    SelectProp("tool", {
-      value: Tools.Single,
-      options: [Tools.Single, Tools.Box],
-    }),
-  ],
 
+class Logic {
+  voxelPickedObserver = new Observable();
+}
+export const MouseVoxelBuilderComponent = NCS.registerComponent<
+  ComponentSchema,
+  {},
+  Logic
+>({
+  type: "mouse-voxel-builder",
+  schema: NCS.schemaFromObject(new ComponentSchema()),
   init(component) {
+    component.logic = new Logic();
     const update = () => {
       if (component.schema.tool == Tools.Single) {
         if (MouseVoxelBuilderBoxToolComponent.get(component.node)) {
@@ -43,9 +46,12 @@ export const MouseVoxelBuilderComponent = NCS.registerComponent<Schema, Data>({
 
     update();
 
-    component.addOnSchemaUpdate(["tool"], () => {
-      update();
-    });
+    component.schema
+      .getCursor()
+      .getOrCreateObserver(component.schema.getSchemaIndex().tool)
+      .subscribe(() => {
+        update();
+      });
 
     const paintData = VoxelPaintDataComponent.get(component.node)!;
 
@@ -57,6 +63,7 @@ export const MouseVoxelBuilderComponent = NCS.registerComponent<Schema, Data>({
           paintData.schema.id = dataTool.getStringId();
           paintData.schema.shapeState = dataTool.getShapeState();
           paintData.schema.mod = dataTool.getMod();
+          component.logic.voxelPickedObserver.notify();
         }
       }
     );

@@ -1,4 +1,4 @@
-import { NCS, Node, NodeInstance } from "@amodx/ncs";
+import { NCS, Node, NodeCursor } from "@amodx/ncs";
 import { VoxelMousePickComponent } from "../../../Core/Components/Voxels/Interaction/VoxelMousePick.component";
 import { VoxelRemoverComponent } from "../../../Core/Components/Voxels/Interaction/VoxelRemover.component";
 import { VoxelPlacerComponent } from "../../../Core/Components/Voxels/Interaction/VoxelPlacer.component";
@@ -15,17 +15,16 @@ import {
 } from "@babylonjs/core";
 import { Observable } from "@amodx/core/Observers";
 import { BabylonContext } from "../../../Babylon/Contexts/Babylon.context";
-import { IntProp, StringProp } from "@amodx/schemas";
 
-interface Schema {
+class ComponentSchema {
   defaultExtrusion: number;
 }
-interface Data {
-  readonly node: NodeInstance | null;
+class Data {
+  constructor(public _cleanUp: () => void) {}
 }
 
 class BuilderBox {
-  node: NodeInstance;
+  node: NodeCursor;
   canceled = new Observable();
   constructor(
     public component: (typeof MouseVoxelBuilderBoxToolComponent)["default"]
@@ -38,7 +37,7 @@ class BuilderBox {
         VoxelBoxVolumeComponent(),
         VoxelBoxVolumeMeshComponent(),
       ]),
-      this.component.node
+      this.component.node.index
     );
     VoxelBoxVolumeMeshComponent.get(this.node)!.data.box.renderingGroupId = 3;
   }
@@ -80,13 +79,13 @@ const getIntersection = (
 
   return intersectionPoint;
 };
+
 export const MouseVoxelBuilderBoxToolComponent = NCS.registerComponent<
-  Schema,
+  ComponentSchema,
   Data
 >({
   type: "mouse-voxel-builder-box-tool",
-  schema: [IntProp("defaultExtrusion")],
-
+  schema: NCS.schemaFromObject(new ComponentSchema()),
   init(component) {
     const remover = VoxelRemoverComponent.get(component.node)!;
     const placer = VoxelPlacerComponent.get(component.node)!;
@@ -292,12 +291,15 @@ export const MouseVoxelBuilderBoxToolComponent = NCS.registerComponent<
       }
     );
 
-    component.observers.disposed.subscribeOnce(() => {
+    component.data = new Data(() => {
       VoxelMousePickComponent.get(component.node)!.data.voxelPicked.unsubscribe(
         component
       );
       window.removeEventListener("keydown", keydown);
       window.removeEventListener("keyup", keyup);
     });
+  },
+  dispose(component) {
+    component.data._cleanUp();
   },
 });

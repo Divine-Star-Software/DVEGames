@@ -1,21 +1,27 @@
-import { NCS, NodeInstance } from "@amodx/ncs";
-import { StringProp } from "@amodx/schemas";
-interface Schema {
-  nodeId: string;
+import { NCS, NodeCursor } from "@amodx/ncs";
+class ComponentSchema {
+  nodeId: bigint = 0n;
+  nodeIndex: number = 0;
 }
 interface Data {
-  readonly node: NodeInstance | null;
+  readonly node: NodeCursor | null;
 }
-export const NodeRefernceComponent = NCS.registerComponent<Schema, Data>({
+export const NodeRefernceComponent = NCS.registerComponent<
+  ComponentSchema,
+  Data
+>({
   type: "node-refernce",
-  data: (c) => {
-    return {
+  schema: NCS.schemaFromObject(new ComponentSchema()),
+  init(component) {
+    const c = component.cloneCursor();
+    component.data = {
       get node() {
         return (
-          (c.schema.nodeId && c.node.graph.getNode(c.schema.nodeId)) || null
+          (c.schema.nodeIndex !== undefined &&
+            c.node.graph.getNode(c.schema.nodeIndex)) ||
+          null
         );
       },
     };
   },
-  schema: [StringProp("nodeId")],
 });

@@ -196,7 +196,8 @@ transition: all 0.5s;
 .view-container {
   display: block;
   height: 100%;
-  overflow-y: scroll;
+  width: 100%;
+  overflow: hidden;
 }
 
 

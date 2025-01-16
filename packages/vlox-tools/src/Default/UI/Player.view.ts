@@ -1,13 +1,14 @@
+
 import { elm, frag, useSignal } from "@amodx/elm";
 import { ToolPanelViews } from "../../DebugPanelViews";
 import { Player } from "../Managers/Player";
-import { NodeInstance } from "@amodx/ncs/";
+import { NodeCursor } from "@amodx/ncs/";
 import { SchemaEditor } from "../../UI/Schemas/SchemaEditor";
 import { PlayerControllerComponent } from "@dvegames/vlox/Player/Components/PlayerController.component";
 import { PhysicsBodyComponent } from "@dvegames/vlox/Physics/Components/PhysicsBody.component";
 import { TransformComponent } from "@dvegames/vlox/Core/Components/Base/Transform.component";
 
-function PlayerView(node: NodeInstance) {
+function PlayerView(node: NodeCursor) {
   return frag(
     SchemaEditor({
       schemaInstance: TransformComponent.get(node)!.schema,

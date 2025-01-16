@@ -1,36 +1,42 @@
-import { ComponentData, NCS } from "@amodx/ncs/";
+import { NCS } from "@amodx/ncs/";
 import { CoreTasks } from "../../../Tasks/CoreTasks";
 import { Vec3Array } from "@amodx/math";
-import { StringProp } from "@amodx/schemas";
 import { VoxelPaintDataComponent } from "../VoxelPaintData.component";
 import { DimensionProviderComponent } from "../../Providers/DimensionProvider.component";
-
-interface Schema {}
+import { PaintVoxelData } from "@divinevoxel/vlox/Data/Types/WorldData.types";
 
 class Logic {
   constructor(public component: (typeof VoxelPlacerComponent)["default"]) {}
 
-  async placeArea(start: Vec3Array, end?: Vec3Array) {
+  async placeArea(
+    start: Vec3Array,
+    end: Vec3Array,
+    data?: Partial<PaintVoxelData>
+  ) {
     await CoreTasks.placeVoxelArea(
       DimensionProviderComponent.get(this.component.node)?.schema.dimension ||
         "main",
       start,
       end || [start[0] + 1, start[1] + 1, start[2] + 1],
-      VoxelPaintDataComponent.get(this.component.node)!.schema.toJSON()
+      data || VoxelPaintDataComponent.get(this.component.node)!.schema.toJSON()
     );
   }
-  async placeSingle(start: Vec3Array) {
+  async placeSingle(start: Vec3Array, data?: Partial<PaintVoxelData>) {
     await CoreTasks.placeVoxel(
       DimensionProviderComponent.get(this.component.node)?.schema.dimension ||
         "main",
       start,
-      VoxelPaintDataComponent.get(this.component.node)!.schema.toJSON()
+      data || VoxelPaintDataComponent.get(this.component.node)!.schema.toJSON()
     );
   }
 }
 
-export const VoxelPlacerComponent = NCS.registerComponent<Schema, {}, Logic>({
+export const VoxelPlacerComponent = NCS.registerComponent<{}, {}, Logic>({
   type: "voxel-placer",
-  schema: [StringProp("dimension")],
-  logic: (component): Logic => new Logic(component),
+  init(component) {
+    component.logic = new Logic(component.cloneCursor());
+  },
+  dispose(component) {
+    component.logic.component.returnCursor();
+  },
 });
