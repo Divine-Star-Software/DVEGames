@@ -4,7 +4,7 @@ import { NCS, Schema } from "@amodx/ncs/";
 import { TransformComponent } from "../../Core/Components/Base/Transform.component";
 import { PhysicsBodyComponent } from "../../Physics/Components/PhysicsBody.component";
 import { CameraProviderComponent } from "../../Babylon/Components/Providers/CameraProvider.component";
-import { CameraDirectionTrait } from "../../Babylon/Components/Cameras/CameraDirection.component";
+import { CameraDirectionComponent } from "../../Babylon/Components/Cameras/CameraDirection.component";
 import { BabylonContext } from "../../Babylon/Contexts/Babylon.context";
 import { PhysicsColliderStateComponent } from "../../Physics/Components/PhysicsColliderState.component";
 
@@ -49,7 +49,7 @@ export const PlayerControllerComponent = NCS.registerComponent<
 
     const cameraProvider = CameraProviderComponent.getChild(component.node)!;
 
-    const cameraDirectionTrait = CameraDirectionTrait.set(cameraProvider.node);
+    const cameraDirectionTrait = CameraDirectionComponent.set(cameraProvider.node);
 
     let moveForward = 0;
     let moveBackward = 0;

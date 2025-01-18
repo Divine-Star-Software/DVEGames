@@ -23,7 +23,7 @@ export class DVEPhysics {
 
   static async init(dve: DivineVoxelEngineNexus) {
     const graph = NCS.createGraph();
-    NexusContext.set(graph.root, undefined, {
+    NexusContext.set(graph.root, null, null, {
       dve,
     });
     this.graph = graph;

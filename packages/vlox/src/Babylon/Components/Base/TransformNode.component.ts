@@ -3,7 +3,7 @@ import { TransformNode, Node as BabylonNode } from "@babylonjs/core";
 import { Vector3Like } from "@amodx/math";
 
 import { TransformComponent } from "../../../Core/Components/Base/Transform.component";
-import { BabylonContext } from "Babylon/Contexts/Babylon.context";
+import { BabylonContext } from "../../Contexts/Babylon.context";
 
 class ComponentSchema {
   mode: "proxy" | "sync" | "none" = "none";
@@ -11,10 +11,6 @@ class ComponentSchema {
 
 interface Data {
   transformNode: TransformNode;
-}
-interface Logic {
-  parent(node: BabylonNode): void;
-  getWorldPosition(): Vector3Like;
 }
 
 class Logic {
@@ -68,6 +64,7 @@ export const TransformNodeComponent = NCS.registerComponent<
       component.data.transformNode.parent = parent.data.transformNode;
       component.data.transformNode.computeWorldMatrix();
     }
+    tranform.returnCursor();
   },
   dispose(component) {
     component.data.transformNode

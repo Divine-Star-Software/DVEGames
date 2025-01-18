@@ -13,7 +13,7 @@ class Data {
 
 class Logic {
   private _direction = new Vector3();
-  constructor(public component: (typeof CameraDirectionTrait)["default"]) {}
+  constructor(public component: (typeof CameraDirectionComponent)["default"]) {}
 
   private get2dDirection(vector: Vector3) {
     vector.y = 0;
@@ -62,7 +62,7 @@ class Logic {
   }
 }
 
-export const CameraDirectionTrait = NCS.registerComponent<
+export const CameraDirectionComponent = NCS.registerComponent<
   {},
   Data,
   Logic
