@@ -5,7 +5,7 @@ import { VoxelPaintDataComponent } from "../VoxelPaintData.component";
 import { DimensionProviderComponent } from "../../Providers/DimensionProvider.component";
 import { PaintVoxelData } from "@divinevoxel/vlox/Data/Types/WorldData.types";
 
-class Logic {
+class Data {
   constructor(public component: (typeof VoxelPlacerComponent)["default"]) {}
 
   async placeArea(
@@ -31,12 +31,9 @@ class Logic {
   }
 }
 
-export const VoxelPlacerComponent = NCS.registerComponent<{}, {}, Logic>({
+export const VoxelPlacerComponent = NCS.registerComponent({
   type: "voxel-placer",
-  init(component) {
-    component.logic = new Logic(component.cloneCursor());
-  },
-  dispose(component) {
-    component.logic.component.returnCursor();
-  },
+  data: NCS.data<Data>(),
+  init: (component) => (component.data = new Data(component.cloneCursor())),
+  dispose: (component) => component.data.component.returnCursor(),
 });

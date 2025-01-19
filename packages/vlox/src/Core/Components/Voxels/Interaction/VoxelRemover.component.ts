@@ -1,15 +1,10 @@
 import { NCS } from "@amodx/ncs/";
-
 import { CoreTasks } from "../../../Tasks/CoreTasks";
 import { Vec3Array } from "@amodx/math";
 import { DimensionProviderComponent } from "../../Providers/DimensionProvider.component";
 
-interface Schema {}
-class Data {}
-
-class Logic {
+class Data {
   constructor(public component: (typeof VoxelRemoverComponent)["default"]) {}
-
   async removeArea(start: Vec3Array, end?: Vec3Array) {
     await CoreTasks.removeVoxelArea(
       DimensionProviderComponent.get(this.component.node)?.schema.dimension ||
@@ -27,14 +22,8 @@ class Logic {
   }
 }
 
-export const VoxelRemoverComponent = NCS.registerComponent<Schema, Data, Logic>(
-  {
-    type: "voxel-remover",
-    init(component) {
-      component.logic = new Logic(component.cloneCursor());
-    },
-    dispose(component) {
-      component.logic.component.returnCursor();
-    },
-  }
-);
+export const VoxelRemoverComponent = NCS.registerComponent<Data>({
+  type: "voxel-remover",
+  init: (component) => (component.data = new Data(component.cloneCursor())),
+  dispose: (component) => component.data.component.returnCursor(),
+});

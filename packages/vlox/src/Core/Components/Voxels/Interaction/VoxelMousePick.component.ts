@@ -4,19 +4,15 @@ import { Observable } from "@amodx/core/Observers";
 import { Matrix } from "@babylonjs/core/Maths/math.vector";
 import { Vector3Like } from "@amodx/math";
 import { BabylonContext } from "../../../../Babylon/Contexts/Babylon.context";
-
-class Data {
-  dimension: string;
-  voxelPicked = new Observable<{
-    button: number;
-    data: (typeof VoxelInersectionComponent)["default"]["data"];
-  }>();
-  constructor(public _cleanUp: () => void) {}
-}
-
-export const VoxelMousePickComponent = NCS.registerComponent<{}, Data>({
+export const VoxelMousePickComponent = NCS.registerComponent({
   type: "voxel-mouse-pick",
-
+  data: NCS.data<{
+    voxelPicked: Observable<{
+      button: number;
+      data: (typeof VoxelInersectionComponent)["default"]["data"];
+    }>;
+    _cleanUp: () => void;
+  }>(),
   init(component) {
     const intersection = VoxelInersectionComponent.get(component.node)!;
 
@@ -36,7 +32,7 @@ export const VoxelMousePickComponent = NCS.registerComponent<{}, Data>({
 
       const length = 100;
 
-      const picked = intersection.logic.pick(
+      const picked = intersection.data.pick(
         Vector3Like.ToArray(pickRay.origin),
         Vector3Like.ToArray(pickRay.direction),
         length
@@ -52,13 +48,12 @@ export const VoxelMousePickComponent = NCS.registerComponent<{}, Data>({
 
     canvas.addEventListener("pointerdown", listener);
 
-    component.data = new Data(() => {
-      canvas.removeEventListener("pointerdown", listener);
-    });
+    component.data = {
+      voxelPicked: new Observable(),
+      _cleanUp: () => {
+        canvas.removeEventListener("pointerdown", listener);
+      },
+    };
   },
-  dispose(component) {
-    component.data._cleanUp();
-
-  },
-
+  dispose: (component) => component.data._cleanUp(),
 });

@@ -6,10 +6,7 @@ export class Map {
 
   static init(graph: Graph) {
     this.node = graph.addNode(
-      Node({}, [
-        DimensionProviderComponent(),
-        GenWorldMapComponent(),
-      ])
-    );
+      Node("Map", [DimensionProviderComponent(), GenWorldMapComponent()])
+    ).cloneCursor();
   }
 }

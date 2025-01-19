@@ -8,36 +8,32 @@ import { VoxelPaintDataComponent } from "@dvegames/vlox/Core/Components/Voxels/V
 import { DimensionProviderComponent } from "@dvegames/vlox/Core/Components/Providers/DimensionProvider.component";
 import { PaintVoxelData } from "@divinevoxel/vlox/Data/Types/WorldData.types";
 import { VoxelData } from "@divinevoxel/vlox/Types";
-import { VoxelSearchIndex } from "../../Default/Indexing/VoxelSearchIndex";
+
 import { Observable } from "@amodx/core/Observers";
 
 export class Builder {
   static voxelData: VoxelData[] = [];
 
-  static setVoxelDatA(data: VoxelData[]) {
-    this.voxelData = data;
-    VoxelSearchIndex.setData(data);
-  }
   static node: NodeCursor;
 
   static enabled = false;
 
   static voxelUpdated = new Observable();
 
-
-
   static init(graph: Graph) {
-    this.node = graph.addNode(
-      Node({}, [
-        VoxelInersectionComponent(),
-        VoxelMousePickComponent(),
-        VoxelRemoverComponent(),
-        VoxelPlacerComponent(),
-        VoxelPaintDataComponent(),
-        DimensionProviderComponent(),
-        MouseVoxelBuilderComponent(),
-      ])
-    );
+    this.node = graph
+      .addNode(
+        Node("Builder", [
+          VoxelInersectionComponent(),
+          VoxelMousePickComponent(),
+          VoxelRemoverComponent(),
+          VoxelPlacerComponent(),
+          VoxelPaintDataComponent(),
+          DimensionProviderComponent(),
+        ])
+      )
+      .cloneCursor();
+    MouseVoxelBuilderComponent.set(this.node);
   }
 
   static setId(id: string) {

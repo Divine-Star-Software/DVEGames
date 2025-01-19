@@ -1,19 +1,36 @@
 import { NCS } from "@amodx/ncs/";
 import { Vector3Like } from "@amodx/math";
-
-export class TransformData {
-  static Create(data: Partial<TransformData> = {}) {
-    return new TransformData(data.position, data.rotation, data.scale);
-  }
-  constructor(
-    public position: Vector3Like = Vector3Like.Create(),
-    public rotation: Vector3Like = Vector3Like.Create(),
-    public scale: Vector3Like = Vector3Like.Create(1, 1, 1)
-  ) {}
-}
-export const TransformComponent = NCS.registerComponent<TransformData>({
+export const TransformComponent = NCS.registerComponent({
   type: "transform",
-  schema: NCS.schemaFromObject(new TransformData()),
+  schema: NCS.schema(
+    {
+      position: NCS.property(Vector3Like.Create(), {
+        type: "vector-3",
+        binary: "f32",
+      }),
+      rotation: NCS.property(Vector3Like.Create(), {
+        type: "vector-3",
+        binary: "f32",
+      }),
+      scale: NCS.property(Vector3Like.Create(1, 1, 1), {
+        type: "vector-3",
+        binary: "f32",
+      }),
+    },
+    [
+      {
+        id: "shared-array",
+        type: "typed-array",
+        sharedMemory: true,
+        arrayType: "f32",
+      },
+      {
+        id: "array",
+        type: "typed-array",
+        arrayType: "f32",
+      },
+    ]
+  ),
 });
 
 export const createTransformProxy = (

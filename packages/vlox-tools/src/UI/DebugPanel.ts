@@ -19,42 +19,37 @@ elm.css(/* css */ `
     flex-direction: column;
     button {
 
---bg-opacity: 0.2;
---border-opacity: 0.2;
-background-color: rgb(255 255 255 / var(--bg-opacity));
-border-width: 1px;
-border-style: solid;
-border-color: rgb(255 255 255 / var(--border-opacity));
-border-radius: 20px;
+      --bg-opacity: 0.2;
+      --border-opacity: 0.2;
+      background-color: rgb(255 255 255 / var(--bg-opacity));
+      border-width: 1px;
+      border-style: solid;
+      border-color: rgb(255 255 255 / var(--border-opacity));
+      border-radius: 10px;
 
-padding-left: 2.5rem;
-padding-right: 2.5rem;
-border-radius: 9999px;
-display: flex;
-flex-direction: row;
-justify-content: space-between;
-text-decoration: none;
-color: inherit;
+      padding-left: 5px;
+      padding-right: 5px;
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      text-decoration: none;
+      color: inherit;
 
-font-weight: 500;
+      font-weight: 500;
 
 
-font-family: var(--main-font-family);
+      font-family: var(--main-font-family);
 
-display: flex;
-align-items: center;
-justify-content: space-between;
+      font-weight: bold;
+      letter-spacing: 2px;
+      transition: all 0.5s;
+      &:hover {
+        --bg-opacity: 0.4;
+        --border-opacity: 0.4;
+        cursor: pointer;
+        transition: all 0.5s;
 
-font-weight: bold;
-letter-spacing: 2px;
-transition: all 0.5s;
-&:hover {
-  --bg-opacity: 0.4;
-  --border-opacity: 0.4;
-  cursor: pointer;
-  transition: all 0.5s;
-
-}
+      }
       
 }
 

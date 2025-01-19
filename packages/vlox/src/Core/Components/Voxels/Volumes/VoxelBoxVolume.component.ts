@@ -1,8 +1,8 @@
-import { Vec3Array, Vector3Like } from "@amodx/math";
+import { Vec3Array } from "@amodx/math";
 import { NCS } from "@amodx/ncs/";
 import { TransformComponent } from "../../Base/Transform.component";
 
-class Logic {
+class Data {
   constructor(public component: (typeof VoxelBoxVolumeComponent)["default"]) {}
   getPoints(): [start: Vec3Array, end: Vec3Array] {
     const { position, scale } = TransformComponent.getRequired(
@@ -33,7 +33,6 @@ class Logic {
     const position = schema.position;
     const scale = schema.scale;
 
-
     if (x < position.x) return false;
     if (y < position.y) return false;
     if (z < position.z) return false;
@@ -44,10 +43,8 @@ class Logic {
   }
 }
 
-export const VoxelBoxVolumeComponent = NCS.registerComponent<{}, {}, Logic>({
+export const VoxelBoxVolumeComponent = NCS.registerComponent<Data>({
   type: "voxel-box-volume",
-
-  init(component) {
-    component.logic = new Logic(component.cloneCursor());
-  },
+  init: (component) => (component.data = new Data(component.cloneCursor())),
+  dispose: (component) => component.data.component.returnCursor(),
 });

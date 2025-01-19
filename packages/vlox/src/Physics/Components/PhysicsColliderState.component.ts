@@ -1,9 +1,21 @@
 import { NCS } from "@amodx/ncs/";
-class Schema {
-  isGrounded = false;
-  isInLiquid = false;
-}
-export const PhysicsColliderStateComponent = NCS.registerComponent<Schema>({
+export const PhysicsColliderStateComponent = NCS.registerComponent({
   type: "collider-state",
-  schema: NCS.schemaFromObject(new Schema()),
+  schema: NCS.schema(
+    {
+      isGrounded: NCS.property(0, { binary: "ui8" }),
+      isInLiquid: NCS.property(0, { binary: "ui8" }),
+    },
+    [
+      {
+        id: "shared-binary-object",
+        type: "binary-object",
+        sharedMemory: true,
+      },
+      {
+        id: "binary-object",
+        type: "binary-object",
+      },
+    ]
+  ),
 });

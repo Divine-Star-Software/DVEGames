@@ -4,7 +4,7 @@ import { ColliderManager } from "./ColliderManager.js";
 
 ColliderManager.registerCollider(
   new (class extends Collider {
-    id = "#dve_box";
+    id = "#dve_cube";
     isSolid = true;
     flags = {};
 

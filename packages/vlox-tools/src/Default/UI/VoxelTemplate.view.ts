@@ -39,10 +39,10 @@ const VoxelTemplate = (nodeIndex: number) => {
       },
     },
     SchemaEditor({
-      schemaInstance: transform.schema,
+      schema: transform.schema,
     }),
     SchemaEditor({
-      schemaInstance: volumeController.schema,
+      schema: volumeController.schema,
     }),
     SchemaEditor({
       schemaInstance: rotation,
@@ -59,7 +59,7 @@ const VoxelTemplate = (nodeIndex: number) => {
         "button",
         {
           onclick: () =>
-            template.logic.rotate(
+            template.data.rotate(
               Number(rotation.angle) as any,
               rotation.axes as any
             ),
@@ -69,7 +69,7 @@ const VoxelTemplate = (nodeIndex: number) => {
       elm(
         "button",
         {
-          onclick: () => template.logic.flip(rotation.flip as any),
+          onclick: () => template.data.flip(rotation.flip as any),
         },
         "Flip"
       )
@@ -81,6 +81,7 @@ const VoxelTemplate = (nodeIndex: number) => {
         style: {
           display: "flex",
           flexDirection: "row",
+          flexWrap: "wrap",
         },
       },
       elm(
@@ -95,14 +96,14 @@ const VoxelTemplate = (nodeIndex: number) => {
       elm(
         "button",
         {
-          onclick: () => template.logic.clear(),
+          onclick: () => template.data.clear(),
         },
         "Clear"
       ),
       elm(
         "button",
         {
-          onclick: () => template.logic.build(),
+          onclick: () => template.data.build(),
         },
         "Build"
       ),
@@ -110,7 +111,7 @@ const VoxelTemplate = (nodeIndex: number) => {
         "button",
         {
           async onclick() {
-            template.logic.store();
+            template.data.store();
           },
         },
         "Store"
@@ -121,9 +122,9 @@ const VoxelTemplate = (nodeIndex: number) => {
           async onclick() {
             downloadFile(
               "template.bin",
-              await Compressor.core.compressArrayBuffer(
+              (await Compressor.core.compressArrayBuffer(
                 BinaryObject.objectToBuffer(template.data.template.toJSON())
-              ) as any
+              )) as any
             );
           },
         },
@@ -150,9 +151,12 @@ ToolPanelViews.registerView("VoxelTemplates", (component) => {
   Templates.node.observers.childAdded.subscribe((node) => {
     elm.appendChildern(voxelsParent, [VoxelTemplate(node.index)]);
   });
-  Templates.node.children.forEach((_) =>
-    elm.appendChildern(voxelsParent, [VoxelTemplate(_)])
-  );
+
+  if (Templates.node.childrenArray) {
+    for (const child of Templates.node.childrenArray) {
+      elm.appendChildern(voxelsParent, [VoxelTemplate(child)]);
+    }
+  }
 
   return frag(
     elm(

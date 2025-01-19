@@ -21,41 +21,50 @@ export class Player {
   }
 
   static create() {
-    console.log("CREATE THE PLAYER");
-    this.node = this.graph.addNode(
-      Node(
-        {},
-        [
-          DimensionProviderComponent({
-          }),
-          TransformComponent({
-            position: { x: 0, y: 100, z: 0 },
-          }),
-          PhysicsBodyComponent({
-            mass: 70,
-          }),
-          BoxColliderComponent({
-            size: Vector3Like.Create(0.8, 1.8, 0.8),
-          }),
-          TransformNodeComponent({
-            mode: "sync",
-          }),
-          PhysicsColliderStateComponent(),
-          //    BoxColliderMeshComponent(),
-          NexusPhysicsLinkComponent(),
-          PlayerControllerComponent(),
-        ],
-        Node({}, [
-          TransformComponent({
-            position: { x: 0, y: 1.8 / 2, z: 0 },
-          }),
-          TransformNodeComponent(),
-          CameraProviderComponent(),
-          FirstPersonCameraComponent(),
-        ])
+    console.warn("create the demo player");
+    this.node = this.graph
+      .addNode(
+        Node(
+          "Player",
+          [
+            DimensionProviderComponent(),
+            TransformComponent(
+              {
+                position: { x: 0, y: 100, z: 0 },
+              },
+              "shared-array"
+            ),
+            PhysicsBodyComponent(
+              {
+                mass: 70,
+              },
+              "shared-binary-object"
+            ),
+            BoxColliderComponent(
+              {
+                size: Vector3Like.Create(0.8, 1.8, 0.8),
+              },
+              "shared-binary-object"
+            ),
+            TransformNodeComponent({
+              mode: "sync",
+            }),
+            PhysicsColliderStateComponent(null, "shared-binary-object"),
+            //    BoxColliderMeshComponent(),
+            NexusPhysicsLinkComponent(),
+            PlayerControllerComponent(),
+          ],
+          Node({}, [
+            TransformComponent({
+              position: { x: 0, y: 1.8 / 2, z: 0 },
+            }),
+            TransformNodeComponent(),
+            CameraProviderComponent(),
+            FirstPersonCameraComponent(),
+          ])
+        )
       )
-    );
-    console.log(this.node);
+      .cloneCursor();
 
     const controller = PlayerControllerComponent.get(this.node)!;
     const camera = CameraProviderComponent.getChild(this.node)!;
@@ -76,7 +85,6 @@ export class Player {
               },
             },
             action: (event) => {
-              console.log("move forward");
               controller.data.controlObservers.moveForward.notify();
               (event as KeyDownEvent).observers.onRelease.subscribeOnce(() => {
                 controller.data.controlObservers.moveForwardKeyUp.notify();

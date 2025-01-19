@@ -10,14 +10,14 @@ ToolPanelViews.registerView("Guides", () => {
   return frag(
     elm("p", {}, "World Axes"),
     SchemaEditor({
-      schemaInstance: AxesViewerComponent.get(Guides.axesNode)!.schema,
+      schema: AxesViewerComponent.get(Guides.axesNode)!.schema,
     }),
     elm("p", {}, "Voxel Position Guide"),
     SchemaEditor({
-      schemaInstance: TransformComponent.get(Guides.guideNode)!.schema,
+      schema: TransformComponent.get(Guides.guideNode)!.schema,
     }),
     SchemaEditor({
-      schemaInstance: VoxelPositionGuideComponent.get(Guides.guideNode)!.schema,
+      schema: VoxelPositionGuideComponent.get(Guides.guideNode)!.schema,
     })
   );
 });

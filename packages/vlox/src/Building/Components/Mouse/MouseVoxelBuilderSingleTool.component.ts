@@ -3,18 +3,13 @@ import { VoxelMousePickComponent } from "../../../Core/Components/Voxels/Interac
 import { VoxelRemoverComponent } from "../../../Core/Components/Voxels/Interaction/VoxelRemover.component";
 import { VoxelPlacerComponent } from "../../../Core/Components/Voxels/Interaction/VoxelPlacer.component";
 import { Vector3Like } from "@amodx/math";
-class Data {
-  constructor(public _cleanUp: () => void) {}
-}
-export const MouseVoxelBuilderSingleToolComponent = NCS.registerComponent<
-  {},
-  Data
->({
-  type: "mouse-voxel-builder-signle-tool",
 
+export const MouseVoxelBuilderSingleToolComponent = NCS.registerComponent({
+  type: "mouse-voxel-builder-signle-tool",
+  data: NCS.data<() => void>(),
   init(component) {
-    const remover = VoxelRemoverComponent.get(component.node)!;
-    const placer = VoxelPlacerComponent.get(component.node)!;
+    const remover = VoxelRemoverComponent.getRequired(component.node)!;
+    const placer = VoxelPlacerComponent.getRequired(component.node)!;
 
     let enabled = false;
 
@@ -34,31 +29,30 @@ export const MouseVoxelBuilderSingleToolComponent = NCS.registerComponent<
 
     window.addEventListener("keydown", keydown);
     window.addEventListener("keyup", keyup);
-
-    VoxelMousePickComponent.get(component.node)!.data.voxelPicked.subscribe(
-      component,
+    const mousePickComponent = VoxelMousePickComponent.getRequired(
+      component.node
+    );
+    const listener = mousePickComponent.data.voxelPicked.listener(
       ({ button, data: { pickedPosition, pickedNormal } }) => {
         if (!enabled) return;
         if (button == 2) {
-          remover.logic.removeSingle(pickedPosition);
+          remover.data.removeSingle(pickedPosition);
         }
         if (button == 0) {
-          placer.logic.placeSingle(
+          placer.data.placeSingle(
             Vector3Like.AddArray(pickedPosition, pickedNormal)
           );
         }
       }
     );
-
-    component.data = new Data(() => {
-      VoxelMousePickComponent.get(component.node)!.data.voxelPicked.unsubscribe(
-        component
-      );
+    mousePickComponent.data.voxelPicked.subscribe(listener);
+    component.data = () => {
+      mousePickComponent.data.voxelPicked.unsubscribe(listener);
       window.removeEventListener("keydown", keydown);
       window.removeEventListener("keyup", keyup);
-    });
+    };
   },
   dispose(component) {
-    component.data._cleanUp();
+    component.data();
   },
 });

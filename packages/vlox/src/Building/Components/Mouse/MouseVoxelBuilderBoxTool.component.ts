@@ -16,13 +16,6 @@ import {
 import { Observable } from "@amodx/core/Observers";
 import { BabylonContext } from "../../../Babylon/Contexts/Babylon.context";
 
-class ComponentSchema {
-  defaultExtrusion: number;
-}
-class Data {
-  constructor(public _cleanUp: () => void) {}
-}
-
 class BuilderBox {
   node: NodeCursor;
   canceled = new Observable();
@@ -30,25 +23,27 @@ class BuilderBox {
     public component: (typeof MouseVoxelBuilderBoxToolComponent)["default"]
   ) {}
 
-  async init() {
-    this.node = await this.component.node.graph.addNode(
-      Node({}, [
-        TransformComponent({}),
-        VoxelBoxVolumeComponent(),
-        VoxelBoxVolumeMeshComponent(),
-      ]),
-      this.component.node.index
-    );
-    VoxelBoxVolumeMeshComponent.get(this.node)!.data.box.renderingGroupId = 3;
+  init() {
+    this.node = this.component.node.graph
+      .addNode(
+        Node({}, [
+          TransformComponent(),
+          VoxelBoxVolumeComponent(),
+          VoxelBoxVolumeMeshComponent(),
+        ]),
+        this.component.node.index
+      )
+      .cloneCursor();
+    VoxelBoxVolumeMeshComponent.get(this.node)!.data.renderingGroupId = 3;
   }
 
-  async dispose() {
-    await this.node.dispose();
+  dispose() {
+    this.node.dispose();
   }
 
-  async cancel() {
+  cancel() {
     this.canceled.notify();
-    await this.dispose();
+    this.dispose();
   }
 }
 
@@ -80,12 +75,12 @@ const getIntersection = (
   return intersectionPoint;
 };
 
-export const MouseVoxelBuilderBoxToolComponent = NCS.registerComponent<
-  ComponentSchema,
-  Data
->({
+export const MouseVoxelBuilderBoxToolComponent = NCS.registerComponent({
   type: "mouse-voxel-builder-box-tool",
-  schema: NCS.schemaFromObject(new ComponentSchema()),
+  schema: NCS.schema({
+    defaultExtrusion: NCS.property(0),
+  }),
+  data: NCS.data<() => void>(),
   init(component) {
     const remover = VoxelRemoverComponent.get(component.node)!;
     const placer = VoxelPlacerComponent.get(component.node)!;
@@ -138,12 +133,14 @@ export const MouseVoxelBuilderBoxToolComponent = NCS.registerComponent<
       );
       const planeNormal = new Vector3(...pickedNormal);
 
+      let isDone = false;
       let cacneled = false;
       const done = async () => {
         scene.onPointerObservable.remove(pointerMove);
         await onDone(newbox);
         newbox.dispose();
         box = null;
+        isDone = true;
       };
       newbox.canceled.subscribeOnce(() => {
         cacneled = true;
@@ -225,18 +222,20 @@ export const MouseVoxelBuilderBoxToolComponent = NCS.registerComponent<
           Math.abs(finalMax[2] - finalMin[2]),
         ];
         if (finalSize[0] == 0 && finalSize[1] == 0 && finalSize[2] == 0) {
-          volume.logic.setPoints([
+          volume.data.setPoints([
             pickedPosition,
             Vector3Like.AddArray(pickedPosition, pickedNormal),
           ]);
         } else {
-          volume.logic.setPoints([finalMin, finalMax]);
+          volume.data.setPoints([finalMin, finalMax]);
         }
       };
 
       update();
       const pointerMove = scene.onPointerObservable.add((event) => {
-        if (cacneled) return;
+        if (cacneled || isDone) {
+          return;
+        }
         if (event.type == PointerEventTypes.POINTERUP) {
           done();
           return;
@@ -258,8 +257,8 @@ export const MouseVoxelBuilderBoxToolComponent = NCS.registerComponent<
       pickedNormal: Vec3Array
     ) => {
       startBox(pickedPosition, pickedNormal, async (newbox) => {
-        placer.logic.placeArea(
-          ...VoxelBoxVolumeComponent.get(newbox.node)!.logic.getPoints()
+        placer.data.placeArea(
+          ...VoxelBoxVolumeComponent.get(newbox.node)!.data.getPoints()
         );
       });
     };
@@ -271,15 +270,14 @@ export const MouseVoxelBuilderBoxToolComponent = NCS.registerComponent<
         Vector3Like.SubtractArray(pickedPosition, pickedNormal),
         pickedNormal,
         async (newbox) => {
-          remover.logic.removeArea(
-            ...VoxelBoxVolumeComponent.get(newbox.node)!.logic.getPoints()
+          remover.data.removeArea(
+            ...VoxelBoxVolumeComponent.get(newbox.node)!.data.getPoints()
           );
         }
       );
     };
-
-    VoxelMousePickComponent.get(component.node)!.data.voxelPicked.subscribe(
-      component,
+    const mousePick = VoxelMousePickComponent.get(component.node)!;
+    const listener = mousePick!.data.voxelPicked.listener(
       ({ button, data: { pickedPosition, pickedNormal } }) => {
         if (!enabled) return;
         if (button == 0) {
@@ -290,16 +288,15 @@ export const MouseVoxelBuilderBoxToolComponent = NCS.registerComponent<
         }
       }
     );
+    mousePick!.data.voxelPicked.subscribe(listener);
 
-    component.data = new Data(() => {
-      VoxelMousePickComponent.get(component.node)!.data.voxelPicked.unsubscribe(
-        component
-      );
+    component.data = () => {
+      mousePick!.data.voxelPicked.unsubscribe(listener);
       window.removeEventListener("keydown", keydown);
       window.removeEventListener("keyup", keyup);
-    });
+    };
   },
   dispose(component) {
-    component.data._cleanUp();
+    component.data();
   },
 });

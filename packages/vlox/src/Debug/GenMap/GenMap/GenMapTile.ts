@@ -11,7 +11,10 @@ export class GenMapTile {
 
   _instance: EntityInstance;
 
-  constructor(public worldMap: GenMap, public location: LocationData) {
+  constructor(
+    public worldMap: GenMap,
+    public location: LocationData
+  ) {
     const instance = this.worldMap._instanceTool.getInstance();
     if (!instance) {
       console.warn(`Could not load tile instance for ${location}`);
@@ -78,5 +81,7 @@ export class GenMapTile {
 }
 
 new SafeInterval(() => {
-  GenMapTile.Tiles.forEach((_) => _.update());
+  for (let i = 0; i < GenMapTile.Tiles.length; i++) {
+    GenMapTile.Tiles[i].update();
+  }
 }, 10).start();

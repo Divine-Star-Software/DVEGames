@@ -14,18 +14,14 @@ import { VoxelBoxVolumeComponent } from "../Volumes/VoxelBoxVolume.component";
 import { DimensionProviderComponent } from "../../Providers/DimensionProvider.component";
 import { TransformComponent } from "../../../../Core/Components/Base/Transform.component";
 
-
 class Data {
   template: VoxelTemplate;
-}
-
-class Logic {
   constructor(public component: (typeof VoxelTemplateComponent)["default"]) {}
   store() {
     this.component.data.template = CreateTemplate(
       DimensionProviderComponent.get(this.component.node)?.schema.dimension ||
         "main",
-      ...VoxelBoxVolumeComponent.get(this.component.node)!.logic.getPoints()
+      ...VoxelBoxVolumeComponent.get(this.component.node)!.data.getPoints()
     );
   }
   async build() {
@@ -33,7 +29,7 @@ class Logic {
     await CoreTasks.buildTemplate(
       DimensionProviderComponent.get(this.component.node)?.schema.dimension ||
         "main",
-      volume.logic.getPoints()[0],
+      volume.data.getPoints()[0],
       this.component.data.template.toJSON()
     );
   }
@@ -54,19 +50,13 @@ class Logic {
     await CoreTasks.removeVoxelArea(
       DimensionProviderComponent.get(this.component.node)?.schema.dimension ||
         "main",
-      ...VoxelBoxVolumeComponent.get(this.component.node)!.logic.getPoints()
+      ...VoxelBoxVolumeComponent.get(this.component.node)!.data.getPoints()
     );
   }
 }
 
-export const VoxelTemplateComponent = NCS.registerComponent<
-  {},
-  Data,
-  Logic
->({
+export const VoxelTemplateComponent = NCS.registerComponent<Data>({
   type: "voxel-template",
-  
-  init(component) {
-    component.logic = new Logic(component.cloneCursor());
-  },
+  init: (component) => (component.data = new Data(component.cloneCursor())),
+  dispose: (component) => component.data.component.returnCursor(),
 });

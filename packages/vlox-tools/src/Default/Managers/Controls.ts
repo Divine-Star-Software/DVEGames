@@ -11,7 +11,7 @@ export class Controls {
     this.context = BabylonContext.getRequired(graph.root);
     this.canvas = this.context.data.engine.getRenderingCanvas()!;
 
-    this.node = graph.addNode(Node({}));
+    this.node = graph.addNode(Node("Controls")).cloneCursor();
   }
 
   static setPointerLock(locked: boolean) {

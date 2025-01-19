@@ -1,5 +1,4 @@
 import { ElementChildren, elm, Signal, useSignal, wrap } from "@amodx/elm";
-
 import {
   SchemaEditorNodeObservers,
   SchemaEditorObservers,
@@ -8,11 +7,22 @@ import { ObjectSchemaInstance } from "@amodx/schemas";
 import { SchemaEditorInputRegister } from "./SchemaEditorInputRegister";
 import { SchemaNode } from "@amodx/schemas/Schemas/SchemaNode";
 import "./Inputs/index";
+import convertSchema from "../Functions/convertSchema";
+import { SchemaCursor } from "@amodx/ncs/Schema/Schema.types";
 
 export const SchemaEditor = wrap<
-  { schemaInstance: ObjectSchemaInstance },
+  { schemaInstance?: ObjectSchemaInstance; schema?: SchemaCursor<any> },
   "div"
 >("div", true, (props) => {
+  let schemaInstance = props.schemaInstance;
+  if (props.schema) {
+    schemaInstance = convertSchema(props.schema);
+  }
+  if (!schemaInstance)
+    throw new Error(
+      `Schema editor must have either schemaInstance or schema set`
+    );
+
   const observers = new SchemaEditorObservers();
 
   let activeProeprtyIndex = 0;
@@ -24,7 +34,7 @@ export const SchemaEditor = wrap<
   let activeSignals: Signal<boolean>[] = [];
 
   let index = 0;
-  props.schemaInstance.getSchema().traverse((node) => {
+  schemaInstance.getSchema().traverse((node) => {
     if (
       (typeof node.property.editable !== "undefined" &&
         !node.property.editable) ||

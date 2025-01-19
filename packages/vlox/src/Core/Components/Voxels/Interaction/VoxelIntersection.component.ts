@@ -7,12 +7,7 @@ class Data {
   pickedPosition: Vec3Array;
   pickedNormal: Vec3Array;
   dataTool = new DataTool();
-}
-
-class Logic {
-  constructor(
-    public component: (typeof VoxelInersectionComponent)["default"]
-  ) {}
+ constructor(public component: (typeof VoxelInersectionComponent)["default"]) {}
   calculateNormal(
     intersectPoint: Vec3Array,
     voxelMin: Vec3Array,
@@ -95,17 +90,11 @@ class Logic {
   }
 }
 
-type Schema = {};
-
-export const VoxelInersectionComponent = NCS.registerComponent<
-  Schema,
-  Data,
-  Logic
->({
+export const VoxelInersectionComponent = NCS.registerComponent({
   type: "voxel-intersection",
+  data: NCS.data<Data>(),
   init(component) {
-    component.data = new Data();
-    component.logic = new Logic(component.cloneCursor());
+    component.data = new Data(component.cloneCursor());
     const dimension = DimensionProviderComponent.get(component.node)!;
     component.data.dataTool.setDimension(dimension.schema.dimension);
     dimension.schema
@@ -116,6 +105,6 @@ export const VoxelInersectionComponent = NCS.registerComponent<
       });
   },
   dispose(component) {
-    component.logic.component.returnCursor();
+    component.data.component.returnCursor();
   },
 });

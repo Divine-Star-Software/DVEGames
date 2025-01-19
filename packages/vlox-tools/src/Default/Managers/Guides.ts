@@ -7,14 +7,18 @@ export class Guides {
   static axesNode: NodeCursor;
   static guideNode: NodeCursor;
   static init(graph: Graph) {
-    this.axesNode = graph.addNode(Node({}, [AxesViewerComponent()]));
-    this.guideNode = graph.addNode(
-      Node({}, [
-        TransformComponent({
-          position: { x: 0, y: 30, z: 0 },
-        }),
-        VoxelPositionGuideComponent(),
-      ])
-    );
+    this.axesNode = graph
+      .addNode(Node("Guides", [AxesViewerComponent()]))
+      .cloneCursor();
+    this.guideNode = graph
+      .addNode(
+        Node({}, [
+          TransformComponent({
+            position: { x: 0, y: 30, z: 0 },
+          }),
+          VoxelPositionGuideComponent(),
+        ])
+      )
+      .cloneCursor();
   }
 }

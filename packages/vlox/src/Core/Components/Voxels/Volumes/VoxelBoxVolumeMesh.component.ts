@@ -1,4 +1,4 @@
-import {  NCS } from "@amodx/ncs/";
+import { NCS } from "@amodx/ncs/";
 import { CreateBox } from "@babylonjs/core/Meshes/Builders/boxBuilder";
 import {
   Scene,
@@ -13,28 +13,13 @@ import {
 import { Vector3Like } from "@amodx/math";
 import { BabylonContext } from "../../../../Babylon/Contexts/Babylon.context";
 
-interface Schema {}
-class Data {
-  box: Mesh;
-}
-
-type Shared = {
-  material: StandardMaterial | null;
-  box: Mesh | null;
-};
-
-export const VoxelBoxVolumeMeshComponent = NCS.registerComponent<
-  Schema,
-  Data,
-  {},
-  Shared
->({
+export const VoxelBoxVolumeMeshComponent = NCS.registerComponent({
   type: "voxel-box-volume-mesh",
-
   shared: {
-    material: null,
-    box: null,
+    material: <StandardMaterial | null>null,
+    box: <Mesh | null>null,
   },
+  data: NCS.data<Mesh>(),
   init(component) {
     const { scene } = BabylonContext.getRequired(component.node).data;
 
@@ -48,9 +33,11 @@ export const VoxelBoxVolumeMeshComponent = NCS.registerComponent<
       box.enableEdgesRendering();
       box.material = component.shared.material;
       component.shared.box = box;
+      box.setEnabled(false);
     }
     const transformComponent = TransformComponent.get(component.node)!;
     const box = component.shared.box.clone();
+    box.setEnabled(true);
     Vector3Like.Copy(box.position, transformComponent.schema.position);
     Vector3Like.Copy(box.scaling, transformComponent.schema.scale);
 
@@ -58,11 +45,9 @@ export const VoxelBoxVolumeMeshComponent = NCS.registerComponent<
 
     box.material = component.shared.material;
 
-    component.data.box = box;
+    component.data = box;
   },
-  dispose(component) {
-    component.data.box.dispose();
-  },
+  dispose: (component) => component.data.dispose(),
 });
 
 export function createVoxelBoxVolumneMesh(scene: Scene) {

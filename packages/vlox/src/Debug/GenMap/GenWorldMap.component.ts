@@ -16,12 +16,8 @@ import { SafeInterval } from "@amodx/core/Intervals/SafeInterval";
 import { DimensionProviderComponent } from "../../Core/Components/Providers/DimensionProvider.component";
 import { BabylonContext } from "../../Babylon/Contexts/Babylon.context";
 
-class Data {
-  constructor(public _cleanUp: () => void) {}
-}
-export const GenWorldMapComponent = NCS.registerComponent<{}, Data>({
+export const GenWorldMapComponent = NCS.registerComponent<() => void>({
   type: "gen-world-map",
-
   init(component) {
     const container = document.createElement("div");
     container.style.position = "absolute";
@@ -74,7 +70,6 @@ export const GenWorldMapComponent = NCS.registerComponent<{}, Data>({
     let renderState = { isBig: true };
 
     const context = BabylonContext.getRequired(component.node);
-    console.log("GEN WORLD MAP", context);
 
     const followCamera = context.data.scene.activeCamera!;
 
@@ -133,13 +128,13 @@ export const GenWorldMapComponent = NCS.registerComponent<{}, Data>({
     }, 500);
     interval.start();
 
-    component.data = new Data(() => {
+    component.data = () => {
       interval.stop();
       engine.dispose();
       container.remove();
-    });
+    };
   },
   dispose(component) {
-    component.data._cleanUp();
+    component.data();
   },
 });

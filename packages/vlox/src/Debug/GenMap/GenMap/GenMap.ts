@@ -54,7 +54,7 @@ export class GenMap {
 
     const colorBuffer = new Float32Array(GenMap.Constants.MAX_TILES * 4);
 
-    console.log(colorBuffer);
+
     this._instanceTool.addBuffer("tileColor", colorBuffer, 4);
 
     this._colorBuffer = colorBuffer;

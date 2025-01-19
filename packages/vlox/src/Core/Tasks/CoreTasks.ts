@@ -19,13 +19,11 @@ export class CoreTasks {
     end: Vec3Array,
     data: Partial<PaintVoxelData>
   ) {
-    console.log("PLACING AREA ",dimension,start,end,data)
     const chunks =
       await DivineVoxelEngineRender.instance.threads.construcotrs.runAsyncTasks<
         PlaceVoxelAreaTasks,
         Vec3Array[]
       >(CoreTasksIds.PlaceVoxelArea, [dimension, start, end, data]);
-      console.log("GOT CHUNKS",chunks)
     await this.runRebuildQueue(dimension, chunks);
   }
   static async runRebuildQueue(dimension: string, chunks: Vec3Array[]) {

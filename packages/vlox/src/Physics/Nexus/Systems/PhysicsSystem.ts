@@ -261,21 +261,25 @@ export const PhysicsSystems = NCS.registerSystem({
 
     for (let q = 0; q < system.queries.length; q++) {
       const query = system.queries[q];
+
       for (let i = 0; i < query.nodes.length; i++) {
         node.setNode(system.graph, query.nodes[i]);
-        const dimension =
-          DimensionProviderComponent.get(node)!.schema.dimension;
-        dataTool.setDimension(dimension);
 
-        const transform = TransformComponent.get(node)!.schema;
+        /*  const dimension =
+          DimensionProviderComponent.getRequired(node).schema.dimension; */
+        dataTool.setDimension("main");
+
+        const transform = TransformComponent.getRequired(node).schema;
+
         // Store original position
         Vector3Like.Copy(position, transform.position);
         Vector3Like.Copy(previousPosiiton, transform.position);
 
-        const body = PhysicsBodyComponent.get(node)!.schema;
+        const body = PhysicsBodyComponent.getRequired(node)!.schema;
 
-        const collider = BoxColliderComponent.get(node)!;
-        const colliderState = PhysicsColliderStateComponent.get(node)!.schema;
+        const collider = BoxColliderComponent.getRequired(node)!;
+        const colliderState =
+          PhysicsColliderStateComponent.getRequired(node)!.schema;
 
         boundingBox.update(
           collider.schema.size.x,
@@ -391,7 +395,7 @@ export const PhysicsSystems = NCS.registerSystem({
         }
 
         Vector3Like.Copy(transform.position, position);
-        colliderState.isGrounded = isGrounded;
+        colliderState.isGrounded = isGrounded ? 1 : 0;
       }
     }
   },

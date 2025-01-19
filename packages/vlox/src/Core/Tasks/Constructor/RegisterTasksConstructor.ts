@@ -16,7 +16,7 @@ export default function () {
     CoreTasksIds.PlaceVoxelArea,
     async ([dim, [sx, sy, sz], [ex, ey, ez], data], onDone) => {
       brush.start(dim, sx, sy, sz);
-      console.warn("start building", sx, sy, sz, brush);
+
       brush.setData(data);
       for (let x = sx; x < ex; x++) {
         for (let y = sy; y < ey; y++) {

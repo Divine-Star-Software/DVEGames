@@ -5,26 +5,12 @@ import { StandardMaterial, type Mesh } from "@babylonjs/core";
 import { BoxColliderComponent } from "./BoxCollider.component";
 import { BabylonContext } from "../../Babylon/Contexts/Babylon.context";
 
-class Data {
-  box: Mesh;
-}
-
-type Shared = {
-  material: StandardMaterial | null;
-  box: Mesh | null;
-};
-
-export const BoxColliderMeshComponent = NCS.registerComponent<
-  {},
-  Data,
-  {},
-  Shared
->({
+export const BoxColliderMeshComponent = NCS.registerComponent({
   type: "box-collider-mesh",
-
+  data: NCS.data<{ box: Mesh }>(),
   shared: {
-    material: null,
-    box: null,
+    material: <StandardMaterial | null>null,
+    box: <Mesh | null>null,
   },
   init(component) {
     const { scene } = BabylonContext.getRequired(component.node).data;
@@ -47,14 +33,13 @@ export const BoxColliderMeshComponent = NCS.registerComponent<
       collider.schema.size.y,
       collider.schema.size.z
     );
-  //  const trait = SyncTransformTrait.set(component);
-  //  trait.data.position = box.position;
+
+    //  const trait = SyncTransformTrait.set(component);
+    //  trait.data.position = box.position;
 
     box.material = component.shared.material;
 
-    component.data.box = box;
+    component.data = { box };
   },
-  dispose(component) {
-    component.data.box.dispose();
-  },
+  dispose: (component) => component.data.box.dispose(),
 });

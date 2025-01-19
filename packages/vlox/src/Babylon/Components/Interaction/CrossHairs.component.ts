@@ -2,10 +2,7 @@ import { NCS } from "@amodx/ncs/";
 import { BabylonContext } from "../../Contexts/Babylon.context";
 import { CreateBox, StandardMaterial, TransformNode } from "@babylonjs/core";
 
-class Data {
-  node: TransformNode;
-}
-export const CrossHairsComponent = NCS.registerComponent<{}, Data>({
+export const CrossHairsComponent = NCS.registerComponent<TransformNode>({
   type: "cross-hairs",
   init(comp) {
     const context = BabylonContext.getRequired(comp.node);
@@ -41,9 +38,7 @@ export const CrossHairsComponent = NCS.registerComponent<{}, Data>({
     horizontal.parent = node;
     vertical.parent = node;
 
-    comp.data = new Data();
+    comp.data = node;
   },
-  dispose(component) {
-    component.data.node.dispose();
-  },
+  dispose: (component) => component.data.dispose(),
 });

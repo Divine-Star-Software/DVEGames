@@ -164,7 +164,7 @@ function SchemaForm(voxelId: string) {
     }
   };
   const mouseBuilder = MouseVoxelBuilderComponent.get(Builder.node)!;
-  mouseBuilder.logic.voxelPickedObserver.subscribe(SchemaForm, () => {
+  mouseBuilder.data.voxelPickedObserver.subscribe(SchemaForm, () => {
     loadIn();
   });
   Builder.voxelUpdated.subscribe(SchemaForm, () => {
@@ -216,7 +216,7 @@ export default function VoxelDisplay() {
     updateDisplay();
   });
 
-  mouseBuilder.logic.voxelPickedObserver.subscribe(() => {
+  mouseBuilder.data.voxelPickedObserver.subscribe(() => {
     if (paintData.schema.id != voxelId) {
       voxelId = paintData.schema.id;
       updateVoxel();

@@ -1,8 +1,8 @@
 import { NCS } from "@amodx/ncs/";
 import { Audio } from "@amodx/audio";
 import { TransformComponent } from "./Transform.component";
-interface Data {}
-class Logic {
+
+class Data {
   constructor(public component: (typeof AudioSourceComponent)["default"]) {}
   play() {
     const transform = TransformComponent.get(this.component.node)!;
@@ -26,20 +26,14 @@ class Logic {
   }
 }
 
-class AudioSourceComponentSchema {
-  sfxId: string;
-  level: number;
-  rolloffFactor: number;
-}
-
-export const AudioSourceComponent = NCS.registerComponent<
-  AudioSourceComponentSchema,
-  Data,
-  Logic
->({
+export const AudioSourceComponent = NCS.registerComponent({
   type: "audio-source",
-  schema: NCS.schemaFromObject(new AudioSourceComponentSchema()),
-  init(component) {
-    component.logic =  new Logic(component.cloneCursor());
-  },
+  schema: NCS.schema({
+    sfxId: NCS.property(""),
+    level: NCS.property(0),
+    rolloffFactor: NCS.property(0),
+  }),
+  data: NCS.data<Data>(),
+  init: (component) => (component.data = new Data(component.cloneCursor())),
+  dispose: (component) => component.data.component.returnCursor(),
 });

@@ -2,10 +2,13 @@ import { Graph, NCS } from "@amodx/ncs/";
 import { DivineVoxelEngineNexus } from "@divinevoxel/vlox/Contexts/Nexus/DivineVoxelEngineNexus";
 import { NexusContext } from "../../Core/Contexts/Nexus.context";
 import { PhysicsSystems } from "./Systems/PhysicsSystem";
-import { PhysicsDataTool } from "./Classes/PhysicsDataTool";
-
 import "./Colliders/DefaultCollider";
 import "../../Core/Components/Providers/DimensionProvider.component";
+import "../../Core/Components/Base/Transform.component";
+import "../Components/BoxCollider.component";
+import "../Components/PhysicsBody.component";
+import "../Components/PhysicsColliderState.component";
+import RegisterTasksNexus from "../Tasks/RegisterTasksNexus";
 let loopHandle: any;
 let isRunning = false;
 const updateLoop = () => {
@@ -18,6 +21,7 @@ const updateLoop = () => {
   loopHandle = setTimeout(handle, updateFrequency);
 };
 const handle = () => updateLoop();
+
 export class DVEPhysics {
   static graph: Graph;
 
@@ -27,15 +31,14 @@ export class DVEPhysics {
       dve,
     });
     this.graph = graph;
+    RegisterTasksNexus(dve);
+
   }
 
   static start() {
     PhysicsSystems.set(this.graph);
     isRunning = true;
     updateLoop();
-
-    const dt = new PhysicsDataTool();
-    dt.setDimension("grass-field");
   }
 
   static stop() {

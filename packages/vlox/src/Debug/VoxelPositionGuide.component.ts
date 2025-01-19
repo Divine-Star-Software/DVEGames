@@ -10,16 +10,15 @@ import {
   TransformComponent,
 } from "../Core/Components/Base/Transform.component";
 import { createVoxelBoxVolumneMesh } from "../Core/Components/Voxels/Volumes/VoxelBoxVolumeMesh.component";
-class Schema {
-  visible = true;
-}
-interface Data {
-  parent: TransformNode;
-  positionGizmo: PositionGizmo;
-}
-export const VoxelPositionGuideComponent = NCS.registerComponent<Schema, Data>({
+export const VoxelPositionGuideComponent = NCS.registerComponent({
   type: "voxel-position-guide",
-  schema: NCS.schemaFromObject(new Schema()),
+  schema: NCS.schema({
+    visible: NCS.property(true),
+  }),
+  data: NCS.data<{
+    parent: TransformNode;
+    positionGizmo: PositionGizmo;
+  }>(),
   init(component) {
     const context = BabylonContext.getRequired(component.node).data;
 
@@ -29,24 +28,24 @@ export const VoxelPositionGuideComponent = NCS.registerComponent<Schema, Data>({
     }
     const box = createVoxelBoxVolumneMesh(scene);
     const transformComponent = TransformComponent.get(component.node)!;
-    const node = new TransformNode("", scene);
-    box.parent = node;
-    const oldPosition = node.position.clone();
-    const nodeStartPosition = node.position.clone();
+    const parent = new TransformNode("", scene);
+    box.parent = parent;
+    const oldPosition = parent.position.clone();
+    const nodeStartPosition = parent.position.clone();
 
     createTransformProxy(
       transformComponent,
-      node.position,
-      node.rotation,
-      node.scaling
+      parent.position,
+      parent.rotation,
+      parent.scaling
     );
 
     const positionGizmo = new PositionGizmo(context.utilLayer);
     positionGizmo.snapDistance = 1;
-    positionGizmo.attachedNode = node;
+    positionGizmo.attachedNode = parent;
     positionGizmo.updateGizmoRotationToMatchAttachedMesh = false;
     positionGizmo.onDragStartObservable.add(() => {
-      nodeStartPosition.copyFrom(node.position);
+      nodeStartPosition.copyFrom(parent.position);
       oldPosition.set(
         transformComponent.schema.position.x,
         transformComponent.schema.position.y,
@@ -54,18 +53,21 @@ export const VoxelPositionGuideComponent = NCS.registerComponent<Schema, Data>({
       );
     });
     positionGizmo.onDragEndObservable.add(() => {
-      nodeStartPosition.copyFrom(node.position);
+      nodeStartPosition.copyFrom(parent.position);
     });
     positionGizmo.onDragObservable.add(() => {
-      const transform = nodeStartPosition.subtract(node.position).floor();
+      const transform = nodeStartPosition.subtract(parent.position).floor();
       transformComponent.schema.position = {
         x: oldPosition.x - transform.x,
         y: oldPosition.y - transform.y,
         z: oldPosition.z - transform.z,
       };
     });
-    component.data.positionGizmo = positionGizmo;
-    component.data.parent = node;
+    component.data = {
+      positionGizmo,
+      parent,
+    };
+
     const cursor = component.schema.getCursor();
     const index = component.schema.getSchemaIndex();
     cursor.getOrCreateObserver(index.visible).subscribe((isVisible) => {

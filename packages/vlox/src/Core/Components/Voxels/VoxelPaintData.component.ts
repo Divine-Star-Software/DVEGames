@@ -1,16 +1,13 @@
 import { NCS } from "@amodx/ncs";
 import { PaintVoxelData } from "@divinevoxel/vlox/Data/Types/WorldData.types";
-
-class Schema implements PaintVoxelData {
-  id: string = "dve_air";
-  mod: number = 0;
-  shapeState: number = 0;
-  level: number = 0;
-  levelState: number = 0;
-  secondaryVoxelId: string = "dve_air";
-}
-interface Data {}
-export const VoxelPaintDataComponent = NCS.registerComponent<Schema, Data>({
+export const VoxelPaintDataComponent = NCS.registerComponent<PaintVoxelData>({
   type: "voxel-paint-data",
-  schema: NCS.schemaFromObject(new Schema()),
+  schema: NCS.schema({
+    id: NCS.property("dve_air"),
+    mod: NCS.property(0),
+    shapeState: NCS.property(0),
+    level: NCS.property(0),
+    levelState: NCS.property(0),
+    secondaryVoxelId: NCS.property("dve_air"),
+  }),
 });

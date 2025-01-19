@@ -11,13 +11,13 @@ import { TransformComponent } from "@dvegames/vlox/Core/Components/Base/Transfor
 function PlayerView(node: NodeCursor) {
   return frag(
     SchemaEditor({
-      schemaInstance: TransformComponent.get(node)!.schema,
+      schema: TransformComponent.get(node)!.schema,
     }),
     SchemaEditor({
-      schemaInstance: PlayerControllerComponent.get(node)!.schema,
+      schema: PlayerControllerComponent.get(node)!.schema,
     }),
     SchemaEditor({
-      schemaInstance: PhysicsBodyComponent.get(node)!.schema,
+      schema: PhysicsBodyComponent.get(node)!.schema,
     })
   );
 }

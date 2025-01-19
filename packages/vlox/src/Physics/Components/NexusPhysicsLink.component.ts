@@ -1,57 +1,46 @@
-import { NCS, NodeCursor } from "@amodx/ncs";
+import { NCS } from "@amodx/ncs";
 import { NexusTasks } from "../Tasks/Tasks";
 import { TransformComponent } from "../../Core/Components/Base/Transform.component";
 import { PhysicsBodyComponent } from "./PhysicsBody.component";
 import { BoxColliderComponent } from "./BoxCollider.component";
 import { DimensionProviderComponent } from "../../Core/Components/Providers/DimensionProvider.component";
 import { PhysicsColliderStateComponent } from "./PhysicsColliderState.component";
-interface Schema {
-  nodeId: string;
-}
-interface Data {
-  readonly node: NodeCursor | null;
-}
-export const NexusPhysicsLinkComponent = NCS.registerComponent<Schema, Data>({
+import { TransformNodeComponent } from "../../Babylon/Components/Base/TransformNode.component";
+import { Vector3Like } from "@amodx/math";
+export const NexusPhysicsLinkComponent = NCS.registerComponent<{
+  node: number;
+  transform: (typeof TransformComponent)["default"];
+  transformNode: (typeof TransformNodeComponent)["default"];
+}>({
   type: "nexus-physics-link",
-  
-/*   init(component) {
-    console.error("WHAT IS UP");
 
-    const sharedTransform = BufferSchemaTrait.set(
-      TransformComponent.get(component.node)!,
-      { shared: true }
-    )!.data.buffer;
-    const sharedBody = BufferSchemaTrait.set(
-      PhysicsBodyComponent.get(component.node)!,
-      { shared: true }
-    )!.data.buffer;
-    const sharedBodyState = BufferSchemaTrait.set(
-      PhysicsColliderStateComponent.get(component.node)!,
-      { shared: true }
-    )!.data.buffer;
-
-    const nodeData = component.node.toJSON();
-    const include: string[] = [
-      DimensionProviderComponent.type,
-      TransformComponent.type,
-      PhysicsBodyComponent.type,
-      PhysicsColliderStateComponent.type,
-      BoxColliderComponent.type,
-    ];
-    nodeData.components! = nodeData.components!.filter((_) =>
-      include.includes(_.type)
-    );
-    console.log(nodeData);
-    nodeData.children = [];
-
-    NexusTasks.registerBody(
-      nodeData,
-      sharedTransform,
-      sharedBody,
-      sharedBodyState
+  init(component) {
+    const cursor = component.cloneCursor();
+    const transform = TransformComponent.getRequired(component.node);
+    const transformNode = TransformNodeComponent.getRequired(component.node);
+    const remoteNode = NCS.createRemoteNode(component.node, false, [
+      DimensionProviderComponent,
+      TransformComponent,
+      PhysicsBodyComponent,
+      PhysicsColliderStateComponent,
+      BoxColliderComponent,
+    ]);
+    NexusTasks.registerBody(remoteNode).then((value) => {
+      cursor.data = { node: value, transform, transformNode };
+      cursor.returnCursor();
+    });
+  },
+  update(component) {
+    if (!component.data) return;
+    Vector3Like.Copy(
+      component.data.transformNode.data.transformNode.position,
+      component.data.transform.schema.position
     );
   },
   dispose(component) {
-    NexusTasks.removeBody(component.node.id.idString);
-  }, */
+    component.data.transform.returnCursor();
+    component.data.transformNode.returnCursor();
+
+    NexusTasks.removeBody(component.data.node);
+  },
 });

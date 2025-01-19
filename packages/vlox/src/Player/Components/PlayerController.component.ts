@@ -22,34 +22,37 @@ class PlayerControllerComponentObservers {
   keyUp = new Observable();
 }
 
-class Data {
-  cleanUp: () => void;
-  controlObservers = new PlayerControllerComponentObservers();
-}
-
 class ComponentSchema {
   jumpTime = 20;
   jumpForce = 7;
   speed = 200;
 }
 
-export const PlayerControllerComponent = NCS.registerComponent<
-  ComponentSchema,
-  Data
->({
+export const PlayerControllerComponent = NCS.registerComponent({
   type: "person-controler-component",
   schema: NCS.schemaFromObject(new ComponentSchema()),
+  data: NCS.data<{
+    cleanUp: () => void;
+    controlObservers: PlayerControllerComponentObservers;
+  }>(),
   init(component) {
     const tranformComponent = TransformComponent.get(component.node);
-    component.data = new Data();
+    component.data = {
+      cleanUp: () => {
+        return scene.unregisterBeforeRender(directionUpdate);
+      },
+      controlObservers: new PlayerControllerComponentObservers(),
+    };
     const { scene, engine } = BabylonContext.get(component.node)!.data;
-    const body = PhysicsBodyComponent.get(component.node)!.logic;
+    const body = PhysicsBodyComponent.get(component.node)!.data;
 
     const bodyState = PhysicsColliderStateComponent.get(component.node)!.schema;
 
     const cameraProvider = CameraProviderComponent.getChild(component.node)!;
 
-    const cameraDirectionTrait = CameraDirectionComponent.set(cameraProvider.node);
+    const cameraDirectionTrait = CameraDirectionComponent.set(
+      cameraProvider.node
+    );
 
     let moveForward = 0;
     let moveBackward = 0;
@@ -133,16 +136,12 @@ export const PlayerControllerComponent = NCS.registerComponent<
     });
 
     component.data.controlObservers.jump.subscribe(this, () => {
-      console.log("JUMP", bodyState.isGrounded);
+
       if (jumping || !bodyState.isGrounded) return;
       jumping = 1;
       body.component.schema!.velocity.y = component.schema.jumpForce;
       jumpTime = component.schema.jumpTime;
     });
-
-    component.data.cleanUp = () => {
-      scene.unregisterBeforeRender(directionUpdate);
-    };
   },
   dispose(component) {
     component.data.cleanUp();

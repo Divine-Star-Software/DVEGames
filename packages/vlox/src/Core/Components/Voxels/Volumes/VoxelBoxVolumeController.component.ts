@@ -10,26 +10,24 @@ import { TransformComponent } from "../../Base/Transform.component";
 import { VoxelBoxVolumeMeshComponent } from "./VoxelBoxVolumeMesh.component";
 import { BabylonContext } from "../../../../Babylon/Contexts/Babylon.context";
 
-class Schema {
-  mode: "position" | "scale" = "position";
-  visible = true;
-}
-class Data {
-  node: TransformNode;
-  positionGizmo: PositionGizmo | null;
-  scaleGizmo: ScaleGizmo | null;
-}
-
-export const VoxelBoxVolumeControllerComponent = NCS.registerComponent<
-  Schema,
-  Data
->({
+export const VoxelBoxVolumeControllerComponent = NCS.registerComponent({
   type: "voxel-box-volume-controller",
-  schema: NCS.schemaFromObject(new Schema()),
-
+  schema: NCS.schema({
+    mode: NCS.property("position" as "position" | "scale"),
+    visible: NCS.property(true),
+  }),
+  data: NCS.data<{
+    node: TransformNode | null;
+    positionGizmo: PositionGizmo | null;
+    scaleGizmo: ScaleGizmo | null;
+  }>(),
   init(component) {
     const context = BabylonContext.getRequired(component.node).data;
-
+    component.data = {
+      node: null,
+      positionGizmo: null,
+      scaleGizmo: null,
+    };
     const schemaCursor = component.schema.getCursor();
     const schemaIndex = component.schema.getSchemaIndex();
     const { scene } = context;
@@ -39,7 +37,7 @@ export const VoxelBoxVolumeControllerComponent = NCS.registerComponent<
     const volumeMesh = VoxelBoxVolumeMeshComponent.get(component.node)!;
     const transformComponent = TransformComponent.get(component.node)!;
 
-    const box = volumeMesh.data.box;
+    const box = volumeMesh.data;
 
     const transformNode = new TransformNode("", scene);
     component.data.node = transformNode;

@@ -1,11 +1,10 @@
 import { NCS } from "@amodx/ncs/";
 import { DimensionContext } from "../../../Core/Contexts/Dimension.context";
-class Schema {
-  dimension: string;
-}
-export const DimensionProviderComponent = NCS.registerComponent<Schema, {}>({
+export const DimensionProviderComponent = NCS.registerComponent({
   type: "dimension-provider",
-  schema: NCS.schemaFromObject(new Schema()),
+  schema: NCS.schema({
+    dimension: NCS.property("main"),
+  }),
   init(comp) {
     const context = DimensionContext.get(comp.node);
     if (context) {

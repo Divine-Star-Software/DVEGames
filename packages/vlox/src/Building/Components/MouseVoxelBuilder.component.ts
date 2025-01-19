@@ -4,43 +4,42 @@ import { MouseVoxelBuilderBoxToolComponent } from "./Mouse/MouseVoxelBuilderBoxT
 import { MouseVoxelBuilderSingleToolComponent } from "./Mouse/MouseVoxelBuilderSingleTool.component";
 import { VoxelPaintDataComponent } from "../../Core/Components/Voxels/VoxelPaintData.component";
 import { Observable } from "@amodx/core/Observers";
-
 enum Tools {
   Single = "signle",
   Box = "box",
 }
-
-class ComponentSchema {
-  tool: Tools = Tools.Single;
-}
-class Data {
-  constructor(public _cleanUp: () => void) {}
-}
-
-class Logic {
-  voxelPickedObserver = new Observable();
-}
-export const MouseVoxelBuilderComponent = NCS.registerComponent<
-  ComponentSchema,
-  {},
-  Logic
->({
+export const MouseVoxelBuilderComponent = NCS.registerComponent({
   type: "mouse-voxel-builder",
-  schema: NCS.schemaFromObject(new ComponentSchema()),
+  schema: NCS.schema({
+    tool: NCS.property(Tools.Single, { options: [Tools.Single, Tools.Box] }),
+  }),
+  data: NCS.data<{
+    voxelPickedObserver: Observable;
+  }>(),
   init(component) {
-    component.logic = new Logic();
+    component = component.cloneCursor();
+    component.data = {
+      voxelPickedObserver: new Observable(),
+    };
     const update = () => {
+
       if (component.schema.tool == Tools.Single) {
-        if (MouseVoxelBuilderBoxToolComponent.get(component.node)) {
+        if (MouseVoxelBuilderBoxToolComponent.has(component.node)) {
           MouseVoxelBuilderBoxToolComponent.remove(component.node);
         }
-        MouseVoxelBuilderSingleToolComponent.set(component.node);
+        if (!MouseVoxelBuilderSingleToolComponent.has(component.node)) {
+          MouseVoxelBuilderSingleToolComponent.set(component.node);
+        }
+        return;
       }
       if (component.schema.tool == Tools.Box) {
-        if (MouseVoxelBuilderSingleToolComponent.get(component.node)) {
+        if (MouseVoxelBuilderSingleToolComponent.has(component.node)) {
           MouseVoxelBuilderSingleToolComponent.remove(component.node);
         }
-        MouseVoxelBuilderBoxToolComponent.set(component.node);
+        if (!MouseVoxelBuilderBoxToolComponent.has(component.node)) {
+          MouseVoxelBuilderBoxToolComponent.set(component.node);
+        }
+        return;
       }
     };
 
@@ -56,14 +55,14 @@ export const MouseVoxelBuilderComponent = NCS.registerComponent<
     const paintData = VoxelPaintDataComponent.get(component.node)!;
 
     VoxelMousePickComponent.get(component.node)!.data.voxelPicked.subscribe(
-      component,
+      component.index,
       ({ button, data: { dataTool } }) => {
         if (button == 1) {
           if (!dataTool.isRenderable()) return;
           paintData.schema.id = dataTool.getStringId();
           paintData.schema.shapeState = dataTool.getShapeState();
           paintData.schema.mod = dataTool.getMod();
-          component.logic.voxelPickedObserver.notify();
+          component.data.voxelPickedObserver.notify();
         }
       }
     );

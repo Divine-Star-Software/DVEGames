@@ -1,10 +1,8 @@
 import { NCS } from "@amodx/ncs/";
 import { raw } from "@amodx/elm";
 import ToolPanel from "./UI/DebugPanel";
-class Data {
-  constructor(public _cleanUp: () => void) {}
-}
-export const ToolPanelComponent = NCS.registerComponent<{}, Data>({
+
+export const ToolPanelComponent = NCS.registerComponent<() => void>({
   type: "tool-panel",
   init(component) {
     const debugRoot = document.createElement("div");
@@ -19,15 +17,13 @@ export const ToolPanelComponent = NCS.registerComponent<{}, Data>({
     };
     raw(debugRoot, {}, ToolPanel(component));
     window.addEventListener("keydown", turnOnListener);
-    component.data = new Data(() => {
+    component.data = () => {
       for (const child of debugRoot.children) {
         child.remove();
       }
       debugRoot.innerHTML = "";
       window.removeEventListener("keydown", turnOnListener);
-    });
+    };
   },
-  dispose(component) {
-    component.data._cleanUp();
-  },
+  dispose: (component) => component.data(),
 });

@@ -71,11 +71,8 @@ export default wrap<
       "div",
       {
         className: "collapsible-section-title",
-        signal: expanded(() => {
-          console.warn("send update", expanded.value);
-        }),
+        signal: expanded(() => {}),
         onclick() {
-          console.log(expanded.value);
           expanded.value = !expanded.value;
         },
       },

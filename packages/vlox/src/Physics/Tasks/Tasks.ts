@@ -1,26 +1,18 @@
 import { DivineVoxelEngineRender } from "@divinevoxel/vlox/Contexts/Render/DivineVoxelEngineRender";
-import {
-  RegisterColliderTasks,
-  NexusTasksIds,
-  RemoveColliderTasks,
-} from "./NexusTask.types";
+import { NexusTasksIds } from "./NexusTask.types";
+import { CreateNodeData } from "@amodx/ncs/";
 
 export class NexusTasks {
-  static async registerBody(
-    node: any,
-    sharedTransformBuffer: ArrayBufferLike,
-    sharedPhysicsBody: ArrayBufferLike,
-    sharedColliderState: ArrayBufferLike
-  ) {
-    await DivineVoxelEngineRender.instance.threads.nexus.runTasks<RegisterColliderTasks>(
-      NexusTasksIds.RegisterCollider,
-      [node, sharedTransformBuffer, sharedPhysicsBody, sharedColliderState]
-    );
+  static async registerBody(node: CreateNodeData) {
+    return await DivineVoxelEngineRender.instance.threads.nexus.runAsyncTasks<
+      CreateNodeData,
+      number
+    >(NexusTasksIds.RegisterCollider, node);
   }
   static async removeBody(id: number) {
-    await DivineVoxelEngineRender.instance.threads.nexus.runTasks<RemoveColliderTasks>(
+    await DivineVoxelEngineRender.instance.threads.nexus.runAsyncTasks<number>(
       NexusTasksIds.RemoveCollider,
-      [id]
+      id
     );
   }
 }

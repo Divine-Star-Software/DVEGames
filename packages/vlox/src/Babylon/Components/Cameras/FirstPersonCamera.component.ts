@@ -5,19 +5,11 @@ import { TransformNodeComponent } from "../Base/TransformNode.component";
 import { CameraProviderComponent } from "../Providers/CameraProvider.component";
 import { BabylonContext } from "../../Contexts/Babylon.context";
 import { TransformComponent } from "../../../Core/Components/Base/Transform.component";
-interface Data {
-  camera: UniversalCamera;
-}
-class FirstPersonCameraData {
-  position: Vec3Array;
-  rotation: Vec3Array;
-}
-export const FirstPersonCameraComponent = NCS.registerComponent<
-  FirstPersonCameraData,
-  Data
->({
+export const FirstPersonCameraComponent = NCS.registerComponent({
   type: "first-person-camera",
-  schema: NCS.schemaFromObject(new FirstPersonCameraData()),
+  data: NCS.data<{
+    camera: UniversalCamera;
+  }>(),
   init(component) {
     const position = TransformComponent.get(component.node)!.schema.position;
     const tranformNodeComponent = TransformNodeComponent.get(component.node)!;
@@ -39,7 +31,7 @@ export const FirstPersonCameraComponent = NCS.registerComponent<
       camera,
     };
 
-    tranformNodeComponent.logic.parent(camera);
+    tranformNodeComponent.data.parent(camera);
 
     camera.computeWorldMatrix();
 
@@ -49,7 +41,5 @@ export const FirstPersonCameraComponent = NCS.registerComponent<
         camera,
       };
   },
-  dispose(component) {
-    component.data.camera.dispose();
-  },
+  dispose: (component) => component.data.camera.dispose(),
 });

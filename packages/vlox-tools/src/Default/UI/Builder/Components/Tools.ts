@@ -8,26 +8,25 @@ import { MouseVoxelBuilderComponent } from "@dvegames/vlox/Building/Components/M
 import { MouseVoxelBuilderBoxToolComponent } from "@dvegames/vlox/Building/Components/Mouse/MouseVoxelBuilderBoxTool.component";
 
 export default function Tools() {
-    const updated = useSignal();
-    const builder = MouseVoxelBuilderComponent.get(Builder.node)!;
-    builder.addOnSchemaUpdate(["tool"], () => updated.broadcast());
-    return frag(
-      SchemaEditor({
-        schemaInstance: builder!.schema,
+  const updated = useSignal();
+  const builder = MouseVoxelBuilderComponent.getRequired(Builder.node);
+  //  builder.addOnSchemaUpdate(["tool"], () => updated.broadcast());
+  return frag(
+    SchemaEditor({
+      schema: builder!.schema,
+    }),
+    elm("div", {
+      signal: updated((elm) => {
+        elm.innerHTML = "";
+        if (MouseVoxelBuilderBoxToolComponent.get(Builder.node)) {
+          elm.append(
+            SchemaEditor({
+              schema: MouseVoxelBuilderBoxToolComponent.get(Builder.node)!
+                .schema,
+            })
+          );
+        }
       }),
-      elm("div", {
-        signal: updated((elm) => {
-          elm.innerHTML = "";
-          if (MouseVoxelBuilderBoxToolComponent.get(Builder.node)) {
-            elm.append(
-              SchemaEditor({
-                schemaInstance: MouseVoxelBuilderBoxToolComponent.get(
-                  Builder.node
-                )!.schema,
-              })
-            );
-          }
-        }),
-      })
-    );
-  }
+    })
+  );
+}

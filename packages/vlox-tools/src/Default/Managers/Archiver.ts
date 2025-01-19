@@ -10,13 +10,15 @@ export class Archiver {
 
   static init(graph: Graph) {
     this.node = graph.addNode(
-      Node({}, [DimensionProviderComponent({}), WorldArchiverComponent()])
-    );
+      Node("Archiver", [
+        DimensionProviderComponent({}),
+        WorldArchiverComponent(),
+      ])
+    ).cloneCursor();
   }
   static async archiveCache() {
     console.warn("Archive cached");
     const archivedData = CacheManager.getCachedData();
-
 
     const compressed = await Compressor.core.compressArrayBuffer(
       BinaryObject.objectToBuffer(archivedData)
@@ -28,7 +30,7 @@ export class Archiver {
     console.warn("Archive world");
     const archivedData = await WorldArchiverComponent.get(
       this.node
-    )!.logic.archive();
+    )!.data.archive();
     console.log(archivedData);
 
     const compressed = await Compressor.core.compressArrayBuffer(
@@ -45,6 +47,6 @@ export class Archiver {
     ) as any;
     BinaryObject.setUseSharedMemory(false);
 
-    await WorldArchiverComponent.get(this.node)!.logic.load(archive);
+    await WorldArchiverComponent.get(this.node)!.data.load(archive);
   }
 }

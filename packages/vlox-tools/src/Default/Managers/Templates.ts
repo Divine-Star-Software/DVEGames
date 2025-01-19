@@ -34,21 +34,23 @@ export class Templates {
   }
 
   static loadTemplate(data: VoxelTemplateData) {
-    const templateNode = this.node.graph.addNode(
-      Node({}, [
-        TransformComponent({
-          scale: Vector3Like.Create(...data.size),
-        }),
-        DimensionProviderComponent({}),
-        VoxelTemplateComponent(),
-        VoxelBoxVolumeComponent(),
-        VoxelBoxVolumeMeshComponent(),
-        VoxelBoxVolumeControllerComponent(),
-      ]),
-      this.node.index
-    );
+    const templateNode = this.node.graph
+      .addNode(
+        Node({}, [
+          TransformComponent({
+            scale: Vector3Like.Create(...data.size),
+          }),
+          DimensionProviderComponent({}),
+          VoxelTemplateComponent(),
+          VoxelBoxVolumeComponent(),
+          VoxelBoxVolumeMeshComponent(),
+          VoxelBoxVolumeControllerComponent(),
+        ]),
+        this.node.index
+      )
+      .cloneCursor();
     const template = VoxelTemplateComponent.get(templateNode)!;
     template.data.template = new VoxelTemplate(data);
-    console.log("LOADED TEMPLATE", template.data.template);
+  
   }
 }

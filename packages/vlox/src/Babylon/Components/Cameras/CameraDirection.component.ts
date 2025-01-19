@@ -4,16 +4,15 @@ import { CameraProviderComponent } from "../Providers/CameraProvider.component";
 import { BabylonContext } from "../../Contexts/Babylon.context";
 import { Directions } from "@amodx/math/Directions";
 import { Vector2Like } from "@amodx/math";
+
 class Data {
   _cleanUp: () => void;
   forwardDirection = new Vector3();
   sideDirection = new Vector3();
   forwardXZDirection = new Vector3();
-}
-
-class Logic {
   private _direction = new Vector3();
-  constructor(public component: (typeof CameraDirectionComponent)["default"]) {}
+ constructor( public component: (typeof CameraDirectionComponent)["default"]){};
+
 
   private get2dDirection(vector: Vector3) {
     vector.y = 0;
@@ -62,16 +61,11 @@ class Logic {
   }
 }
 
-export const CameraDirectionComponent = NCS.registerComponent<
-  {},
-  Data,
-  Logic
->({
+export const CameraDirectionComponent = NCS.registerComponent({
   type: "camera-direction",
-
+  data: NCS.data<Data>(),
   init(component) {
-    component.data = new Data();
-    component.logic =  new Logic(component.cloneCursor());
+    component.data = new Data(component.cloneCursor());
 
     const { scene } = BabylonContext.getRequired(component.node)!.data;
 
@@ -101,6 +95,6 @@ export const CameraDirectionComponent = NCS.registerComponent<
   },
   dispose(component) {
     component.data._cleanUp();
-    component.logic.component.returnCursor();
+    component.data.component.returnCursor();
   },
 });

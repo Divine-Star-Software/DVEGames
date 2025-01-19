@@ -1,29 +1,15 @@
 import { NCS } from "@amodx/ncs/";
-
-class SelfDestructComponentSchema {
-  time: number;
-}
-class Data {
-  _done = false;
-  constructor(public _cleanUp: () => void) {}
-}
-export const SelfDestructComponent = NCS.registerComponent<
-  SelfDestructComponentSchema,
-  Data
->({
+export const SelfDestructComponent = NCS.registerComponent({
   type: "self-destruct",
-  schema: NCS.schemaFromObject(new SelfDestructComponentSchema()),
-  init(component) {
-    const timeout = setTimeout(() => {
-      component.data._done = true;
+  schema: NCS.schema({
+    time: NCS.property(0),
+  }),
+  data: NCS.data<number>(),
+  init: (component) => (component.data = performance.now()),
+  update(component) {
+    const delta = performance.now() - component.data;
+    if (delta >= component.schema.time) {
       component.node.dispose();
-    }, component.schema.time);
-    component.data = new Data(() => {
-      clearTimeout(timeout);
-    });
-  },
-  dispose(component) {
-    if (component.data._done) return;
-    component.data._cleanUp();
+    }
   },
 });

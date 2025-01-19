@@ -10,7 +10,7 @@ import ArchiveArea, {
 import { ArchiverTasks } from "../Tasks/ArchiverTasks";
 import { DimensionProviderComponent } from "../../Core/Components/Providers/DimensionProvider.component";
 
-class Logic {
+class Data {
   constructor(public component: (typeof WorldArchiverComponent)["default"]) {}
   async archive() {
     const proms: Promise<ArchivedColumnData>[] = [];
@@ -43,12 +43,9 @@ class Logic {
   }
 }
 
-export const WorldArchiverComponent = NCS.registerComponent<{}, {}, Logic>({
+export const WorldArchiverComponent = NCS.registerComponent({
   type: "world-archiver-component",
-  init(component) {
-    component.logic = new Logic(component.cloneCursor());
-  },
-  dispose(component) {
-    component.logic.component.returnCursor();
-  },
+  data: NCS.data<Data>(),
+  init: (component) => (component.data = new Data(component.cloneCursor())),
+  dispose: (component) => component.data.component.returnCursor(),
 });
