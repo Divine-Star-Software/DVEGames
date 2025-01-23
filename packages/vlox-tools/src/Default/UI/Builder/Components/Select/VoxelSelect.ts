@@ -1,5 +1,5 @@
 import { elm, frag, Signal, useRef, useSignal } from "@amodx/elm";
-import { VoxelIndex } from "@divinevoxel/vlox/VoxelData/VoxelIndex";
+import { VoxelIndex } from "@divinevoxel/vlox/Voxels/Indexes/VoxelIndex";
 import ItemNode from "./ItemNode";
 import ItemGroup from "./ItemGroup";
 import ItemSearch from "./ItemSearch";

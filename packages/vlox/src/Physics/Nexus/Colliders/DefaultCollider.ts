@@ -4,7 +4,7 @@ import { ColliderManager } from "./ColliderManager.js";
 
 ColliderManager.registerCollider(
   new (class extends Collider {
-    id = "#dve_cube";
+    id = "dve_cube";
     isSolid = true;
     flags = {};
 
@@ -23,10 +23,10 @@ ColliderManager.registerCollider(
 
 ColliderManager.registerCollider(
   new (class extends Collider {
-    id = "#dve_climable_box";
+    id = "dve_climable_box";
     isSolid = false;
     flags = {
-      ["#dve_climbable"]: 1,
+      ["dve_climbable"]: 1,
     };
 
     constructor() {
@@ -44,7 +44,7 @@ ColliderManager.registerCollider(
 
 ColliderManager.registerCollider(
   new (class extends Collider {
-    id = "#dve_stair";
+    id = "dve_stair";
     isSolid = true;
     flags = {};
 

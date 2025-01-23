@@ -1,9 +1,9 @@
 import {
   VoxelIndex,
   VoxelNamedStateContainer,
-} from "@divinevoxel/vlox/VoxelData/VoxelIndex";
+} from "@divinevoxel/vlox/Voxels/Indexes/VoxelIndex";
 import { elm, frag, useRef, useSignal } from "@amodx/elm";
-import { VoxelTextureIndex } from "@divinevoxel/vlox/VoxelIndexes/VoxelTextureIndex";
+import { VoxelTextureIndex } from "@divinevoxel/vlox/Voxels/Indexes/VoxelTextureIndex";
 import { ItemSearchManager } from "./ItemSearchManager";
 import { Observable } from "@amodx/core/Observers";
 import ItemNode from "./ItemNode";

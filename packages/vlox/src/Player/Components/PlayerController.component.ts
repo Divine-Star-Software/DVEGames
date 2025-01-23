@@ -33,6 +33,8 @@ export const PlayerControllerComponent = NCS.registerComponent({
   schema: NCS.schemaFromObject(new ComponentSchema()),
   data: NCS.data<{
     cleanUp: () => void;
+    state: (typeof PhysicsColliderStateComponent)["default"];
+    body: (typeof PhysicsBodyComponent)["default"];
     controlObservers: PlayerControllerComponentObservers;
   }>(),
   init(component) {
@@ -41,12 +43,13 @@ export const PlayerControllerComponent = NCS.registerComponent({
       cleanUp: () => {
         return scene.unregisterBeforeRender(directionUpdate);
       },
+      body: PhysicsBodyComponent.getRequired(component.node),
+      state: PhysicsColliderStateComponent.getRequired(component.node),
       controlObservers: new PlayerControllerComponentObservers(),
     };
+    const data = component.data;
     const { scene, engine } = BabylonContext.get(component.node)!.data;
     const body = PhysicsBodyComponent.get(component.node)!.data;
-
-    const bodyState = PhysicsColliderStateComponent.get(component.node)!.schema;
 
     const cameraProvider = CameraProviderComponent.getChild(component.node)!;
 
@@ -136,12 +139,18 @@ export const PlayerControllerComponent = NCS.registerComponent({
     });
 
     component.data.controlObservers.jump.subscribe(this, () => {
-
-      if (jumping || !bodyState.isGrounded) return;
+      if (jumping || (!data.state.schema.isGrounded && !data.state.schema.isInLiquid)) return;
       jumping = 1;
       body.component.schema!.velocity.y = component.schema.jumpForce;
       jumpTime = component.schema.jumpTime;
     });
+  },
+  update(component) {
+    if (component.data.state.schema.isInLiquid) {
+      component.data.body.schema.gravityScale = 0.1;
+    } else {
+      component.data.body.schema.gravityScale = 1;
+    }
   },
   dispose(component) {
     component.data.cleanUp();

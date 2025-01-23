@@ -295,6 +295,7 @@ export const PhysicsSystems = NCS.registerSystem({
         applyTransform(position, body, deltaTime);
 
         let isGrounded = false;
+        let isInLiquid = false;
 
         // Collision detection and resolution loop
         while (true) {
@@ -328,6 +329,7 @@ export const PhysicsSystems = NCS.registerSystem({
             for (let z = minZ; z <= maxZ; z++) {
               for (let x = minX; x <= maxX; x++) {
                 if (!dataTool.loadInAt(x, y, z)) continue;
+                if (dataTool.isRenderable() && dataTool.getSubstnaceData().isLiquid()) isInLiquid = true;
                 const collider = dataTool.getColliderObj();
                 if (!collider) continue;
 
@@ -348,6 +350,7 @@ export const PhysicsSystems = NCS.registerSystem({
                     if (collisionCheck.ny == 1) isGrounded = true;
                   }
                   if (!dataTool.isSolid() || !collider.isSolid) continue;
+        
                   if (collisionCheck.hitDepth < collisionResults.hitDepth) {
                     aabb.results.loadIn(colliderNode.results);
                   }
@@ -396,6 +399,7 @@ export const PhysicsSystems = NCS.registerSystem({
 
         Vector3Like.Copy(transform.position, position);
         colliderState.isGrounded = isGrounded ? 1 : 0;
+        colliderState.isInLiquid = isInLiquid ? 1 : 0;
       }
     }
   },

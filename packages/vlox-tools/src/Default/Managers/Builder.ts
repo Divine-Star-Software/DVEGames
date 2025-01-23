@@ -7,7 +7,7 @@ import { MouseVoxelBuilderComponent } from "@dvegames/vlox/Building/Components/M
 import { VoxelPaintDataComponent } from "@dvegames/vlox/Core/Components/Voxels/VoxelPaintData.component";
 import { DimensionProviderComponent } from "@dvegames/vlox/Core/Components/Providers/DimensionProvider.component";
 import { PaintVoxelData } from "@divinevoxel/vlox/Data/Types/WorldData.types";
-import { VoxelData } from "@divinevoxel/vlox/Types";
+import { VoxelData } from "@divinevoxel/vlox/Voxels/Voxel.types";
 
 import { Observable } from "@amodx/core/Observers";
 

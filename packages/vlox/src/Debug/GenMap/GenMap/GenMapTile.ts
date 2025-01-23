@@ -2,7 +2,7 @@ import { LocationData } from "@divinevoxel/vlox/Math";
 import { GenMap } from "./GenMap";
 import { EntityInstance } from "@divinevoxel/vlox-babylon/Tools/EntityInstance";
 import { ColumnDataTool } from "@divinevoxel/vlox/Tools/Data/WorldData/ColumnDataTool";
-import { ColumnState } from "@divinevoxel/vlox/IWG/Constants/ColumnState";
+import { ColumnState } from "@divinevoxel/vlox/Tasks/IWG/Constants/ColumnState";
 import { SafeInterval } from "@amodx/core/Intervals/SafeInterval";
 import { DivineVoxelEngineRender } from "@divinevoxel/vlox/Contexts/Render";
 export class GenMapTile {

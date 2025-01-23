@@ -2,7 +2,7 @@ import { elm, frag, useSignal, useRef } from "@amodx/elm";
 import { SchemaEditor } from "../../../../../UI/Schemas/SchemaEditor";
 import { Schema, SelectProp, StringProp } from "@amodx/schemas";
 import { ItemSearchManager } from "./ItemSearchManager";
-import { VoxelIndex } from "@divinevoxel/vlox/VoxelData/VoxelIndex";
+import { VoxelIndex } from "@divinevoxel/vlox/Voxels/Indexes/VoxelIndex";
 import CollapsibleSection from "../../../../../UI/Components/CollapsibleSection";
 
 elm.css(/* css */ `

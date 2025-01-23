@@ -5,7 +5,7 @@ import {
   CoreTasksIds,
 } from "../CoreTasks.types";
 
-import { WorldGeneration } from "@divinevoxel/vlox/WorldGeneration/WorldGeneration";
+import { WorldGeneration } from "@divinevoxel/vlox/Tasks/WorldGeneration/WorldGeneration";
 
 import { VoxelTemplate } from "@divinevoxel/vlox/Templates/VoxelTemplate";
 import { Threads } from "@amodx/threads";

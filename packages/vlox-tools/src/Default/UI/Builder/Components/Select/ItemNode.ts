@@ -1,6 +1,6 @@
 import { elm, useRef } from "@amodx/elm";
-import { VoxelNamedState } from "@divinevoxel/vlox/VoxelData/VoxelIndex";
-import { VoxelTextureIndex } from "@divinevoxel/vlox/VoxelIndexes/VoxelTextureIndex";
+import { VoxelNamedState } from "@divinevoxel/vlox/Voxels/Indexes/VoxelIndex";
+import { VoxelTextureIndex } from "@divinevoxel/vlox/Voxels/Indexes/VoxelTextureIndex";
 import { ItemSearchManager } from "./ItemSearchManager";
 import { FuzzySearch } from "@amodx/core/Search/FuzzySearch";
 import { Observable } from "@amodx/core/Observers";

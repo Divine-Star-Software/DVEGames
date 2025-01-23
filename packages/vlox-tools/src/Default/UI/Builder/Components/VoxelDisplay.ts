@@ -1,11 +1,11 @@
 import { elm, frag, Signal, useRef, useSignal } from "@amodx/elm";
 import { IntProp, Schema, SelectProp } from "@amodx/schemas";
-import { SchemaRegister } from "@divinevoxel/vlox/VoxelState/SchemaRegister";
+import { SchemaRegister } from "@divinevoxel/vlox/Voxels/State/SchemaRegister";
 import { VoxelPaintDataComponent } from "@dvegames/vlox/Core/Components/Voxels/VoxelPaintData.component";
 import { Builder } from "../../../Managers/Builder";
 import { SchemaEditor } from "../../../../UI/Schemas/SchemaEditor";
-import { VoxelIndex } from "@divinevoxel/vlox/VoxelData/VoxelIndex";
-import { VoxelTextureIndex } from "@divinevoxel/vlox/VoxelIndexes/VoxelTextureIndex";
+import { VoxelIndex } from "@divinevoxel/vlox/Voxels/Indexes/VoxelIndex";
+import { VoxelTextureIndex } from "@divinevoxel/vlox/Voxels/Indexes/VoxelTextureIndex";
 import { Observable } from "@amodx/core/Observers";
 import { MouseVoxelBuilderComponent } from "@dvegames/vlox/Building/Components/MouseVoxelBuilder.component";
 

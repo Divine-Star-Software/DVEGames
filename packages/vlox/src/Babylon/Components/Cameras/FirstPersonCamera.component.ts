@@ -1,6 +1,5 @@
 import { NCS } from "@amodx/ncs/";
 import { UniversalCamera, Vector3 } from "@babylonjs/core";
-import { Vec3Array } from "@amodx/math";
 import { TransformNodeComponent } from "../Base/TransformNode.component";
 import { CameraProviderComponent } from "../Providers/CameraProvider.component";
 import { BabylonContext } from "../../Contexts/Babylon.context";
@@ -11,8 +10,11 @@ export const FirstPersonCameraComponent = NCS.registerComponent({
     camera: UniversalCamera;
   }>(),
   init(component) {
-    const position = TransformComponent.get(component.node)!.schema.position;
-    const tranformNodeComponent = TransformNodeComponent.get(component.node)!;
+    const position = TransformComponent.getRequired(component.node).schema
+      .position;
+    const tranformNodeComponent = TransformNodeComponent.getRequiredParent(
+      component.node
+    )!;
     const { scene } = BabylonContext.getRequired(component.node)!.data;
     const camera = new UniversalCamera(
       "",
