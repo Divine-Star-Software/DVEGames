@@ -4,15 +4,14 @@ import { DivineVoxelEngineNexus } from "@divinevoxel/vlox/Contexts/Nexus/DivineV
 import { CreateNodeData } from "@amodx/ncs/";
 
 export default function (nexus: DivineVoxelEngineNexus) {
-  nexus.TC.registerTasks<CreateNodeData>(
+  nexus.TC.registerTask<CreateNodeData>(
     NexusTasksIds.RegisterCollider,
-    (node, onDone) => {
+    (node) => {
       const newNode = DVEPhysics.graph.addNode(node);
-      if (onDone) onDone(newNode.index);
-      return newNode.index;
+      return [newNode.index];
     }
   );
-  nexus.TC.registerTasks<RemoveColliderTasks>(
+  nexus.TC.registerTask<RemoveColliderTasks>(
     NexusTasksIds.RemoveCollider,
     ([id]) => {
       DVEPhysics.graph.removeNode(id);

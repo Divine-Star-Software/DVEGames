@@ -1,4 +1,4 @@
-import { PhysicsDataTool } from "../Classes/PhysicsDataTool.js";
+import { Vector3Like } from "@amodx/math";
 import { Collider } from "../Classes/Collider.js";
 import { ColliderManager } from "./ColliderManager.js";
 
@@ -12,7 +12,7 @@ ColliderManager.registerCollider(
       super();
       this.addNode("main", Collider.createBBox());
     }
-    getNodes(dataTool: PhysicsDataTool) {
+    getNodes(dataTool: Vector3Like) {
       this.nodes[0].position.x = dataTool.x;
       this.nodes[0].position.y = dataTool.y;
       this.nodes[0].position.z = dataTool.z;
@@ -33,7 +33,7 @@ ColliderManager.registerCollider(
       super();
       this.addNode("main", Collider.createBBox());
     }
-    getNodes(dataTool: PhysicsDataTool) {
+    getNodes(dataTool: Vector3Like) {
       this.nodes[0].position.x = dataTool.x;
       this.nodes[0].position.y = dataTool.y;
       this.nodes[0].position.z = dataTool.z;
@@ -53,7 +53,7 @@ ColliderManager.registerCollider(
       this.addNode("stair-bottom", Collider.createBBox(1, 0.5, 1));
       this.addNode("stair-top", Collider.createBBox(1, 0.5, 0.5));
     }
-    getNodes(dataTool: PhysicsDataTool) {
+    getNodes(dataTool: Vector3Like) {
       this.nodes[0].position.x = dataTool.x;
       this.nodes[0].position.y = dataTool.y;
       this.nodes[0].position.z = dataTool.z;

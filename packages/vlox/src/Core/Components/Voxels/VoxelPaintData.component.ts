@@ -1,5 +1,5 @@
 import { NCS } from "@amodx/ncs";
-import { PaintVoxelData } from "@divinevoxel/vlox/Data/Types/WorldData.types";
+import { PaintVoxelData } from "@divinevoxel/vlox/Voxels";
 export const VoxelPaintDataComponent = NCS.registerComponent<PaintVoxelData>({
   type: "voxel-paint-data",
   schema: NCS.schema({

@@ -8,9 +8,10 @@ import { Line } from "../Classes/Line";
 import { Plane } from "../Classes/Plane";
 import { BoundingBox } from "../Classes/BoundingBox";
 import { CollisionNode } from "../Classes/CollisionNode";
-import { PhysicsDataTool } from "../Classes/PhysicsDataTool";
-import { DimensionProviderComponent } from "../../../Core/Components/Providers/DimensionProvider.component";
 import { PhysicsColliderStateComponent } from "../../../Physics/Components/PhysicsColliderState.component";
+import { WorldCursor } from "@divinevoxel/vlox/World/Cursor/WorldCursor";
+import { ColliderManager } from "../Colliders/ColliderManager";
+import { WorldSpaces } from "@divinevoxel/vlox/World/WorldSpaces";
 const position = Vector3Like.Create();
 const delta = Vector3Like.Create();
 const start = Vector3Like.Create();
@@ -172,7 +173,7 @@ const sweepAABBN = (
   return collisionNode.results.raw;
 };
 
-let dataTool: PhysicsDataTool;
+let dataTool: WorldCursor;
 
 const acceleration = Vector3Like.Create();
 const frictionForce = Vector3Like.Create();
@@ -246,6 +247,7 @@ function applyTransform(
 }
 
 const deltaTime = 0.016;
+const voxelPositon = Vector3Like.Create();
 
 export const PhysicsSystems = NCS.registerSystem({
   type: "physics",
@@ -256,7 +258,7 @@ export const PhysicsSystems = NCS.registerSystem({
   ],
 
   update(system) {
-    if (!dataTool) dataTool = new PhysicsDataTool();
+    if (!dataTool) dataTool = new WorldCursor();
     const node = system.node;
 
     for (let q = 0; q < system.queries.length; q++) {
@@ -267,13 +269,19 @@ export const PhysicsSystems = NCS.registerSystem({
 
         /*  const dimension =
           DimensionProviderComponent.getRequired(node).schema.dimension; */
-        dataTool.setDimension("main");
 
         const transform = TransformComponent.getRequired(node).schema;
 
         // Store original position
         Vector3Like.Copy(position, transform.position);
         Vector3Like.Copy(previousPosiiton, transform.position);
+
+        dataTool.setFocalPoint(
+          "main",
+          position.x >> 0,
+          position.y >> 0,
+          position.z >> 0
+        );
 
         const body = PhysicsBodyComponent.getRequired(node)!.schema;
 
@@ -328,12 +336,20 @@ export const PhysicsSystems = NCS.registerSystem({
           for (let y = minY; y <= maxY; y++) {
             for (let z = minZ; z <= maxZ; z++) {
               for (let x = minX; x <= maxX; x++) {
-                if (!dataTool.loadInAt(x, y, z)) continue;
-                if (dataTool.isRenderable() && dataTool.getSubstnaceData().isLiquid()) isInLiquid = true;
-                const collider = dataTool.getColliderObj();
+                const voxel = dataTool.getVoxel(x, y, z);
+                voxelPositon.x = x;
+                voxelPositon.y = y;
+                voxelPositon.z = z;
+
+                if (!voxel) continue;
+                if (voxel.isRenderable() && voxel.getSubstanceData().isLiquid())
+                  isInLiquid = true;
+                const colliderId = voxel.getColliderStringId();
+                if (!colliderId) continue;
+                const collider = ColliderManager.getCollider(colliderId);
                 if (!collider) continue;
 
-                const nodes = collider.getNodes(dataTool);
+                const nodes = collider.getNodes(voxelPositon);
                 for (const colliderNode of nodes) {
                   start.x = previousPosiiton.x - bboxHalfWidth;
                   start.y = previousPosiiton.y - bboxHalfHeight;
@@ -349,8 +365,13 @@ export const PhysicsSystems = NCS.registerSystem({
                   if (collisionCheck.hitDepth < 1) {
                     if (collisionCheck.ny == 1) isGrounded = true;
                   }
-                  if (!dataTool.isSolid() || !collider.isSolid) continue;
-        
+                  if (
+                    !voxel.checkCollisions() ||
+                    !voxel.getSubstanceData().isSolid() ||
+                    !collider.isSolid
+                  )
+                    continue;
+
                   if (collisionCheck.hitDepth < collisionResults.hitDepth) {
                     aabb.results.loadIn(colliderNode.results);
                   }

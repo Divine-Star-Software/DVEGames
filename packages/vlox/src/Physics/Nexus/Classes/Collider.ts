@@ -1,7 +1,7 @@
-import type { PhysicsDataTool } from "./PhysicsDataTool";
 import { Vector3 } from "@divinevoxel/vlox/Math/Classes/Vector3.js";
 import { BoundingBox } from "./BoundingBox.js";
 import { CollisionNode } from "./CollisionNode.js";
+import { Vector3Like } from "@amodx/math";
 
 export abstract class Collider {
   static createBBox(
@@ -22,7 +22,7 @@ export abstract class Collider {
     this.nodes.push(new CollisionNode(name, boundingBox));
   }
 
-  abstract getNodes(dataTool: PhysicsDataTool): CollisionNode[];
+  abstract getNodes(dataTool: Vector3Like): CollisionNode[];
 
   hasFlag(id: string) {
     return this.flags[id] !== undefined;

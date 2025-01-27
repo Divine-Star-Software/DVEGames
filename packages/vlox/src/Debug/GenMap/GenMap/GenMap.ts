@@ -9,11 +9,11 @@ import {
   ShaderMaterial,
 } from "@babylonjs/core";
 import { LocationData } from "@divinevoxel/vlox/Math";
-import { WorldSpaces } from "@divinevoxel/vlox/Data/World/WorldSpaces";
+import { WorldSpaces } from "@divinevoxel/vlox/World/WorldSpaces";
 import { $2dMooreNeighborhood } from "@divinevoxel/vlox/Math/Constants/CardinalNeighbors.js";
 import { Distance3D, Vec3Array, Vector3Like } from "@amodx/math";
 import { GenMapTileMaterial } from "./GenMapTileMaterial";
-import { WorldRegister } from "@divinevoxel/vlox/Data/World/WorldRegister";
+import { WorldRegister } from "@divinevoxel/vlox/World/WorldRegister";
 import { Quad } from "./Quad";
 export class GenMap {
   static Constants = {
@@ -98,8 +98,8 @@ export class GenMap {
       if (distance > 600) continue;
 
       for (const n of $2dMooreNeighborhood) {
-        const nx = cx + n[0] * WorldSpaces.column._bounds.x;
-        const nz = cz + n[1] * WorldSpaces.column._bounds.z;
+        const nx = cx + n[0] * WorldSpaces.column.bounds.x;
+        const nz = cz + n[1] * WorldSpaces.column.bounds.z;
         const columnPOS = WorldSpaces.column.getPositionXYZ(nx, cy, nz),
           key = WorldSpaces.column.getKey();
         if (!this._visitedMap.has(key)) {
@@ -108,8 +108,8 @@ export class GenMap {
       }
 
       const columnLocation: LocationData = [location[0], cx, 0, cz];
-      WorldRegister.instance.setDimension(columnLocation[0]);
-      const column = WorldRegister.instance.column.get(
+      WorldRegister.setDimension(columnLocation[0]);
+      const column = WorldRegister.column.get(
         columnLocation[1],
         columnLocation[2],
         columnLocation[3]

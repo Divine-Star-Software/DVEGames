@@ -1,7 +1,7 @@
 import { Vector3Like } from "@amodx/math";
 import type { Mesh } from "@babylonjs/core";
 import { LocationData } from "@divinevoxel/vlox/Math";
-import { WorldSpaces } from "@divinevoxel/vlox/Data/World/WorldSpaces";
+import { WorldSpaces } from "@divinevoxel/vlox/World/WorldSpaces";
 import { GenMapTile } from "./GenMapTile";
 import { GenMap } from "./GenMap";
 type WorldMapTileRegisterChunk = {

@@ -6,14 +6,11 @@ import { VoxelPlacerComponent } from "@dvegames/vlox/Core/Components/Voxels/Inte
 import { MouseVoxelBuilderComponent } from "@dvegames/vlox/Building/Components/MouseVoxelBuilder.component";
 import { VoxelPaintDataComponent } from "@dvegames/vlox/Core/Components/Voxels/VoxelPaintData.component";
 import { DimensionProviderComponent } from "@dvegames/vlox/Core/Components/Providers/DimensionProvider.component";
-import { PaintVoxelData } from "@divinevoxel/vlox/Data/Types/WorldData.types";
-import { VoxelData } from "@divinevoxel/vlox/Voxels/Voxel.types";
+import { PaintVoxelData } from "@divinevoxel/vlox/Voxels";
 
 import { Observable } from "@amodx/core/Observers";
 
 export class Builder {
-  static voxelData: VoxelData[] = [];
-
   static node: NodeCursor;
 
   static enabled = false;

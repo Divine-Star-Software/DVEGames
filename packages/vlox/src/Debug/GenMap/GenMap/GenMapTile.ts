@@ -1,15 +1,16 @@
 import { LocationData } from "@divinevoxel/vlox/Math";
 import { GenMap } from "./GenMap";
 import { EntityInstance } from "@divinevoxel/vlox-babylon/Tools/EntityInstance";
-import { ColumnDataTool } from "@divinevoxel/vlox/Tools/Data/WorldData/ColumnDataTool";
-import { ColumnState } from "@divinevoxel/vlox/Tasks/IWG/Constants/ColumnState";
+import { ColumnStructIds } from "@divinevoxel/vlox/World/Column/ColumnStructIds";
 import { SafeInterval } from "@amodx/core/Intervals/SafeInterval";
 import { DivineVoxelEngineRender } from "@divinevoxel/vlox/Contexts/Render";
+import { WorldRegister } from "@divinevoxel/vlox/World/WorldRegister";
+import { Column } from "@divinevoxel/vlox/World/Column";
 export class GenMapTile {
   static Tiles: GenMapTile[] = [];
-  static columnTool = new ColumnDataTool();
 
   _instance: EntityInstance;
+  _dispoed = false;
 
   constructor(
     public worldMap: GenMap,
@@ -23,45 +24,61 @@ export class GenMapTile {
     }
     GenMapTile.Tiles.push(this);
     this._instance.position.set(location[1], location[2], location[3]);
+    this._instance.scale.set(1, 1, 1);
     this.update();
   }
 
   update() {
-    if (!GenMapTile.columnTool.loadInAtLocation(this.location)) {
+    if (this._dispoed) return;
+    WorldRegister.setDimension(this.location[0]);
+    const colunn = WorldRegister.column.get(this.location[1],this.location[2],this.location[3]);
+    if (!colunn) {
+      this._dispoed = true;
       this.setColor(1.0, 0.0, 0.0, 1.0); // Red
+      GenMapTile.Tiles = GenMapTile.Tiles.filter((_) => _ != this);
       setTimeout(() => {
-        this.dispose();
+        this._instance.destroy();
       }, 1_000);
       return;
     }
+
+    Column.StateStruct.setData(colunn.columnState);
     if (
-      GenMapTile.columnTool.getStructValue(ColumnState.GenDone) &&
-      GenMapTile.columnTool.getStructValue(ColumnState.DecorDone) &&
-      GenMapTile.columnTool.getStructValue(ColumnState.SunDone) &&
-      GenMapTile.columnTool.getStructValue(ColumnState.PropagationDone) &&
+      Column.StateStruct.getProperty(ColumnStructIds.isWorldGenDone) &&
+      Column.StateStruct.getProperty(ColumnStructIds.isWorldDecorDone) &&
+      Column.StateStruct.getProperty(ColumnStructIds.isWorldSunDone) &&
+      Column.StateStruct.getProperty(
+        ColumnStructIds.isWorldPropagationDone
+      ) &&
       DivineVoxelEngineRender.instance.meshRegister.column.get(this.location)
     ) {
       this.setColor(0.0, 1.0, 0.0, 1.0); // Green
       return;
     }
-    if (GenMapTile.columnTool.getStructValue(ColumnState.PropagationDone)) {
+    if (
+      Column.StateStruct.getProperty(
+        ColumnStructIds.isWorldPropagationDone
+      )
+    ) {
       this.setColor(0.5, 0.0, 0.5, 1.0); // Purple
       return;
     }
-    if (GenMapTile.columnTool.getStructValue(ColumnState.SunDone)) {
+    if (Column.StateStruct.getProperty(ColumnStructIds.isWorldSunDone)) {
       this.setColor(1.0, 1.0, 0.0, 1.0); // Yellow
       return;
     }
-    if (GenMapTile.columnTool.getStructValue(ColumnState.DecorDone)) {
+    if (
+      Column.StateStruct.getProperty(ColumnStructIds.isWorldDecorDone)
+    ) {
       this.setColor(0.0, 0.0, 1.0, 1.0); // Blue
       return;
     }
-    if (GenMapTile.columnTool.getStructValue(ColumnState.GenDone)) {
+    if (Column.StateStruct.getProperty(ColumnStructIds.isWorldGenDone)) {
       this.setColor(0.0, 1.0, 1.0, 1.0); // Cyan
       return;
     }
 
-    if (GenMapTile.columnTool.isDirty()) {
+    if (Column.StateStruct.getProperty(ColumnStructIds.isDirty)) {
       this.setColor(0.0, 0.0, 1.0, 1.0); // Blue
       return;
     }
@@ -75,6 +92,7 @@ export class GenMapTile {
     this.worldMap._colorBuffer[index + 3] = a;
   }
   dispose() {
+    this._dispoed = true;
     GenMapTile.Tiles = GenMapTile.Tiles.filter((_) => _ != this);
     this._instance.destroy();
   }

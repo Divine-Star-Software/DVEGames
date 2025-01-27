@@ -12,9 +12,9 @@ import { Threads } from "@amodx/threads";
 export default function () {
   const brush = WorldGeneration.getBrush();
 
-  Threads.registerTasks<PlaceVoxelAreaTasks>(
+  Threads.registerTask<PlaceVoxelAreaTasks>(
     CoreTasksIds.PlaceVoxelArea,
-    async ([dim, [sx, sy, sz], [ex, ey, ez], data], onDone) => {
+    async ([dim, [sx, sy, sz], [ex, ey, ez], data]) => {
       brush.start(dim, sx, sy, sz);
 
       brush.setData(data);
@@ -39,13 +39,12 @@ export default function () {
       brush.runUpdates();
       const buildeQueue = brush.getUpdatedChunks();
       brush.stop();
-      if (onDone) onDone(buildeQueue);
-    },
-    "deferred"
+      return [buildeQueue];
+    }
   );
-  Threads.registerTasks<RemoveVoxelAreaTasks>(
+  Threads.registerTask<RemoveVoxelAreaTasks>(
     CoreTasksIds.RemoveVoxelArea,
-    ([dim, [sx, sy, sz], [ex, ey, ez]], onDone) => {
+    ([dim, [sx, sy, sz], [ex, ey, ez]]) => {
       brush.start(dim, sx, sy, sz);
       for (let x = sx; x < ex; x++) {
         for (let y = sy; y < ey; y++) {
@@ -74,11 +73,10 @@ export default function () {
       brush.runUpdates();
       const buildeQueue = brush.getUpdatedChunks();
       brush.stop();
-      if (onDone) onDone(buildeQueue);
-    },
-    "deferred"
+      return [buildeQueue];
+    }
   );
-  Threads.registerTasks<BuildVoxelTemplateTasks>(
+  Threads.registerTask<BuildVoxelTemplateTasks>(
     CoreTasksIds.BuildTemplate,
     async ([dim, [sx, sy, sz], templateData], onDone) => {
       brush.start(dim, sx, sy, sz);
@@ -112,8 +110,7 @@ export default function () {
       const buildeQueue = brush.getUpdatedChunks();
       brush.stop();
       await brush.worldDealloc([sx, sy, sz], [ex, ey, ez]);
-      if (onDone) onDone(buildeQueue);
-    },
-    "deferred"
+      return [buildeQueue];
+    }
   );
 }

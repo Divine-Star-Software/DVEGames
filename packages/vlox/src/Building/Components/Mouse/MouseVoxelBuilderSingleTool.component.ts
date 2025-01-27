@@ -33,14 +33,17 @@ export const MouseVoxelBuilderSingleToolComponent = NCS.registerComponent({
       component.node
     );
     const listener = mousePickComponent.data.voxelPicked.listener(
-      ({ button, data: { pickedPosition, pickedNormal } }) => {
+      ({ button, position, normal }) => {
         if (!enabled) return;
         if (button == 2) {
-          remover.data.removeSingle(pickedPosition);
+          remover.data.removeSingle([position.x, position.y, position.z]);
         }
         if (button == 0) {
           placer.data.placeSingle(
-            Vector3Like.AddArray(pickedPosition, pickedNormal)
+            Vector3Like.AddArray(
+              [position.x, position.y, position.z],
+              [normal.x, normal.y, normal.z]
+            )
           );
         }
       }

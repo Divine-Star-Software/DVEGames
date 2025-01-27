@@ -278,13 +278,19 @@ export const MouseVoxelBuilderBoxToolComponent = NCS.registerComponent({
     };
     const mousePick = VoxelMousePickComponent.get(component.node)!;
     const listener = mousePick!.data.voxelPicked.listener(
-      ({ button, data: { pickedPosition, pickedNormal } }) => {
+      ({ button, position, normal }) => {
         if (!enabled) return;
         if (button == 0) {
-          handlePlace(pickedPosition, pickedNormal);
+          handlePlace(
+            Vector3Like.ToArray(position),
+            Vector3Like.ToArray(normal)
+          );
         }
         if (button == 2) {
-          handleRemove(pickedPosition, pickedNormal);
+          handleRemove(
+            Vector3Like.ToArray(position),
+            Vector3Like.ToArray(normal)
+          );
         }
       }
     );

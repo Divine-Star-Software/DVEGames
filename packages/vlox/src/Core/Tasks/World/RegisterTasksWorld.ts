@@ -5,20 +5,21 @@ import {
   PlaceVoxelTasks,
   RemoveVoxelTasks,
 } from "../CoreTasks.types";
-import { MesherTool } from "@divinevoxel/vlox/Tools/Mesher/MesherTool";
+import { TaskTool } from "@divinevoxel/vlox/Tools/Tasks/TasksTool";
 import { AdvancedBrush } from "@divinevoxel/vlox/Tools/Brush/AdvancedBrushTool";
-export default function (core: DivineVoxelEngineWorld) {
-  const brush = new AdvancedBrush();
-  const mesher = new MesherTool();
-  core.TC.registerTasks<RunBuildQueue>(
+import { Threads } from "@amodx/threads";
+export default function (DVEW: DivineVoxelEngineWorld) {
+  const tasks = new TaskTool(DVEW.threads.constructors);
+  const brush = new AdvancedBrush(tasks);
+  DVEW.TC.registerTask<RunBuildQueue>(
     CoreTasksIds.RunBuildQueue,
     async ([dim, chunks]) => {
       for (const position of chunks) {
-        mesher.setLocation([dim, ...position]).buildChunk();
+        tasks.build.chunk.run([dim, ...position]);
       }
     }
   );
-  core.TC.registerTasks<PlaceVoxelTasks>(
+  DVEW.TC.registerTask<PlaceVoxelTasks>(
     CoreTasksIds.PlaceVoxel,
     async ([dim, [x, y, z], data]) => {
       brush.start(dim, x, y, z);
@@ -27,7 +28,7 @@ export default function (core: DivineVoxelEngineWorld) {
       brush.stop();
     }
   );
-  core.TC.registerTasks<RemoveVoxelTasks>(
+  DVEW.TC.registerTask<RemoveVoxelTasks>(
     CoreTasksIds.RemoveVoxel,
     async ([dim, [x, y, z]]) => {
       brush.start(dim, x, y, z);
@@ -35,4 +36,9 @@ export default function (core: DivineVoxelEngineWorld) {
       brush.stop();
     }
   );
+  DVEW.TC.registerTask<RunBuildQueue>("build-queue", async ([dim, chunks]) => {
+    for (const position of chunks) {
+      tasks.build.chunk.run([dim, ...position]);
+    }
+  });
 }

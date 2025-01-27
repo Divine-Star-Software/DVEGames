@@ -6,12 +6,14 @@
   "main": "./index.js",
   "types": "./index.d.ts",
   "scripts": {
-    "build": "rm -rf dist/* && cp package.json dist/package.json && cd ./src && npx tsc && npm run cp-css ",
-    "compile": "npm run cp-css && cd ./src && npx tsc --watch",
-    "cp-css": "cd src && for file in $(find ./ -name '*.css')  \n do \n cp ${file} ../dist/${file} \n done"
+    "build": "rm -rf dist/* && cp package.json dist/package.json && cd ./src && npx tsc ",
+    "compile": "cd ./src && npx tsc --watch"
   },
   "author": "Divine Star Software",
   "publishConfig": {
     "access": "public"
-   }
+  },
+  "dependencies": {
+    "@dvegames/vlox": "latest"
+  }
 }

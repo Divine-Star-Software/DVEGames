@@ -1,5 +1,5 @@
 import { LocationData } from "@divinevoxel/vlox/Math";
-import { ArchivedColumnData } from "@divinevoxel/vlox/Archive";
+import { ArchivedColumnData } from "@divinevoxel/vlox/World/Archive";
 
 export enum ArchiverTasksIds {
   ArchiveColumn = "archive-column",

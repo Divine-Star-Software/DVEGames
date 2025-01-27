@@ -16,7 +16,7 @@ ToolPanelViews.registerView("World Gen", (component) => {
         "button",
         {
           async onclick() {
-            DivineVoxelEngineRender.instance.threads.world.runTasks(
+            DivineVoxelEngineRender.instance.threads.world.runTask(
               "start-world",
               ["main", 0, 0, 0]
             );
@@ -37,7 +37,7 @@ ToolPanelViews.registerView("World Gen", (component) => {
         "button",
         {
           async onclick() {
-            DivineVoxelEngineRender.instance.threads.world.runTasks(
+            DivineVoxelEngineRender.instance.threads.world.runTask(
               "start-world-gen",
               ["main", 0, 0, 0]
             );

@@ -4,7 +4,7 @@ import {
   ArchiveColumnTasks,
   ImportColumnTasks,
 } from "./Types/WorldTask.types";
-import { ArchivedColumnData } from "@divinevoxel/vlox/Archive";
+import { ArchivedColumnData } from "@divinevoxel/vlox/World/Archive";
 import { Vec3Array } from "@amodx/math";
 
 export class ArchiverTasks {
@@ -12,13 +12,13 @@ export class ArchiverTasks {
     dimension: string,
     position: Vec3Array
   ): Promise<ArchivedColumnData> {
-    return DivineVoxelEngineRender.instance.threads.construcotrs.runAsyncTasks<
+    return DivineVoxelEngineRender.instance.threads.construcotrs.runTaskAsync<
       ArchiveColumnTasks,
       ArchivedColumnData
     >(ArchiverTasksIds.ArchiveColumn, [[dimension, ...position]], []);
   }
   static async importColumn(archivedColumn: ArchivedColumnData): Promise<void> {
-    return DivineVoxelEngineRender.instance.threads.construcotrs.runAsyncTasks<
+    return DivineVoxelEngineRender.instance.threads.construcotrs.runTaskAsync<
       ImportColumnTasks,
       void
     >(ArchiverTasksIds.ImportColumn, archivedColumn, []);

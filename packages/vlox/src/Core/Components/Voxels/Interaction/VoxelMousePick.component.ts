@@ -4,12 +4,16 @@ import { Observable } from "@amodx/core/Observers";
 import { Matrix } from "@babylonjs/core/Maths/math.vector";
 import { Vector3Like } from "@amodx/math";
 import { BabylonContext } from "../../../../Babylon/Contexts/Babylon.context";
+import { VoxelCursor } from "@divinevoxel/vlox/Voxels/Cursor/VoxelCursor";
+import { WorldVoxelCursor } from "@divinevoxel/vlox/World/Cursor/WorldVoxelCursor";
 export const VoxelMousePickComponent = NCS.registerComponent({
   type: "voxel-mouse-pick",
   data: NCS.data<{
     voxelPicked: Observable<{
       button: number;
-      data: (typeof VoxelInersectionComponent)["default"]["data"];
+      data: WorldVoxelCursor;
+      position: Vector3Like;
+      normal: Vector3Like;
     }>;
     _cleanUp: () => void;
   }>(),
@@ -38,10 +42,12 @@ export const VoxelMousePickComponent = NCS.registerComponent({
         length
       );
 
-      if (picked) {
+      if (picked?.voxel) {
         component.data.voxelPicked.notify({
           button: evt.button,
-          data: intersection.data,
+          data: picked.voxel,
+          position: picked.position,
+          normal: picked.normal
         });
       }
     };

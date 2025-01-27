@@ -1,5 +1,5 @@
 import { Vec3Array } from "@amodx/math";
-import { PaintVoxelData } from "@divinevoxel/vlox/Data/Types/WorldData.types";
+import { PaintVoxelData } from "@divinevoxel/vlox/Voxels";
 import { VoxelTemplateData } from "@divinevoxel/vlox/Templates/VoxelTemplates.types";
 
 export enum CoreTasksIds {

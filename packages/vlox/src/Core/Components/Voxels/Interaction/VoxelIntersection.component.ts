@@ -1,13 +1,17 @@
-import { Vec3Array } from "@amodx/math";
-import { DataTool } from "@divinevoxel/vlox/Tools/Data/DataTool";
+import { Vec3Array, Vector3Like } from "@amodx/math";
+import { WorldCursor } from "@divinevoxel/vlox/World/Cursor/WorldCursor";
 import { NCS } from "@amodx/ncs/";
 import { DimensionProviderComponent } from "../../Providers/DimensionProvider.component";
 
 class Data {
   pickedPosition: Vec3Array;
   pickedNormal: Vec3Array;
-  dataTool = new DataTool();
- constructor(public component: (typeof VoxelInersectionComponent)["default"]) {}
+  dataTool = new WorldCursor();
+  dimension: (typeof DimensionProviderComponent)["default"];
+
+  constructor(public component: (typeof VoxelInersectionComponent)["default"]) {
+    this.dimension = DimensionProviderComponent.getRequired(component.node);
+  }
   calculateNormal(
     intersectPoint: Vec3Array,
     voxelMin: Vec3Array,
@@ -35,6 +39,7 @@ class Data {
     const invDir = direction.map((d) => 1 / d) as Vec3Array;
     const voxelSize = 1.0; // Assuming each voxel is 1x1x1
 
+    this.dataTool.setFocalPoint(this.dimension.schema.dimension, ...start);
     const step = (val: number) => (val > 0 ? 1 : val < 0 ? -1 : 0);
     const tDelta = invDir.map((d) => Math.abs(d) * voxelSize) as Vec3Array;
 
@@ -64,11 +69,8 @@ class Data {
 
       pos[axis] += stepDir[axis];
       tMax[axis] += tDelta[axis];
-
-      if (
-        this.component.data.dataTool.loadInAt(...pos) &&
-        this.component.data.dataTool.isRenderable()
-      ) {
+      const voxel = this.dataTool.getVoxel(...pos);
+      if (voxel && voxel.isRenderable()) {
         const voxelMin = pos.map((v) => v * voxelSize) as Vec3Array;
         const voxelMax = voxelMin.map((v) => v + voxelSize) as Vec3Array;
         const intersectPoint = start.map(
@@ -81,12 +83,16 @@ class Data {
           voxelMin,
           voxelMax
         );
-        this.component.data.dataTool.loadInAt(...pos);
-        return this.component.data.dataTool;
+
+        return {
+          voxel: this.dataTool.getVoxel(...pos),
+          position: Vector3Like.Create(...pos),
+          normal: Vector3Like.Create(...this.component.data.pickedNormal),
+        };
       }
     }
 
-    return false;
+    return null;
   }
 }
 
@@ -95,14 +101,6 @@ export const VoxelInersectionComponent = NCS.registerComponent({
   data: NCS.data<Data>(),
   init(component) {
     component.data = new Data(component.cloneCursor());
-    const dimension = DimensionProviderComponent.get(component.node)!;
-    component.data.dataTool.setDimension(dimension.schema.dimension);
-    dimension.schema
-      .getCursor()
-      .getOrCreateObserver(dimension.schema.getSchemaIndex().dimension)
-      .subscribe(() => {
-        component.data.dataTool.setDimension(dimension.schema.dimension);
-      });
   },
   dispose(component) {
     component.data.component.returnCursor();

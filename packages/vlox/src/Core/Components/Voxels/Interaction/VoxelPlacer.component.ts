@@ -3,7 +3,7 @@ import { CoreTasks } from "../../../Tasks/CoreTasks";
 import { Vec3Array } from "@amodx/math";
 import { VoxelPaintDataComponent } from "../VoxelPaintData.component";
 import { DimensionProviderComponent } from "../../Providers/DimensionProvider.component";
-import { PaintVoxelData } from "@divinevoxel/vlox/Data/Types/WorldData.types";
+import { PaintVoxelData } from "@divinevoxel/vlox/Voxels";
 
 class Data {
   constructor(public component: (typeof VoxelPlacerComponent)["default"]) {}

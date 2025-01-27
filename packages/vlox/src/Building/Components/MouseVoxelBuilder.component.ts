@@ -22,7 +22,6 @@ export const MouseVoxelBuilderComponent = NCS.registerComponent({
       voxelPickedObserver: new Observable(),
     };
     const update = () => {
-
       if (component.schema.tool == Tools.Single) {
         if (MouseVoxelBuilderBoxToolComponent.has(component.node)) {
           MouseVoxelBuilderBoxToolComponent.remove(component.node);
@@ -56,12 +55,12 @@ export const MouseVoxelBuilderComponent = NCS.registerComponent({
 
     VoxelMousePickComponent.get(component.node)!.data.voxelPicked.subscribe(
       component.index,
-      ({ button, data: { dataTool } }) => {
+      ({ button, data }) => {
         if (button == 1) {
-          if (!dataTool.isRenderable()) return;
-          paintData.schema.id = dataTool.getStringId();
-          paintData.schema.shapeState = dataTool.getShapeState();
-          paintData.schema.mod = dataTool.getMod();
+          if (!data.isRenderable()) return;
+          paintData.schema.id = data.getStringId();
+          paintData.schema.shapeState = data.getShapeState();
+          paintData.schema.mod = data.getMod();
           component.data.voxelPickedObserver.notify();
         }
       }

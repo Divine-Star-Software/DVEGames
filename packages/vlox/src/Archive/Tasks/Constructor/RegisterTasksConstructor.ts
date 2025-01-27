@@ -4,17 +4,17 @@ import {
   ArchiverTasksIds,
   ImportColumnTasks,
 } from "../Types/WorldTask.types";
-import { WorldRegister } from "@divinevoxel/vlox/Data/World/WorldRegister";
-import ArchiveColumn from "@divinevoxel/vlox/Archive/Functions/ArchiveColumn";
-import ImportColumn from "@divinevoxel/vlox/Archive/Functions/ImportColumn";
+import { WorldRegister } from "@divinevoxel/vlox/World/WorldRegister";
+import ArchiveColumn from "@divinevoxel/vlox/World/Archive/Functions/ArchiveColumn";
+import ImportColumn from "@divinevoxel/vlox/World/Archive/Functions/ImportColumn";
 import { DivineVoxelEngineConstructor } from "@divinevoxel/vlox/Contexts/Constructor/DivineVoxelEngineConstructor";
 export default function () {
-  Threads.registerTasks<ArchiveColumnTasks>(
+/*  
     ArchiverTasksIds.ArchiveColumn,
-    async ([location], onDone) => {
-      WorldRegister.instance.setDimension(location[0]);
+    async ([location]) => {
+      WorldRegister.setDimension(location[0]);
 
-      const column = WorldRegister.instance.column.get(
+      const column = WorldRegister.column.get(
         location[1],
         location[2],
         location[3]
@@ -55,20 +55,18 @@ export default function () {
           transfers.push(chunk.palettes.secondaryId.buffer);
       }
 
-      if (onDone) onDone(archived, transfers);
-    },
-    "deferred"
+      return [archived, transfers];
+    }
   );
-  Threads.registerTasks<ImportColumnTasks>(
+  Threads.registerTask<ImportColumnTasks>(
     ArchiverTasksIds.ImportColumn,
     async (archived) => {
-
       const importedColumn = ImportColumn(archived, {});
 
-      await DivineVoxelEngineConstructor.instance.threads.world.runAsyncTasks(
+      await DivineVoxelEngineConstructor.instance.threads.world.runTaskAsync(
         "load-column",
         [archived.location, importedColumn]
       );
     }
-  );
+  ); */
 }
