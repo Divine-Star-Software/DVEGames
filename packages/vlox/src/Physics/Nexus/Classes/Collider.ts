@@ -1,4 +1,3 @@
-import { Vector3 } from "@divinevoxel/vlox/Math/Classes/Vector3.js";
 import { BoundingBox } from "./BoundingBox.js";
 import { CollisionNode } from "./CollisionNode.js";
 import { Vector3Like } from "@amodx/math";
@@ -10,7 +9,7 @@ export abstract class Collider {
     depth: number = width
   ) {
     const bbox = new BoundingBox(width, height, depth);
-    bbox.setPosition(new Vector3(0, 0, 0));
+    bbox.setPosition(Vector3Like.Create());
     return bbox;
   }
   nodes: CollisionNode[] = [];

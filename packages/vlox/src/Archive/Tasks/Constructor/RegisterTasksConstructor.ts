@@ -5,8 +5,6 @@ import {
   ImportColumnTasks,
 } from "../Types/WorldTask.types";
 import { WorldRegister } from "@divinevoxel/vlox/World/WorldRegister";
-import ArchiveColumn from "@divinevoxel/vlox/World/Archive/Functions/ArchiveColumn";
-import ImportColumn from "@divinevoxel/vlox/World/Archive/Functions/ImportColumn";
 import { DivineVoxelEngineConstructor } from "@divinevoxel/vlox/Contexts/Constructor/DivineVoxelEngineConstructor";
 export default function () {
 /*  
@@ -14,12 +12,12 @@ export default function () {
     async ([location]) => {
       WorldRegister.setDimension(location[0]);
 
-      const column = WorldRegister.column.get(
+      const sector = WorldRegister.sectors.get(
         location[1],
         location[2],
         location[3]
       );
-      if (!column)
+      if (!sector)
         throw new Error(
           `Column at location ${location.toString()} does not exist`
         );
@@ -34,25 +32,25 @@ export default function () {
         transfers.push(archived.palettes.state.buffer);
       if (archived.palettes.secondaryState)
         transfers.push(archived.palettes.secondaryState.buffer);
-      for (const chunk of archived.chunks) {
-        if (typeof chunk.buffers.id != "number")
-          transfers.push(chunk.buffers.id.buffer);
-        if (typeof chunk.buffers.light != "number")
-          transfers.push(chunk.buffers.light.buffer);
-        if (typeof chunk.buffers.state != "number")
-          transfers.push(chunk.buffers.state.buffer);
-        if (typeof chunk.buffers.secondary != "number")
-          transfers.push(chunk.buffers.secondary.buffer);
-        if (typeof chunk.buffers.mod != "number")
-          transfers.push(chunk.buffers.mod.buffer);
-        if (chunk.palettes.id) transfers.push(chunk.palettes.id.buffer);
-        if (chunk.palettes.light) transfers.push(chunk.palettes.light.buffer);
-        if (chunk.palettes.state) transfers.push(chunk.palettes.state.buffer);
-        if (chunk.palettes.mod) transfers.push(chunk.palettes.mod.buffer);
-        if (chunk.palettes.secondaryState)
-          transfers.push(chunk.palettes.secondaryState.buffer);
-        if (chunk.palettes.secondaryId)
-          transfers.push(chunk.palettes.secondaryId.buffer);
+      for (const section of archived.sections) {
+        if (typeof section.buffers.id != "number")
+          transfers.push(section.buffers.id.buffer);
+        if (typeof section.buffers.light != "number")
+          transfers.push(section.buffers.light.buffer);
+        if (typeof section.buffers.state != "number")
+          transfers.push(section.buffers.state.buffer);
+        if (typeof section.buffers.secondary != "number")
+          transfers.push(section.buffers.secondary.buffer);
+        if (typeof section.buffers.mod != "number")
+          transfers.push(section.buffers.mod.buffer);
+        if (section.palettes.id) transfers.push(section.palettes.id.buffer);
+        if (section.palettes.light) transfers.push(section.palettes.light.buffer);
+        if (section.palettes.state) transfers.push(section.palettes.state.buffer);
+        if (section.palettes.mod) transfers.push(section.palettes.mod.buffer);
+        if (section.palettes.secondaryState)
+          transfers.push(section.palettes.secondaryState.buffer);
+        if (section.palettes.secondaryId)
+          transfers.push(section.palettes.secondaryId.buffer);
       }
 
       return [archived, transfers];
@@ -64,7 +62,7 @@ export default function () {
       const importedColumn = ImportColumn(archived, {});
 
       await DivineVoxelEngineConstructor.instance.threads.world.runTaskAsync(
-        "load-column",
+        "load-sector",
         [archived.location, importedColumn]
       );
     }

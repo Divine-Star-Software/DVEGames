@@ -2,10 +2,10 @@ import { NCS } from "@amodx/ncs/";
 import { WorldRegister } from "@divinevoxel/vlox/World/WorldRegister";
 import {
   ArchivedAreaData,
-  ArchivedColumnData,
+  ArchivedSectorData,
 } from "@divinevoxel/vlox/World/Archive";
 import ArchiveArea, {
-  CreateColumnsFromArea,
+  CreateSectorsFromArea,
 } from "@divinevoxel/vlox/World/Archive/Functions/ArchiveArea";
 import { ArchiverTasks } from "../Tasks/ArchiverTasks";
 import { DimensionProviderComponent } from "../../Core/Components/Providers/DimensionProvider.component";
@@ -13,18 +13,17 @@ import { DimensionProviderComponent } from "../../Core/Components/Providers/Dime
 class Data {
   constructor(public component: (typeof WorldArchiverComponent)["default"]) {}
   async archive() {
-    const proms: Promise<ArchivedColumnData>[] = [];
+    const proms: Promise<ArchivedSectorData>[] = [];
     const dimension = DimensionProviderComponent.get(this.component.node)!
       .schema.dimension;
 
-    for (const [, column] of WorldRegister.dimensions.get(dimension)!
-      .columns) {
-      proms.push(ArchiverTasks.archiveColumn(dimension, column.position));
+    for (const [, sector] of WorldRegister.dimensions.get(dimension)!.sectors) {
+      proms.push(ArchiverTasks.archiveColumn(dimension, sector.position));
     }
 
-    const columns = await Promise.all(proms);
+    const sectors = await Promise.all(proms);
     const archivedArea = ArchiveArea({
-      columns,
+      sectors,
       dimension,
     });
 
@@ -32,8 +31,8 @@ class Data {
   }
   async load(data: ArchivedAreaData) {
     const proms: Promise<any>[] = [];
-    for (const column of CreateColumnsFromArea(data)) {
-      proms.push(ArchiverTasks.importColumn(column));
+    for (const sector of CreateSectorsFromArea(data)) {
+      proms.push(ArchiverTasks.importColumn(sector));
     }
     await Promise.all(proms);
   }

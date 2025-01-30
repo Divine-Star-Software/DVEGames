@@ -13,9 +13,9 @@ export default function (DVEW: DivineVoxelEngineWorld) {
   const brush = new AdvancedBrush(tasks);
   DVEW.TC.registerTask<RunBuildQueue>(
     CoreTasksIds.RunBuildQueue,
-    async ([dim, chunks]) => {
-      for (const position of chunks) {
-        tasks.build.chunk.run([dim, ...position]);
+    async ([dim, sections]) => {
+      for (const position of sections) {
+        tasks.build.section.run([dim, ...position]);
       }
     }
   );
@@ -36,9 +36,9 @@ export default function (DVEW: DivineVoxelEngineWorld) {
       brush.stop();
     }
   );
-  DVEW.TC.registerTask<RunBuildQueue>("build-queue", async ([dim, chunks]) => {
-    for (const position of chunks) {
-      tasks.build.chunk.run([dim, ...position]);
+  DVEW.TC.registerTask<RunBuildQueue>("build-queue", async ([dim, sections]) => {
+    for (const position of sections) {
+      tasks.build.section.run([dim, ...position]);
     }
   });
 }

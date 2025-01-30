@@ -1,5 +1,5 @@
-import type { Vector3Like, Vec3Array } from "@amodx/math";
-import { Vector3 } from "@divinevoxel/vlox/Math/Classes/Vector3.js";
+import { Vector3Like, Vec3Array } from "@amodx/math";
+
 export class BoundingBox {
   bounds = {
     minX: Infinity,
@@ -11,7 +11,7 @@ export class BoundingBox {
   };
   _full = { w: 0.8, h: 1.8, d: 0.8 };
   _half = { w: 0.8 / 2, h: 1.8 / 2, d: 0.8 / 2 };
-  position = new Vector3(0, 0, 0);
+  position = Vector3Like.Create();
   constructor(
     width: number = 1,
     height: number = width,
@@ -29,12 +29,13 @@ export class BoundingBox {
     this.height = height;
     this.depth = depth;
   }
-  setPosition(position: Vector3) {
-    this.position.updateFromVec3(position);
+  setPosition(position: Vector3Like) {
+    Vector3Like.Copy(this.position, position);
+
     const o = this.position;
     this.bounds.minX = o.x;
     this.bounds.maxX = o.x + this.width;
-    this.bounds.minZ = o.z
+    this.bounds.minZ = o.z;
     this.bounds.maxZ = o.z + this.depth;
     this.bounds.minY = o.y;
     this.bounds.maxY = o.y + this.height;
@@ -103,7 +104,6 @@ export class BoundingBox {
     for (let y = sy; y <= my; y++) {
       for (let x = sx; x <= mx; x++) {
         for (let z = sz; z <= mz; z++) {
-
           yield [x, y, z];
         }
       }

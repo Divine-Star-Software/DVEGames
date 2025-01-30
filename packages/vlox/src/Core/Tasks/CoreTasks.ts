@@ -19,17 +19,17 @@ export class CoreTasks {
     end: Vec3Array,
     data: Partial<PaintVoxelData>
   ) {
-    const chunks =
+    const sections =
       await DivineVoxelEngineRender.instance.threads.construcotrs.runTaskAsync<
         PlaceVoxelAreaTasks,
         Vec3Array[]
       >(CoreTasksIds.PlaceVoxelArea, [dimension, start, end, data]);
-    await this.runRebuildQueue(dimension, chunks);
+    await this.runRebuildQueue(dimension, sections);
   }
-  static async runRebuildQueue(dimension: string, chunks: Vec3Array[]) {
+  static async runRebuildQueue(dimension: string, sections: Vec3Array[]) {
     await DivineVoxelEngineRender.instance.threads.world.runTask<RunBuildQueue>(
       CoreTasksIds.RunBuildQueue,
-      [dimension, chunks]
+      [dimension, sections]
     );
   }
   static async removeVoxelArea(
@@ -37,24 +37,24 @@ export class CoreTasks {
     start: Vec3Array,
     end: Vec3Array
   ) {
-    const chunks =
+    const sections =
       await DivineVoxelEngineRender.instance.threads.construcotrs.runTaskAsync<
         RemoveVoxelAreaTasks,
         Vec3Array[]
       >(CoreTasksIds.RemoveVoxelArea, [dimension, start, end]);
-    await this.runRebuildQueue(dimension, chunks);
+    await this.runRebuildQueue(dimension, sections);
   }
   static async buildTemplate(
     dimension: string,
     start: Vec3Array,
     template: VoxelTemplateData
   ) {
-    const chunks =
+    const sections =
       await DivineVoxelEngineRender.instance.threads.construcotrs.runTaskAsync<
         BuildVoxelTemplateTasks,
         Vec3Array[]
       >(CoreTasksIds.BuildTemplate, [dimension, start, template]);
-    await this.runRebuildQueue(dimension, chunks);
+    await this.runRebuildQueue(dimension, sections);
   }
 
   static async placeVoxel(

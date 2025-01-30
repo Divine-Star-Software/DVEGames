@@ -23,7 +23,7 @@ export type RemoveVoxelAreaTasks = [
   start: Vec3Array,
   end: Vec3Array
 ];
-export type RunBuildQueue = [dimension: string, chunks: Vec3Array[]];
+export type RunBuildQueue = [dimension: string, sections: Vec3Array[]];
 export type PlaceVoxelTasks = [
   dimension: string,
   position: Vec3Array,

@@ -15,7 +15,7 @@ ToolPanelViews.registerView("Archiver", (component) => {
       {
         style: {
           display: "flex",
-          flexDirection: "column",
+          flexDirection: "sector",
         },
       },
       elm(

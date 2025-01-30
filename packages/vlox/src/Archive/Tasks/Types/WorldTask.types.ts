@@ -1,11 +1,11 @@
 import { LocationData } from "@divinevoxel/vlox/Math";
-import { ArchivedColumnData } from "@divinevoxel/vlox/World/Archive";
+import { ArchivedSectorData } from "@divinevoxel/vlox/World/Archive";
 
 export enum ArchiverTasksIds {
-  ArchiveColumn = "archive-column",
-  ImportColumn = "import-column",
+  ArchiveColumn = "archive-sector",
+  ImportColumn = "import-sector",
 }
 
-export type ImportColumnTasks =ArchivedColumnData;
+export type ImportColumnTasks = ArchivedSectorData;
 
 export type ArchiveColumnTasks = [location: LocationData];

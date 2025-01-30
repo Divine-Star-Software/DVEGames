@@ -59,7 +59,7 @@ export const MouseVoxelBuilderComponent = NCS.registerComponent({
         if (button == 1) {
           if (!data.isRenderable()) return;
           paintData.schema.id = data.getStringId();
-          paintData.schema.shapeState = data.getShapeState();
+          paintData.schema.shapeState = data.getState();
           paintData.schema.mod = data.getMod();
           component.data.voxelPickedObserver.notify();
         }

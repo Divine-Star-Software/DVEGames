@@ -45,7 +45,7 @@ export class Builder {
       schema.secondaryVoxelId = data.secondaryVoxelId;
     if (data?.level !== undefined) schema.level = data.level;
     if (data?.levelState !== undefined) schema.levelState = data.levelState;
-    if (data?.shapeState !== undefined) schema.shapeState = data.shapeState;
+    if (data?.state !== undefined) schema.state = data.state;
     if (data?.mod !== undefined) schema.mod = data.mod;
     this.voxelUpdated.notify();
   }

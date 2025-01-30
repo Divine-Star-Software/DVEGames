@@ -16,7 +16,7 @@ elm.css(/* css */ `
     color: white;
 
     display: flex;
-    flex-direction: column;
+    flex-direction: sector;
     button {
 
       --bg-opacity: 0.2;

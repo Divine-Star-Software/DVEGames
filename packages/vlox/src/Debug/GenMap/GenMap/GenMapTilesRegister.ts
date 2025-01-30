@@ -1,44 +1,43 @@
 import { Vector3Like } from "@amodx/math";
-import type { Mesh } from "@babylonjs/core";
 import { LocationData } from "@divinevoxel/vlox/Math";
 import { WorldSpaces } from "@divinevoxel/vlox/World/WorldSpaces";
 import { GenMapTile } from "./GenMapTile";
 import { GenMap } from "./GenMap";
-type WorldMapTileRegisterChunk = {
-  mesh: Mesh;
-};
+import { Sector } from "@divinevoxel/vlox/World/Sector";
 
 export type WorldMapTilesRegisterColumn = {
   location: LocationData;
   tile: GenMapTile;
 };
 
-export type WorldMapTilesRegisterRegion = {
-  columns: Map<number, GenMapTile>;
+export type WorldMapTileRegisterDimensions = {
+  sectors: Map<string, GenMapTile>;
 };
-export type WorldMapTileRegisterDimensions = Map<
-  string,
-  Map<string, WorldMapTilesRegisterRegion>
->;
 
 export class GenMapTilesRegister {
-  _dimensions: WorldMapTileRegisterDimensions = new Map();
+  _dimensions = new Map<string, WorldMapTileRegisterDimensions>();
 
   constructor(public worldMap: GenMap) {
-    this._dimensions.set("main", new Map());
+    this._dimensions.set("main", {
+      sectors: new Map(),
+    });
   }
 
   clearAll() {
     for (const [dkey, dim] of this._dimensions) {
       this.dimensions.remove(dkey);
     }
-    this._dimensions.set("main", new Map());
+    this._dimensions.set("main", {
+      sectors: new Map(),
+    });
   }
 
   dimensions = {
     add: (id: string) => {
       const dimesnion = new Map();
-      this._dimensions.set(id, dimesnion);
+      this._dimensions.set(id, {
+        sectors: new Map(),
+      });
       return dimesnion;
     },
     get: (id: string) => {
@@ -47,98 +46,58 @@ export class GenMapTilesRegister {
     remove: (id: string) => {
       const dimension = this._dimensions.get(id);
       if (!dimension) return false;
-      dimension.forEach((region) => {
-        region.columns.forEach((column) => {});
+      dimension.sectors.forEach((column) => {
+        column.dispose();
       });
       this._dimensions.delete(id);
       return true;
     },
   };
 
-  region = {
-    add: (location: LocationData) => {
-      let dimension = this.dimensions.get(location[0]);
-      if (!dimension) {
-        dimension = this.dimensions.add(location[0]);
-      }
-      const region = this.region._getRegionData();
-      dimension.set(
-        WorldSpaces.region.getKeyXYZ(location[1], location[2], location[3]),
-        region
-      );
-      return region;
-    },
-    remove: (location: LocationData) => {
-      const region = this.region.get(location);
-      if (!region) return false;
-      const dimension = this.dimensions.get(location[0]);
-      if (!dimension) return false;
-      dimension.delete(
-        WorldSpaces.region.getKeyXYZ(location[1], location[2], location[3])
-      );
-      region.columns.forEach((column) => {});
-      return true;
-    },
-    _getRegionData: (): WorldMapTilesRegisterRegion => {
-      return {
-        columns: new Map(),
-      };
-    },
-    get: (location: LocationData) => {
-      const dimension = this.dimensions.get(location[0]);
-      if (!dimension) return false;
-      const region = dimension.get(
-        WorldSpaces.region.getKeyXYZ(location[1], location[2], location[3])
-      );
-      if (!region) return false;
-      return region;
-    },
-  };
-  column = {
-    add: (location: LocationData) => {
-      let region = this.region.get(location);
-      if (!region) {
-        region = this.region.add(location);
-      }
+  sectors = {
+    add: (location: LocationData, column: Sector) => {
+      const dimension = this.dimensions.get(location[0])!;
       const columnLocation: LocationData = [
         location[0],
-        ...Vector3Like.ToArray(
-          WorldSpaces.column.getPositionXYZ(
-            location[1],
-            location[2],
-            location[3]
-          )
+        ...WorldSpaces.sector.getPositionVec3Array(
+          location[1],
+          location[2],
+          location[3]
         ),
       ] as LocationData;
-      const column = new GenMapTile(this.worldMap, columnLocation);
-      region.columns.set(
-        WorldSpaces.column.getIndexXYZ(location[1], location[2], location[3]),
-        column
+
+      const tile = new GenMapTile(this.worldMap,columnLocation);
+      dimension.sectors.set(
+        WorldSpaces.hash.hashVec3(
+          WorldSpaces.sector.getPosition(location[1], location[2], location[3])
+        ),
+        tile
       );
-      return column;
+      return tile;
     },
     remove: (location: LocationData) => {
-      let region = this.region.get(location);
-      if (!region) return false;
-      const index = WorldSpaces.column.getIndexXYZ(
-        location[1],
-        location[2],
-        location[3]
+      const dimension = this.dimensions.get(location[0])!;
+
+      const sectorKey = WorldSpaces.hash.hashVec3(
+        WorldSpaces.sector.getPosition(location[1], location[2], location[3])
       );
-      const column = region.columns.get(index);
-      if (!column) return false;
-      column.dispose();
-      region.columns.delete(index);
-      if (region.columns.size == 0) {
-        this.region.remove(location);
+      const sector = dimension.sectors.get(sectorKey);
+      if (!sector) return false;
+      sector.dispose();
+      dimension.sectors.delete(sectorKey);
+      if (dimension.sectors.size == 0) {
+        //  dimension.remove(location);
       }
-      return column;
+      return sector;
     },
     get: (location: LocationData) => {
-      const region = this.region.get(location);
-      if (!region) return false;
-      return region.columns.get(
-        WorldSpaces.column.getIndexXYZ(location[1], location[2], location[3])
+      const dimension = this.dimensions.get(location[0])!;
+
+      if (!dimension) return false;
+      return dimension.sectors.get(
+        WorldSpaces.hash.hashVec3(
+          WorldSpaces.sector.getPosition(location[1], location[2], location[3])
+        )
       );
     },
   };

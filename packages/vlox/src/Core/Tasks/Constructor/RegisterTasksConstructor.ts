@@ -37,7 +37,7 @@ export default function () {
         }
       }
       brush.runUpdates();
-      const buildeQueue = brush.getUpdatedChunks();
+      const buildeQueue = brush.getUpdatedSections();
       brush.stop();
       return [buildeQueue];
     }
@@ -71,7 +71,7 @@ export default function () {
         }
       }
       brush.runUpdates();
-      const buildeQueue = brush.getUpdatedChunks();
+      const buildeQueue = brush.getUpdatedSections();
       brush.stop();
       return [buildeQueue];
     }
@@ -107,7 +107,7 @@ export default function () {
         }
       }
       brush.runUpdates();
-      const buildeQueue = brush.getUpdatedChunks();
+      const buildeQueue = brush.getUpdatedSections();
       brush.stop();
       await brush.worldDealloc([sx, sy, sz], [ex, ey, ez]);
       return [buildeQueue];

@@ -33,7 +33,7 @@ elm.css(/* css */ `
 
   .voxel-content-conatiner {
     display: flex;
-    flex-direction : column;
+    flex-direction : sector;
     width: 100%;
     .voxel-title {
       font-size: 16px;
@@ -69,24 +69,24 @@ const schemaUpdated = new Observable();
 function SchemaForm(voxelId: string) {
   const paintData = VoxelPaintDataComponent.get(Builder.node)!;
   const voxelSchema = SchemaRegister.getVoxelSchemas(voxelId);
-  voxelSchema.shapeState.startEncoding();
-  voxelSchema.modState.startEncoding();
+  voxelSchema.state.startEncoding();
+  voxelSchema.mod.startEncoding();
   const updated = () => {
-    paintData.schema.shapeState = voxelSchema.shapeState.getEncoded();
-    paintData.schema.mod = voxelSchema.modState.getEncoded();
+    paintData.schema.shapeState = voxelSchema.state.getEncoded();
+    paintData.schema.mod = voxelSchema.mod.getEncoded();
     schemaUpdated.notify();
   };
 
-  const shapeStateSchema = voxelSchema.shapeState.nodes.length
+  const shapeStateSchema = voxelSchema.state.nodes.length
     ? Schema.CreateInstance<Record<string, any>>(
-        ...voxelSchema.shapeState.nodes.map((node) => {
+        ...voxelSchema.state.nodes.map((node) => {
           if (!node.valuePalette) {
             return IntProp(node.id, {
               initialize(schemaNode) {
                 schemaNode.enableProxy(
-                  () => voxelSchema.shapeState.getNmber(node.id),
+                  () => voxelSchema.state.getNmber(node.id),
                   (value) => {
-                    voxelSchema.shapeState.setNumber(node.id, value);
+                    voxelSchema.state.setNumber(node.id, value);
                     updated();
                   }
                 );
@@ -97,9 +97,9 @@ function SchemaForm(voxelId: string) {
             options: node.valuePalette._palette,
             initialize(schemaNode) {
               schemaNode.enableProxy(
-                () => voxelSchema.shapeState.getValue(node.id),
+                () => voxelSchema.state.getValue(node.id),
                 (value) => {
-                  voxelSchema.shapeState.setValue(node.id, value);
+                  voxelSchema.state.setValue(node.id, value);
                   updated();
                 }
               );
@@ -109,16 +109,16 @@ function SchemaForm(voxelId: string) {
       )
     : null;
 
-  const voxelModSchema = voxelSchema.modState.nodes.length
+  const voxelModSchema = voxelSchema.mod.nodes.length
     ? Schema.CreateInstance<Record<string, any>>(
-        ...voxelSchema.modState.nodes.map((node) => {
+        ...voxelSchema.mod.nodes.map((node) => {
           if (!node.valuePalette) {
             return IntProp(node.id, {
               initialize(schemaNode) {
                 schemaNode.enableProxy(
-                  () => voxelSchema.modState.getNmber(node.id),
+                  () => voxelSchema.mod.getNmber(node.id),
                   (value) => {
-                    voxelSchema.modState.setNumber(node.id, value);
+                    voxelSchema.mod.setNumber(node.id, value);
                     updated();
                   }
                 );
@@ -129,9 +129,9 @@ function SchemaForm(voxelId: string) {
             options: node.valuePalette._palette,
             initialize(schemaNode) {
               schemaNode.enableProxy(
-                () => voxelSchema.modState.getValue(node.id),
+                () => voxelSchema.mod.getValue(node.id),
                 (value) => {
-                  voxelSchema.modState.setValue(node.id, value);
+                  voxelSchema.mod.setValue(node.id, value);
                   updated();
                 }
               );
@@ -142,24 +142,24 @@ function SchemaForm(voxelId: string) {
     : null;
 
   const loadIn = () => {
-    voxelSchema.shapeState.startEncoding(paintData.schema.shapeState);
-    voxelSchema.modState.startEncoding(paintData.schema.mod);
+    voxelSchema.state.startEncoding(paintData.schema.shapeState);
+    voxelSchema.mod.startEncoding(paintData.schema.mod);
     if (shapeStateSchema) {
-      voxelSchema.shapeState.nodes.forEach((node) => {
+      voxelSchema.state.nodes.forEach((node) => {
         if (node.valuePalette) {
-          shapeStateSchema[node.id] = voxelSchema.shapeState.getValue(node.id);
+          shapeStateSchema[node.id] = voxelSchema.state.getValue(node.id);
           return;
         }
-        shapeStateSchema[node.id] = voxelSchema.shapeState.getNmber(node.id);
+        shapeStateSchema[node.id] = voxelSchema.state.getNmber(node.id);
       });
     }
     if (voxelModSchema) {
-      voxelSchema.modState.nodes.forEach((node) => {
+      voxelSchema.mod.nodes.forEach((node) => {
         if (node.valuePalette) {
-          voxelModSchema[node.id] = voxelSchema.modState.getValue(node.id);
+          voxelModSchema[node.id] = voxelSchema.mod.getValue(node.id);
           return;
         }
-        voxelModSchema[node.id] = voxelSchema.modState.getNmber(node.id);
+        voxelModSchema[node.id] = voxelSchema.mod.getNmber(node.id);
       });
     }
   };
