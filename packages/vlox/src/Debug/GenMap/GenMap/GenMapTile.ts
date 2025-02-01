@@ -30,8 +30,8 @@ export class GenMapTile {
 
   update() {
     if (this._dispoed) return;
-    WorldRegister.setDimension(this.location[0]);
     const colunn = WorldRegister.sectors.get(
+      this.location[0],
       this.location[1],
       this.location[2],
       this.location[3]

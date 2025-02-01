@@ -115,8 +115,8 @@ export class GenMap {
       }
 
       const sectorLocation: LocationData = [location[0], cx, 0, cz];
-      WorldRegister.setDimension(sectorLocation[0]);
       const sector = WorldRegister.sectors.get(
+        sectorLocation[0],
         sectorLocation[1],
         sectorLocation[2],
         sectorLocation[3]
