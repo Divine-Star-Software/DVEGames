@@ -1,6 +1,6 @@
 {
   "name": "@dvegames/vlox-tools",
-  "version": "0.0.1",
+  "version": "0.0.22",
   "description": "",
   "type": "module",
   "main": "./index.js",

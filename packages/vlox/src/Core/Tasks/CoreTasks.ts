@@ -20,7 +20,7 @@ export class CoreTasks {
     data: Partial<PaintVoxelData>
   ) {
     const sections =
-      await DivineVoxelEngineRender.instance.threads.construcotrs.runTaskAsync<
+      await DivineVoxelEngineRender.instance.threads.constructors.runTaskAsync<
         PlaceVoxelAreaTasks,
         Vec3Array[]
       >(CoreTasksIds.PlaceVoxelArea, [dimension, start, end, data]);
@@ -38,7 +38,7 @@ export class CoreTasks {
     end: Vec3Array
   ) {
     const sections =
-      await DivineVoxelEngineRender.instance.threads.construcotrs.runTaskAsync<
+      await DivineVoxelEngineRender.instance.threads.constructors.runTaskAsync<
         RemoveVoxelAreaTasks,
         Vec3Array[]
       >(CoreTasksIds.RemoveVoxelArea, [dimension, start, end]);
@@ -50,7 +50,7 @@ export class CoreTasks {
     template: VoxelTemplateData
   ) {
     const sections =
-      await DivineVoxelEngineRender.instance.threads.construcotrs.runTaskAsync<
+      await DivineVoxelEngineRender.instance.threads.constructors.runTaskAsync<
         BuildVoxelTemplateTasks,
         Vec3Array[]
       >(CoreTasksIds.BuildTemplate, [dimension, start, template]);

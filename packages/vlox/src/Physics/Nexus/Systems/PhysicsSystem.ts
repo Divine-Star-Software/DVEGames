@@ -342,9 +342,12 @@ export const PhysicsSystems = NCS.registerSystem({
                 voxelPositon.z = z;
 
                 if (!voxel) continue;
-                if (voxel.isRenderable() && voxel.getSubstanceData().isLiquid())
+                if (
+                  voxel.isRenderable() &&
+                  voxel.getSubstanceData()["dve_is_liquid"]
+                )
                   isInLiquid = true;
-                const colliderId = voxel.getColliderStringId();
+                const colliderId = voxel.getCollider();
                 if (!colliderId) continue;
                 const collider = ColliderManager.getCollider(colliderId);
                 if (!collider) continue;
@@ -367,7 +370,7 @@ export const PhysicsSystems = NCS.registerSystem({
                   }
                   if (
                     !voxel.checkCollisions() ||
-                    !voxel.getSubstanceData().isSolid() ||
+                    !voxel.getSubstanceData()["dve_is_solid"] ||
                     !collider.isSolid
                   )
                     continue;

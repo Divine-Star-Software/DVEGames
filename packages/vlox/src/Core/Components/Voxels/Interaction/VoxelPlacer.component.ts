@@ -22,6 +22,10 @@ class Data {
     );
   }
   async placeSingle(start: Vec3Array, data?: Partial<PaintVoxelData>) {
+    console.error(
+      "place voxel data",
+      VoxelPaintDataComponent.get(this.component.node)!.schema.toJSON()
+    );
     await CoreTasks.placeVoxel(
       DimensionProviderComponent.get(this.component.node)?.schema.dimension ||
         "main",

@@ -27,7 +27,7 @@ export const FirstPersonCameraComponent = NCS.registerComponent({
     camera.minZ = 0.01;
 
     scene.activeCamera = camera;
-    camera.attachControl(scene, true);
+    camera.attachControl(undefined, true);
 
     component.data = {
       camera,

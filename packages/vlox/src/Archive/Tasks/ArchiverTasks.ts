@@ -12,13 +12,13 @@ export class ArchiverTasks {
     dimension: string,
     position: Vec3Array
   ): Promise<ArchivedSectorData> {
-    return DivineVoxelEngineRender.instance.threads.construcotrs.runTaskAsync<
+    return DivineVoxelEngineRender.instance.threads.constructors.runTaskAsync<
       ArchiveColumnTasks,
       ArchivedSectorData
     >(ArchiverTasksIds.ArchiveColumn, [[dimension, ...position]], []);
   }
   static async importColumn(archivedColumn: ArchivedSectorData): Promise<void> {
-    return DivineVoxelEngineRender.instance.threads.construcotrs.runTaskAsync<
+    return DivineVoxelEngineRender.instance.threads.constructors.runTaskAsync<
       ImportColumnTasks,
       void
     >(ArchiverTasksIds.ImportColumn, archivedColumn, []);

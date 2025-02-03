@@ -1,7 +1,6 @@
 import { LocationData } from "@divinevoxel/vlox/Math";
 import { GenMap } from "./GenMap";
 import { EntityInstance } from "@divinevoxel/vlox-babylon/Tools/EntityInstance";
-import { SectorStateStructIds } from "@divinevoxel/vlox/World/Sector/SectorStructIds";
 import { SafeInterval } from "@amodx/core/Intervals/SafeInterval";
 import { DivineVoxelEngineRender } from "@divinevoxel/vlox/Contexts/Render";
 import { WorldRegister } from "@divinevoxel/vlox/World/WorldRegister";
@@ -30,13 +29,13 @@ export class GenMapTile {
 
   update() {
     if (this._dispoed) return;
-    const colunn = WorldRegister.sectors.get(
+    const sector = WorldRegister.sectors.get(
       this.location[0],
       this.location[1],
       this.location[2],
       this.location[3]
     );
-    if (!colunn) {
+    if (!sector) {
       this._dispoed = true;
       this.setColor(1.0, 0.0, 0.0, 1.0); // Red
       GenMapTile.Tiles = GenMapTile.Tiles.filter((_) => _ != this);
@@ -46,41 +45,35 @@ export class GenMapTile {
       return;
     }
 
-    Sector.StateStruct.setData(colunn.sectorState);
     if (
-      Sector.StateStruct.getProperty(SectorStateStructIds.isWorldGenDone) &&
-      Sector.StateStruct.getProperty(SectorStateStructIds.isWorldDecorDone) &&
-      Sector.StateStruct.getProperty(SectorStateStructIds.isWorldSunDone) &&
-      Sector.StateStruct.getProperty(
-        SectorStateStructIds.isWorldPropagationDone
-      ) &&
+      sector.getBitFlag(Sector.FlagIds.isWorldGenDone) &&
+      sector.getBitFlag(Sector.FlagIds.isWorldDecorDone) &&
+      sector.getBitFlag(Sector.FlagIds.isWorldSunDone) &&
+      sector.getBitFlag(Sector.FlagIds.isWorldPropagationDone) &&
       DivineVoxelEngineRender.instance.meshRegister.sectors.get(this.location)
     ) {
       this.setColor(0.0, 1.0, 0.0, 1.0); // Green
       return;
     }
-    if (
-      Sector.StateStruct.getProperty(
-        SectorStateStructIds.isWorldPropagationDone
-      )
-    ) {
-      this.setColor(0.5, 0.0, 0.5, 1.0); // Purple
-      return;
-    }
-    if (Sector.StateStruct.getProperty(SectorStateStructIds.isWorldSunDone)) {
+    if (sector.getBitFlag(Sector.FlagIds.isWorldSunDone)) {
       this.setColor(1.0, 1.0, 0.0, 1.0); // Yellow
       return;
     }
-    if (Sector.StateStruct.getProperty(SectorStateStructIds.isWorldDecorDone)) {
+    if (sector.getBitFlag(Sector.FlagIds.isWorldPropagationDone)) {
+      this.setColor(0.5, 0.0, 0.5, 1.0); // Purple
+      return;
+    }
+
+    if (sector.getBitFlag(Sector.FlagIds.isWorldDecorDone)) {
       this.setColor(0.0, 0.0, 1.0, 1.0); // Blue
       return;
     }
-    if (Sector.StateStruct.getProperty(SectorStateStructIds.isWorldGenDone)) {
+    if (sector.getBitFlag(Sector.FlagIds.isWorldGenDone)) {
       this.setColor(0.0, 1.0, 1.0, 1.0); // Cyan
       return;
     }
 
-    if (Sector.StateStruct.getProperty(SectorStateStructIds.isDirty)) {
+    if (sector.getBitFlag(Sector.FlagIds.isDirty)) {
       this.setColor(0.0, 0.0, 1.0, 1.0); // Blue
       return;
     }

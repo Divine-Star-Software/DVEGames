@@ -23,8 +23,13 @@ export default function (DVEW: DivineVoxelEngineWorld) {
     CoreTasksIds.PlaceVoxel,
     async ([dim, [x, y, z], data]) => {
       brush.start(dim, x, y, z);
+      console.warn("set the data", {...data});
+ 
       brush.setData(data);
+      console.log(structuredClone(brush.getData()));
       await brush.setXYZ(x, y, z).paintAndAwaitUpdate();
+
+
       brush.stop();
     }
   );
@@ -36,9 +41,12 @@ export default function (DVEW: DivineVoxelEngineWorld) {
       brush.stop();
     }
   );
-  DVEW.TC.registerTask<RunBuildQueue>("build-queue", async ([dim, sections]) => {
-    for (const position of sections) {
-      tasks.build.section.run([dim, ...position]);
+  DVEW.TC.registerTask<RunBuildQueue>(
+    "build-queue",
+    async ([dim, sections]) => {
+      for (const position of sections) {
+        tasks.build.section.run([dim, ...position]);
+      }
     }
-  });
+  );
 }

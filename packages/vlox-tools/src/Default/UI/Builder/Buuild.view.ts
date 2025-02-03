@@ -7,7 +7,7 @@ import VoxelSelect from "./Components/Select/VoxelSelect";
 elm.css(/* css */ `
 .builder {
   display: flex;
-  flex-direction: sector;
+  flex-direction: column;
   overflow: hidden;
 
 

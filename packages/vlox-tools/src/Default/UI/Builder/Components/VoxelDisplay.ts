@@ -72,7 +72,7 @@ function SchemaForm(voxelId: string) {
   voxelSchema.state.startEncoding();
   voxelSchema.mod.startEncoding();
   const updated = () => {
-    paintData.schema.shapeState = voxelSchema.state.getEncoded();
+    paintData.schema.state = voxelSchema.state.getEncoded();
     paintData.schema.mod = voxelSchema.mod.getEncoded();
     schemaUpdated.notify();
   };
@@ -142,7 +142,7 @@ function SchemaForm(voxelId: string) {
     : null;
 
   const loadIn = () => {
-    voxelSchema.state.startEncoding(paintData.schema.shapeState);
+    voxelSchema.state.startEncoding(paintData.schema.state);
     voxelSchema.mod.startEncoding(paintData.schema.mod);
     if (shapeStateSchema) {
       voxelSchema.state.nodes.forEach((node) => {
