@@ -1,0 +1,31 @@
+import { Color3PropertyInput } from "@amodx/schemas";
+import { SchemaEditorInputRegister } from "../../SchemaEditorInputRegister";
+import { SEInputBase } from "../../SEInputBase";
+import { ElementChildren, elm, useSignal } from "@amodx/elm";
+import { SEInputBaseProps } from "UI/Schemas/SEInputElement";
+import { convertRGBToHex, convertHexToRGB                                                                                                     } from "./Functions";
+SchemaEditorInputRegister.register(
+  Color3PropertyInput,
+  Color3PropertyInput.createPropertyRenderFC<ElementChildren, SEInputBaseProps>(
+    (props) => {
+      const { node } = props;
+      const updateInput = useSignal();
+      node.observers.updatedOrLoadedIn.subscribe(() => updateInput.broadcast());
+      return SEInputBase(
+        props,
+        elm("input", {
+          className: "input",
+          type: "color",
+          defaultValue: convertRGBToHex(node.get()),
+          oninput: ({ target }) => {
+            node.update(convertHexToRGB((target as HTMLInputElement).value));
+          },
+          signal: updateInput(
+            (elm) =>
+              ((elm as HTMLInputElement).value = convertRGBToHex(node.get()))
+          ),
+        })
+      );
+    }
+  )
+);

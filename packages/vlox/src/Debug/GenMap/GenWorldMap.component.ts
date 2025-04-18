@@ -13,8 +13,8 @@ import {
 } from "@babylonjs/core";
 import { GenMap } from "./GenMap/GenMap";
 import { SafeInterval } from "@amodx/core/Intervals/SafeInterval";
-import { DimensionProviderComponent } from "../../Core/Components/Providers/DimensionProvider.component";
-import { BabylonContext } from "../../Babylon/Contexts/Babylon.context";
+import { DimensionProviderComponent } from "../../Providers/DimensionProvider.component";
+import { BabylonContext } from "../../Babylon/Babylon.context";
 
 export const GenWorldMapComponent = NCS.registerComponent<() => void>({
   type: "gen-world-map",
@@ -66,8 +66,7 @@ export const GenWorldMapComponent = NCS.registerComponent<() => void>({
     material.diffuseColor = new Color3(0, 1, 1);
 
     let map: GenMap = new GenMap();
-    let isBig = true;
-    let renderState = { isBig: true };
+    let renderState = { isBig: false };
 
     const context = BabylonContext.getRequired(component.node);
 
@@ -107,6 +106,9 @@ export const GenWorldMapComponent = NCS.registerComponent<() => void>({
         follow.position.y = 10;
         fixedParent.position.y = 10;
         camera.radius = 800;
+        camera.position.x = follow.position.x;
+        camera.position.z = follow.position.z;
+
         camera.setTarget(follow.position);
       }
       scene.render();
@@ -120,7 +122,7 @@ export const GenWorldMapComponent = NCS.registerComponent<() => void>({
       const followPosition = followCamera.globalPosition;
 
       map.updateTiles([
-        dimension?.schema.dimension || "main",
+        dimension?.schema.dimension || 0,
         followPosition.x,
         followPosition.y,
         followPosition.z,

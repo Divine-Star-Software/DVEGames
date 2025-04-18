@@ -10,12 +10,17 @@ ColliderManager.registerCollider(
 
     constructor() {
       super();
-      this.addNode("main", Collider.createBBox());
+      this.addNode("main", Collider.createBBox(1, 1, 1));
     }
     getNodes(dataTool: Vector3Like) {
       this.nodes[0].position.x = dataTool.x;
       this.nodes[0].position.y = dataTool.y;
       this.nodes[0].position.z = dataTool.z;
+      this.nodes[0].boundingBox.setPosition(
+        dataTool.x + 0.5,
+        dataTool.y + 0.5,
+        dataTool.z + 0.5
+      );
       return this.nodes;
     }
   })()

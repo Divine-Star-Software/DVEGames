@@ -1,4 +1,4 @@
-import { Vector3Like } from "@amodx/math";
+import { Vec3Array, Vector3Like } from "@amodx/math";
 import { LocationData } from "@divinevoxel/vlox/Math";
 import { WorldSpaces } from "@divinevoxel/vlox/World/WorldSpaces";
 import { GenMapTile } from "./GenMapTile";
@@ -14,11 +14,14 @@ export type WorldMapTileRegisterDimensions = {
   sectors: Map<string, GenMapTile>;
 };
 
+const tempPosition = Vector3Like.Create();
+const tempPositionArray: Vec3Array = [0, 0, 0];
+
 export class GenMapTilesRegister {
-  _dimensions = new Map<string, WorldMapTileRegisterDimensions>();
+  _dimensions = new Map<number, WorldMapTileRegisterDimensions>();
 
   constructor(public worldMap: GenMap) {
-    this._dimensions.set("main", {
+    this._dimensions.set(0, {
       sectors: new Map(),
     });
   }
@@ -27,23 +30,23 @@ export class GenMapTilesRegister {
     for (const [dkey, dim] of this._dimensions) {
       this.dimensions.remove(dkey);
     }
-    this._dimensions.set("main", {
+    this._dimensions.set(0, {
       sectors: new Map(),
     });
   }
 
   dimensions = {
-    add: (id: string) => {
+    add: (id: number) => {
       const dimesnion = new Map();
       this._dimensions.set(id, {
         sectors: new Map(),
       });
       return dimesnion;
     },
-    get: (id: string) => {
+    get: (id: number) => {
       return this._dimensions.get(id);
     },
-    remove: (id: string) => {
+    remove: (id: number) => {
       const dimension = this._dimensions.get(id);
       if (!dimension) return false;
       dimension.sectors.forEach((column) => {
@@ -55,48 +58,40 @@ export class GenMapTilesRegister {
   };
 
   sectors = {
-    add: (location: LocationData, column: Sector) => {
-      const dimension = this.dimensions.get(location[0])!;
-      const columnLocation: LocationData = [
-        location[0],
-        ...WorldSpaces.sector.getPositionVec3Array(
-          location[1],
-          location[2],
-          location[3]
-        ),
-      ] as LocationData;
-
-      const tile = new GenMapTile(this.worldMap,columnLocation);
+    add: (dimensionId: number, x: number, y: number, z: number) => {
+      const dimension = this.dimensions.get(dimensionId)!;
+      const tile = GenMapTile.Pool.length
+        ? GenMapTile.Pool.shift()!
+        : new GenMapTile(this.worldMap);
+      tile.set(
+        dimensionId,
+        ...WorldSpaces.sector.getPositionVec3Array(x, y, z, tempPositionArray)
+      );
+      tile._dispoed = false;
       dimension.sectors.set(
-        WorldSpaces.hash.hashVec3(
-          WorldSpaces.sector.getPosition(location[1], location[2], location[3])
-        ),
+        WorldSpaces.hash.hashVec3Array(tile.position),
         tile
       );
       return tile;
     },
-    remove: (location: LocationData) => {
-      const dimension = this.dimensions.get(location[0])!;
+    remove: (dimensionId: number, x: number, y: number, z: number) => {
+      const dimension = this.dimensions.get(dimensionId)!;
 
       const sectorKey = WorldSpaces.hash.hashVec3(
-        WorldSpaces.sector.getPosition(location[1], location[2], location[3])
+        WorldSpaces.sector.getPosition(x, y, z, tempPosition)
       );
       const sector = dimension.sectors.get(sectorKey);
       if (!sector) return false;
       sector.dispose();
       dimension.sectors.delete(sectorKey);
-      if (dimension.sectors.size == 0) {
-        //  dimension.remove(location);
-      }
       return sector;
     },
-    get: (location: LocationData) => {
-      const dimension = this.dimensions.get(location[0])!;
-
+    get: (dimensionId: number, x: number, y: number, z: number) => {
+      const dimension = this.dimensions.get(dimensionId)!;
       if (!dimension) return false;
       return dimension.sectors.get(
         WorldSpaces.hash.hashVec3(
-          WorldSpaces.sector.getPosition(location[1], location[2], location[3])
+          WorldSpaces.sector.getPosition(x, y, z, tempPosition)
         )
       );
     },

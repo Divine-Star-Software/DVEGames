@@ -1,6 +1,6 @@
 import { NCS } from "@amodx/ncs/";
 import { raw } from "@amodx/elm";
-import ToolPanel from "./UI/DebugPanel";
+import ToolPanel from "./UI/ToolPanel";
 
 export const ToolPanelComponent = NCS.registerComponent<() => void>({
   type: "tool-panel",

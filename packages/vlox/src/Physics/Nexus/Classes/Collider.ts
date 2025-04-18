@@ -9,7 +9,7 @@ export abstract class Collider {
     depth: number = width
   ) {
     const bbox = new BoundingBox(width, height, depth);
-    bbox.setPosition(Vector3Like.Create());
+    bbox.setPositionVec3(Vector3Like.Create());
     return bbox;
   }
   nodes: CollisionNode[] = [];

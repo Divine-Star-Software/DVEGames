@@ -1,26 +1,26 @@
 import { Graph, NCS } from "@amodx/ncs/";
 import { DivineVoxelEngineNexus } from "@divinevoxel/vlox/Contexts/Nexus/DivineVoxelEngineNexus";
-import { NexusContext } from "../../Core/Contexts/Nexus.context";
+import { NexusContext } from "../../Contexts/Nexus.context";
 import { PhysicsSystems } from "./Systems/PhysicsSystem";
 import "./Colliders/DefaultCollider";
-import "../../Core/Components/Providers/DimensionProvider.component";
-import "../../Core/Components/Base/Transform.component";
-import "../Components/BoxCollider.component";
-import "../Components/PhysicsBody.component";
-import "../Components/PhysicsColliderState.component";
+import "../../Providers/DimensionProvider.component";
+import "../../Transform.component";
+import "../BoxCollider.component";
+import "../PhysicsBody.component";
+import "../PhysicsColliderState.component";
 import RegisterTasksNexus from "../Tasks/RegisterTasksNexus";
 let loopHandle: any;
 let isRunning = false;
-const updateLoop = () => {
-  const updateFrequency = 16;
+const updateFrequency = 16;
 
+let lastTime = 0;
+const updateLoop = () => {
   if (!isRunning) return;
 
   DVEPhysics.graph.update();
 
-  loopHandle = setTimeout(handle, updateFrequency);
+  loopHandle = setTimeout(updateLoop, updateFrequency);
 };
-const handle = () => updateLoop();
 
 export class DVEPhysics {
   static graph: Graph;
@@ -32,10 +32,10 @@ export class DVEPhysics {
     });
     this.graph = graph;
     RegisterTasksNexus(dve);
-
   }
 
   static start() {
+    lastTime = performance.now();
     PhysicsSystems.set(this.graph);
     isRunning = true;
     updateLoop();

@@ -1,3 +1,3 @@
-export * from "./UI/DebugPanel"
+export * from "./UI/ToolPanel"
 export * from "./ToolPanel.component"
-export * from "./DebugPanelViews"
+export * from "./ToolPanelViews"

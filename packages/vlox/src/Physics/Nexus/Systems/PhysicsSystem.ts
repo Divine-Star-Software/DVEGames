@@ -1,17 +1,17 @@
 import { Vector3Like } from "@amodx/math";
 import { NCS } from "@amodx/ncs/";
-import { TransformComponent } from "../../../Core/Components/Base/Transform.component";
-import { BoxColliderComponent } from "../../Components/BoxCollider.component";
-import { PhysicsBodyComponent } from "../../Components/PhysicsBody.component";
+import { TransformComponent } from "../../../Transform.component";
+import { BoxColliderComponent } from "../../BoxCollider.component";
+import { PhysicsBodyComponent } from "../../PhysicsBody.component";
 import { CollisionResult } from "../Classes/CollisionResult";
 import { Line } from "../Classes/Line";
 import { Plane } from "../Classes/Plane";
 import { BoundingBox } from "../Classes/BoundingBox";
 import { CollisionNode } from "../Classes/CollisionNode";
-import { PhysicsColliderStateComponent } from "../../../Physics/Components/PhysicsColliderState.component";
+import { PhysicsColliderStateComponent } from "../../PhysicsColliderState.component";
 import { WorldCursor } from "@divinevoxel/vlox/World/Cursor/WorldCursor";
 import { ColliderManager } from "../Colliders/ColliderManager";
-import { WorldSpaces } from "@divinevoxel/vlox/World/WorldSpaces";
+
 const position = Vector3Like.Create();
 const delta = Vector3Like.Create();
 const start = Vector3Like.Create();
@@ -178,77 +178,100 @@ let dataTool: WorldCursor;
 const acceleration = Vector3Like.Create();
 const frictionForce = Vector3Like.Create();
 const GRAVITY = -9.81;
-const TERMINAL_VELOCITY = -50; // Cap falling speed
-
-function applyForces(
-  position: Vector3Like,
-  body: (typeof PhysicsBodyComponent)["default"]["schema"],
-  deltaTime: number
-): void {
-  if (body.isKinematic) return;
-
-  // Apply gravity force
-  body.force.y += body.mass * GRAVITY * body.gravityScale;
-
-  // Calculate acceleration (F = ma, so a = F/m)
-  const acceleration = {
-    x: body.force.x / body.mass,
-    y: body.force.y / body.mass,
-    z: body.force.z / body.mass,
-  };
-
-  // Update velocity (v = u + at)
-  body.velocity.x += acceleration.x * deltaTime;
-  body.velocity.y += acceleration.y * deltaTime;
-  body.velocity.z += acceleration.z * deltaTime;
-
-  // Apply terminal velocity
-  if (body.velocity.y < TERMINAL_VELOCITY) {
-    body.velocity.y = TERMINAL_VELOCITY;
-  }
-
-  // Apply damping
-  body.velocity.x *= 1 - body.damping.x * deltaTime;
-  body.velocity.y *= 1 - body.damping.y * deltaTime;
-  body.velocity.z *= 1 - body.damping.z * deltaTime;
-
-  // Apply friction (friction is usually proportional to the normal force)
-  // Assuming friction is a coefficient that directly reduces velocity
-  frictionForce.x = -body.friction * body.velocity.x;
-  frictionForce.y = -body.friction * body.velocity.y;
-  frictionForce.z = -body.friction * body.velocity.z;
-
-  body.velocity.x += frictionForce.x * deltaTime;
-  body.velocity.y += frictionForce.y * deltaTime;
-  body.velocity.z += frictionForce.z * deltaTime;
-
-  // Reset forces for the next frame
-  body.force.x = 0;
-  body.force.y = 0;
-  body.force.z = 0;
-
-  // Update position based on velocity
-  position.x += body.velocity.x * deltaTime;
-  position.y += body.velocity.y * deltaTime;
-  position.z += body.velocity.z * deltaTime;
-}
+const TERMINAL_VELOCITY = -20; // Cap falling speed
 
 function applyTransform(
   position: Vector3Like,
   body: (typeof PhysicsBodyComponent)["default"]["schema"],
+  state: (typeof PhysicsColliderStateComponent)["default"]["schema"],
   deltaTime: number
 ): void {
-  if (!body.isKinematic) return;
+  const accelerationRate = 10;
+  const jumpStrength = 10;
+  const maxJumpTime = 0.15;
+  const maxSwimJumpTime = 0.3;
+  const gravityStrength = -30;
+  const waterGravityStrength = -4; // Reduced gravity underwater
+  const waterJumpBoost = 20; // Controlled swimming force
+  const maxSwimUpSpeed = 3; // Limit how fast player can rise
+  const waterDrag = 0.6; // Slower movement in water
+  const friction = 0.8;
+  const sinkingForce = -1; // Slight downward force if not swimming up
 
-  // Update position (s = ut + 0.5at^2)
+  const isOnGround = state.isGrounded;
+  const isSwimming = state.isInLiquid;
+
+  // Horizontal movement smoothing
+  body.velocity.x +=
+    (body.targetVelocity.x - body.velocity.x) * accelerationRate * deltaTime;
+  body.velocity.z +=
+    (body.targetVelocity.z - body.velocity.z) * accelerationRate * deltaTime;
+
+  body.velocity.x *= isSwimming ? waterDrag : friction;
+  body.velocity.z *= isSwimming ? waterDrag : friction;
+
+  // Swimming Mechanics
+  if (isSwimming) {
+    // Passive water gravity (keeps player from floating indefinitely)
+    body.velocity.y += waterGravityStrength * deltaTime;
+
+
+    // Cap rising speed
+   
+
+    if (state.wantsToJump && state.jumpTime < maxSwimJumpTime) {
+      body.velocity.y += waterJumpBoost  * deltaTime;
+      state.jumpTime += deltaTime;
+    } else {
+      body.velocity.y += sinkingForce * deltaTime;
+    }
+    if (state.jumpTime > maxSwimJumpTime) {
+      state.wantsToJump = 0;
+      state.jumpTime = 0;
+    }
+
+
+    // Extra damping to prevent bouncing too much
+    if (Math.abs(body.velocity.y) > 0.5) {
+      body.velocity.y *= 0.95;
+    }
+  } else {
+    // Regular jumping
+    if (state.wantsToJump && (isOnGround || isSwimming)) {
+      body.velocity.y = jumpStrength;
+      state.jumpTime = 0;
+    }
+
+    if (state.wantsToJump && state.jumpTime < maxJumpTime) {
+      body.velocity.y += jumpStrength * 0.3 * deltaTime;
+      state.jumpTime += deltaTime;
+    }
+
+    if (state.jumpTime > maxJumpTime) {
+      state.wantsToJump = 0;
+      state.jumpTime = 0;
+    }
+
+    // Apply normal gravity
+    if (!isOnGround) {
+      body.velocity.y += gravityStrength * body.gravityScale * deltaTime;
+    } else {
+      if (state.jumpTime == 0) body.velocity.y = 0;
+    }
+
+    if (body.velocity.y > 0 && !state.wantsToJump) {
+      body.velocity.y *= 0.9;
+    }
+  }
+
+  // Apply position update
   position.x += body.velocity.x * deltaTime;
-  position.y += (body.velocity.y + GRAVITY * deltaTime) * deltaTime;
+  position.y += body.velocity.y * deltaTime;
   position.z += body.velocity.z * deltaTime;
 }
-
 const deltaTime = 0.016;
 const voxelPositon = Vector3Like.Create();
-
+const downPosition = Vector3Like.Create();
 export const PhysicsSystems = NCS.registerSystem({
   type: "physics",
   queries: [
@@ -271,13 +294,14 @@ export const PhysicsSystems = NCS.registerSystem({
           DimensionProviderComponent.getRequired(node).schema.dimension; */
 
         const transform = TransformComponent.getRequired(node).schema;
+        let previousVelocityY = transform.position.y; // Store previous Y velocity
 
         // Store original position
         Vector3Like.Copy(position, transform.position);
         Vector3Like.Copy(previousPosiiton, transform.position);
 
         dataTool.setFocalPoint(
-          "main",
+          0,
           position.x >> 0,
           position.y >> 0,
           position.z >> 0
@@ -299,12 +323,50 @@ export const PhysicsSystems = NCS.registerSystem({
         const bboxHalfDepth = boundingBox.halfDepth;
         const bboxHalfHeight = boundingBox.halfHeight;
 
-        applyForces(position, body, deltaTime);
-        applyTransform(position, body, deltaTime);
+        Vector3Like.Copy(downPosition, position);
+        downPosition.y -= 0.1;
+        boundingBox.setPositionVec3(downPosition);
 
         let isGrounded = false;
         let isInLiquid = false;
 
+        const { minX, minY, minZ, maxX, maxY, maxZ } = boundingBox.bounds;
+
+        for (let z = Math.floor(minZ); z <= Math.ceil(maxZ); z++) {
+          for (let x = Math.floor(minX); x <= Math.ceil(maxX); x++) {
+            voxelPositon.x = x;
+            voxelPositon.y = Math.floor(minY);
+            voxelPositon.z = z;
+            const voxel = dataTool.getVoxel(
+              voxelPositon.x,
+              voxelPositon.y,
+              voxelPositon.z
+            );
+
+            if (!voxel) continue;
+
+            const colliderId = voxel.getCollider();
+            if (!colliderId) continue;
+            const collider = ColliderManager.getCollider(colliderId);
+            if (!collider) continue;
+            if (
+              !voxel.checkCollisions() ||
+              !voxel.getSubstanceData()["dve_is_solid"] ||
+              !collider.isSolid
+            )
+              continue;
+
+            const nodes = collider.getNodes(voxelPositon);
+            for (const colliderNode of nodes) {
+              if (boundingBox.doesIntersect(colliderNode.boundingBox)) {
+                isGrounded = true;
+              }
+            }
+          }
+        }
+        colliderState.isGrounded = isGrounded ? 1 : 0;
+
+        applyTransform(position, body, colliderState, deltaTime);
         // Collision detection and resolution loop
         while (true) {
           delta.x = position.x - previousPosiiton.x;
@@ -347,6 +409,7 @@ export const PhysicsSystems = NCS.registerSystem({
                   voxel.getSubstanceData()["dve_is_liquid"]
                 )
                   isInLiquid = true;
+
                 const colliderId = voxel.getCollider();
                 if (!colliderId) continue;
                 const collider = ColliderManager.getCollider(colliderId);
@@ -365,9 +428,6 @@ export const PhysicsSystems = NCS.registerSystem({
                     delta
                   );
 
-                  if (collisionCheck.hitDepth < 1) {
-                    if (collisionCheck.ny == 1) isGrounded = true;
-                  }
                   if (
                     !voxel.checkCollisions() ||
                     !voxel.getSubstanceData()["dve_is_solid"] ||
@@ -421,8 +481,10 @@ export const PhysicsSystems = NCS.registerSystem({
           }
         }
 
+        // **Final Check for Falling**
+
         Vector3Like.Copy(transform.position, position);
-        colliderState.isGrounded = isGrounded ? 1 : 0;
+
         colliderState.isInLiquid = isInLiquid ? 1 : 0;
       }
     }

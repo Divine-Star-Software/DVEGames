@@ -4,12 +4,12 @@ import {
   TransformNode,
   UtilityLayerRenderer,
 } from "@babylonjs/core";
-import { BabylonContext } from "../Babylon/Contexts/Babylon.context";
+import { BabylonContext } from "../Babylon/Babylon.context";
 import {
   createTransformProxy,
   TransformComponent,
-} from "../Core/Components/Base/Transform.component";
-import { createVoxelBoxVolumneMesh } from "../Core/Components/Voxels/Volumes/VoxelBoxVolumeMesh.component";
+} from "../Transform.component"
+import { createVoxelBoxVolumneMesh } from "../Voxels/Volumes/VoxelBoxVolumeMesh.component";
 export const VoxelPositionGuideComponent = NCS.registerComponent({
   type: "voxel-position-guide",
   schema: NCS.schema({
@@ -27,6 +27,7 @@ export const VoxelPositionGuideComponent = NCS.registerComponent({
       context.utilLayer = new UtilityLayerRenderer(scene);
     }
     const box = createVoxelBoxVolumneMesh(scene);
+    box.renderingGroupId = 1;
     const transformComponent = TransformComponent.get(component.node)!;
     const parent = new TransformNode("", scene);
     box.parent = parent;
@@ -70,6 +71,7 @@ export const VoxelPositionGuideComponent = NCS.registerComponent({
 
     const cursor = component.schema.getCursor();
     const index = component.schema.getSchemaIndex();
+
     cursor.getOrCreateObserver(index.visible).subscribe((isVisible) => {
       component.data.positionGizmo.xGizmo.isEnabled = isVisible;
       component.data.positionGizmo.yGizmo.isEnabled = isVisible;

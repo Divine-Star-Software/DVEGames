@@ -9,13 +9,11 @@ import {
 export class SchemaEditorObservers {
   validate = new Observable<void>();
   loadIn = new Observable<void>();
-  activeUpdate = new Observable<void>();
 }
 
 export class SchemaEditorNodeObservers {
   validate = new Observable<void>();
   loadIn = new Observable<void>();
-  activeUpdate = new Observable<void>();
 }
 
 export type SEInputBaseProps<
@@ -24,7 +22,6 @@ export type SEInputBaseProps<
 > = {
   schema: SchemaEditorObservers;
   observers: SchemaEditorNodeObservers;
-  active: Signal<boolean>;
 };
 
 export type SEProps<

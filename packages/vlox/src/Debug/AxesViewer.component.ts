@@ -1,7 +1,7 @@
 import { NCS } from "@amodx/ncs";
 import { Mesh } from "@babylonjs/core/Meshes/mesh";
 import { AxesViewer } from "@babylonjs/core/Debug/axesViewer";
-import { BabylonContext } from "../Babylon/Contexts/Babylon.context";
+import { BabylonContext } from "../Babylon/Babylon.context";
 export const AxesViewerComponent = NCS.registerComponent({
   type: "axes-viewer",
   schema: NCS.schema({

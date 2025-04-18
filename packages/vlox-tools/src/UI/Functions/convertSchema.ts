@@ -8,6 +8,8 @@ import {
   Vec3Prop,
   ObjectProp,
   SelectProp,
+  Color3Prop,
+  Color4Prop,
 } from "@amodx/schemas";
 import { Property as NCSProperty } from "@amodx/ncs";
 import { SchemaCursor } from "@amodx/ncs/Schema/Schema.types";
@@ -19,7 +21,7 @@ export const traverseTransform = (
 ) => {
   property.children ??= [];
   for (const child of parent.children!) {
-    if (!child.children) {
+    if (!child.children?.length) {
       let valueType = typeof child.value;
       if (child.meta?.options) {
         property.children!.push(
@@ -81,6 +83,46 @@ export const traverseTransform = (
       }
       continue;
     } else {
+      if (child.meta?.type == "color-3") {
+        console.warn("CREATE COLOR 3");
+        property.children!.push(
+          Color3Prop(child.id, {
+            value: child.value as any,
+            name: child.name,
+            initialize(node) {
+              node.enableProxy(
+                () => target[child.id],
+                (value) => {
+                  target[child.id].r = value.r;
+                  target[child.id].g = value.g;
+                  target[child.id].b = value.b;
+                }
+              );
+            },
+          })
+        );
+        continue;
+      }
+      if (child.meta?.type == "color-4") {
+        property.children!.push(
+          Color4Prop(child.id, {
+            value: child.value as any,
+            name: child.name,
+            initialize(node) {
+              node.enableProxy(
+                () => target[child.id],
+                (value) => {
+                  target[child.id].r = value.r;
+                  target[child.id].g = value.g;
+                  target[child.id].b = value.b;
+                  target[child.id].a = value.a;
+                }
+              );
+            },
+          })
+        );
+        continue;
+      }
       if (child.meta?.type == "vector-3") {
         property.children!.push(
           Vec3Prop(child.id, {
@@ -120,6 +162,7 @@ export const traverseTransform = (
       }
       const prop = ObjectProp(child.id, child.name || child.id);
       prop.children = [];
+      property.children!.push(prop);
       traverseTransform(child!, prop, target[child.id]);
     }
   }
@@ -127,11 +170,12 @@ export const traverseTransform = (
 };
 /** Convert a NCS component schema into a a form schema for an UI. */
 export default function convertSchema(schema: SchemaCursor) {
-  return Schema.CreateInstance(
-    ...traverseTransform(
-      schema.__view.schema.root,
-      ObjectProp("root", "root"),
-      schema
-    ).children!
-  );
+  const transformedSchema = traverseTransform(
+    schema.__view.schema.root,
+    ObjectProp("root", "root"),
+    schema
+  ).children!;
+
+  console.warn("TRANSFORMED", transformedSchema, schema.__view.schema.root);
+  return Schema.CreateInstance(...transformedSchema);
 }

@@ -12,10 +12,12 @@ export class BoundingBox {
   _full = { w: 0.8, h: 1.8, d: 0.8 };
   _half = { w: 0.8 / 2, h: 1.8 / 2, d: 0.8 / 2 };
   position = Vector3Like.Create();
+
   constructor(
     width: number = 1,
     height: number = width,
-    depth: number = width
+    depth: number = width,
+    public bottomAligned = false
   ) {
     this._full.w = width;
     this._full.h = height;
@@ -29,16 +31,31 @@ export class BoundingBox {
     this.height = height;
     this.depth = depth;
   }
-  setPosition(position: Vector3Like) {
+  setPositionVec3(position: Vector3Like) {
     Vector3Like.Copy(this.position, position);
+    this.setPosition(this.position.x, this.position.y, this.position.z);
+  }
+  setPosition(x: number, y: number, z: number) {
+    this.position.x = x;
+    this.position.y = y;
+    this.position.z = z;
 
     const o = this.position;
-    this.bounds.minX = o.x;
-    this.bounds.maxX = o.x + this.width;
-    this.bounds.minZ = o.z;
-    this.bounds.maxZ = o.z + this.depth;
-    this.bounds.minY = o.y;
-    this.bounds.maxY = o.y + this.height;
+    if (this.bottomAligned) {
+      this.bounds.minX = o.x;
+      this.bounds.maxX = o.x + this.width;
+      this.bounds.minY = o.y;
+      this.bounds.maxY = o.y + this.height;
+      this.bounds.minZ = o.z;
+      this.bounds.maxZ = o.z + this.depth;
+    } else {
+      this.bounds.minX = o.x - this.halfWidth;
+      this.bounds.maxX = o.x + this.halfWidth;
+      this.bounds.minY = o.y - this.halfHeight;
+      this.bounds.maxY = o.y + this.halfHeight;
+      this.bounds.minZ = o.z - this.halfDepth;
+      this.bounds.maxZ = o.z + this.halfDepth;
+    }
   }
   get width() {
     return this._full.w;
