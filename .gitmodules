@@ -1,0 +1,6 @@
+[submodule "packages/vlox"]
+	path = packages/vlox
+	url = https://github.com/Divine-Star-Software/dvegames-vlox.git
+[submodule "packages/vlox-tools"]
+	path = packages/vlox-tools
+	url = https://github.com/Divine-Star-Software/dvegames-vlox-tools.git
